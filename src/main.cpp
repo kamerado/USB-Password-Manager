@@ -2,7 +2,7 @@
 #include "core/DatabaseManager.h"
 
 int main() {
-    DatabaseManager* dbManager = new DatabaseManager("../db/passwords.db");
+    DatabaseManager* dbManager = new DatabaseManager("db/passwords.db");
 
     bool result = dbManager->open();
     if (result) {
