@@ -22,9 +22,9 @@ private:
 
     static const size_t TAG_SIZE = 16;
 
-    static bool validateTag(const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv
+    static bool validateTag(const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv,
                             const CryptoPP::byte* cipher, size_t cipherLength,
-                            const CryptoPP:byte* tag);
+                            const CryptoPP::byte* tag);
 
 
 };
