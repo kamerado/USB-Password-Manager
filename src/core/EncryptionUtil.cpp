@@ -18,17 +18,14 @@
 std::string EncryptionUtil::encrypt(const std::string& fileName, const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv) {
     std::string cipherText;
     std::ofstream inFile;
-    inFile.open(fileName);
+    // inFile.open(fileName);
+    CryptoPP::FileSink outFile("/db/passwords.db");
 
     try {
         CryptoPP::ChaCha20Poly1305::Encryption enc;
         enc.SetKeyWithIV(key, key.size(), iv, iv.size());
 
-        CryptoPP::FileSource(fileName, true,
-            new CryptoPP::AuthenticatedEncryptionFilter(enc,
-                new CryptoPP::FileSink(inFile)
-            )
-        );
+        CryptoPP::FileSource(fileName.c_str(), true, new CryptoPP::FileSink("db/passwords.db"));
     } catch (const CryptoPP::Exception& e) {
         std::cerr << "Encryption failed: " << e.what() << std::endl;
         return "";
