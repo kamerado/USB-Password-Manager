@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o -o USB-PASSWORD-MANAGER  -lcrypto++ 

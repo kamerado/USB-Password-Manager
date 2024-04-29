@@ -1,13 +1,13 @@
 #include <iostream>
+#include <memory>
+
 #include "core/DatabaseManager.h"
+#include "core/EncryptionUtil.h"
 
 int main() {
-    DatabaseManager* dbManager = new DatabaseManager("db/passwords.db");
 
-    bool result = dbManager->open();
-    if (result) {
-        std::cout << "success." << std::endl;
-    } else {
-        std::cout << "fail." << std::endl;
-    }
+    std::shared_ptr<EncryptionUtil> encdec = std::make_shared<EncryptionUtil>();
+
+    return 0;
+
 }

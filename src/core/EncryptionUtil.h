@@ -11,20 +11,22 @@
 
 class EncryptionUtil {
 public:
-    EncryptionUtil() = delete;
-    ~EncryptionUtil() = delete;
+    EncryptionUtil();
+    ~EncryptionUtil();
 
-    static std::string encrypt(const std::string& plainText, const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv);
+    static CryptoPP::SecByteBlock generateKey(const std::string& passcode, const size_t keySize);
 
-    static std::string decrypt(const std::string& cipherText, const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv);
+    static void encrypt(const std::string& fileName, const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv);
+
+    static void decrypt(const std::string& fileName, const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv);
 
 private:
 
-    static const size_t TAG_SIZE = 16;
+    // static const size_t TAG_SIZE = 16;
 
-    static bool validateTag(const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv,
-                            const CryptoPP::byte* cipher, size_t cipherLength,
-                            const CryptoPP::byte* tag);
+    // static bool validateTag(const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv,
+    //                         const CryptoPP::byte* cipher, size_t cipherLength,
+    //                         const CryptoPP::byte* tag);
 
 
 };
