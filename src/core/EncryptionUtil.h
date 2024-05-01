@@ -16,7 +16,7 @@ public:
 
     static CryptoPP::SecByteBlock generateKey(const std::string& passcode, const size_t keySize);
 
-    static void encrypt(const std::string& fileName, const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv);
+    static void encrypt(std::string fileName, const CryptoPP::SecByteBlock& key);
 
     static void decrypt(const std::string& fileName, const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv);
 

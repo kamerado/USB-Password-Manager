@@ -27,20 +27,30 @@ CryptoPP::SecByteBlock EncryptionUtil::generateKey(const std::string& passcode, 
 
     CryptoPP::SecByteBlock derivedKey(keySize);
     CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> pbkdf;
-    pbkdf.DeriveKey(derivedKey.data(), derivedKey.size(), 0, reinterpret_cast<CryptoPP::byte*>(const_cast<char*>(passcode.data())), passcode.size(), nullptr, 0, iterations);
+    pbkdf.DeriveKey(derivedKey.data(), derivedKey.size(), 0, 
+        reinterpret_cast<CryptoPP::byte*>(const_cast<char*>(passcode.data())), passcode.size(),
+        nullptr, 0, iterations
+    );
 
     CryptoPP::SecByteBlock secKey(&derivedKey[0], derivedKey.size());
 
     return secKey;
 }
 
-void EncryptionUtil::encrypt(const std::string& fileName, const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv) {
+void EncryptionUtil::encrypt(std::string fileName, const CryptoPP::SecByteBlock& key) {
 
     try {
-        CryptoPP::ChaCha20Poly1305::Encryption enc;
+        CryptoPP::SecByteBlock iv(12);
+        CryptoPP::AutoSeededRandomPool prng;
+        CryptoPP::ChaCha20Poly1305::Encryption enc; 
+        prng.GenerateBlock(iv, 12);
         enc.SetKeyWithIV(key, key.size(), iv, iv.size());
+        
+        std::cout << "IV size: " << enc.IVSize() << std::endl;
+        CryptoPP::ArraySource(iv, sizeof(iv), true, new CryptoPP::FileSink("../db/test.txt"));
 
-        new CryptoPP::FileSource(fileName.c_str(), true, new CryptoPP::AuthenticatedEncryptionFilter(enc, new CryptoPP::FileSink("db/test.txt")));
+        new CryptoPP::FileSource(
+            fileName.c_str(), true, new CryptoPP::AuthenticatedEncryptionFilter(enc, new CryptoPP::FileSink("../db/test.txt")));
     } catch (const CryptoPP::Exception& e) {
         std::cerr << "Encryption failed: " << e.what() << std::endl;
     }
