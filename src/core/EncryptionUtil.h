@@ -18,7 +18,7 @@ public:
 
     static void encrypt(std::string fileName, const CryptoPP::SecByteBlock& key);
 
-    static void decrypt(const std::string& fileName, const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv);
+    static void decrypt(std::string fileName, const CryptoPP::SecByteBlock& key);
 
 private:
 

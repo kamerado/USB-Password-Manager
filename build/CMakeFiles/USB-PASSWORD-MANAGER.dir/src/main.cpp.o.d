@@ -1,5 +1,5 @@
 CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o: \
- /home/noname/projects/USB-Password-Manager/src/main.cpp \
+ /home/meganuts/projects/USB-Password-Manager/src/main.cpp \
  /usr/include/stdc-predef.h /usr/include/c++/11/iostream \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
@@ -166,12 +166,12 @@ CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o: \
  /usr/include/c++/11/backward/auto_ptr.h \
  /usr/include/c++/11/pstl/glue_memory_defs.h \
  /usr/include/c++/11/pstl/execution_defs.h \
- /home/noname/projects/USB-Password-Manager/src/core/DatabaseManager.h \
+ /home/meganuts/projects/USB-Password-Manager/src/core/DatabaseManager.h \
  /usr/include/sqlite3.h /usr/include/c++/11/vector \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
  /usr/include/c++/11/bits/vector.tcc \
- /home/noname/projects/USB-Password-Manager/src/core/EncryptionUtil.h \
+ /home/meganuts/projects/USB-Password-Manager/src/core/EncryptionUtil.h \
  /usr/include/cryptopp/chacha.h /usr/include/cryptopp/strciphr.h \
  /usr/include/cryptopp/config.h /usr/include/cryptopp/config_align.h \
  /usr/include/cryptopp/config_asm.h /usr/include/cryptopp/config_os.h \

@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/noname/projects/USB-Password-Manager
+CMAKE_SOURCE_DIR = /home/meganuts/projects/USB-Password-Manager
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/noname/projects/USB-Password-Manager/build
+CMAKE_BINARY_DIR = /home/meganuts/projects/USB-Password-Manager/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/USB-PASSWORD-MANAGER.dir/depend.make
@@ -72,30 +72,30 @@ include CMakeFiles/USB-PASSWORD-MANAGER.dir/flags.make
 CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o: CMakeFiles/USB-PASSWORD-MANAGER.dir/flags.make
 CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o: ../src/main.cpp
 CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o: CMakeFiles/USB-PASSWORD-MANAGER.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/noname/projects/USB-Password-Manager/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o -MF CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o.d -o CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o -c /home/noname/projects/USB-Password-Manager/src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/meganuts/projects/USB-Password-Manager/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o -MF CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o.d -o CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o -c /home/meganuts/projects/USB-Password-Manager/src/main.cpp
 
 CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/noname/projects/USB-Password-Manager/src/main.cpp > CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/meganuts/projects/USB-Password-Manager/src/main.cpp > CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.i
 
 CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/noname/projects/USB-Password-Manager/src/main.cpp -o CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/meganuts/projects/USB-Password-Manager/src/main.cpp -o CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.s
 
 CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o: CMakeFiles/USB-PASSWORD-MANAGER.dir/flags.make
 CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o: ../src/core/EncryptionUtil.cpp
 CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o: CMakeFiles/USB-PASSWORD-MANAGER.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/noname/projects/USB-Password-Manager/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o -MF CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o.d -o CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o -c /home/noname/projects/USB-Password-Manager/src/core/EncryptionUtil.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/meganuts/projects/USB-Password-Manager/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o -MF CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o.d -o CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o -c /home/meganuts/projects/USB-Password-Manager/src/core/EncryptionUtil.cpp
 
 CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/noname/projects/USB-Password-Manager/src/core/EncryptionUtil.cpp > CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/meganuts/projects/USB-Password-Manager/src/core/EncryptionUtil.cpp > CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.i
 
 CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/noname/projects/USB-Password-Manager/src/core/EncryptionUtil.cpp -o CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/meganuts/projects/USB-Password-Manager/src/core/EncryptionUtil.cpp -o CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.s
 
 # Object files for target USB-PASSWORD-MANAGER
 USB__PASSWORD__MANAGER_OBJECTS = \
@@ -109,7 +109,7 @@ USB-PASSWORD-MANAGER: CMakeFiles/USB-PASSWORD-MANAGER.dir/src/main.cpp.o
 USB-PASSWORD-MANAGER: CMakeFiles/USB-PASSWORD-MANAGER.dir/src/core/EncryptionUtil.cpp.o
 USB-PASSWORD-MANAGER: CMakeFiles/USB-PASSWORD-MANAGER.dir/build.make
 USB-PASSWORD-MANAGER: CMakeFiles/USB-PASSWORD-MANAGER.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/noname/projects/USB-Password-Manager/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable USB-PASSWORD-MANAGER"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/meganuts/projects/USB-Password-Manager/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable USB-PASSWORD-MANAGER"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/USB-PASSWORD-MANAGER.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -121,6 +121,6 @@ CMakeFiles/USB-PASSWORD-MANAGER.dir/clean:
 .PHONY : CMakeFiles/USB-PASSWORD-MANAGER.dir/clean
 
 CMakeFiles/USB-PASSWORD-MANAGER.dir/depend:
-	cd /home/noname/projects/USB-Password-Manager/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/noname/projects/USB-Password-Manager /home/noname/projects/USB-Password-Manager /home/noname/projects/USB-Password-Manager/build /home/noname/projects/USB-Password-Manager/build /home/noname/projects/USB-Password-Manager/build/CMakeFiles/USB-PASSWORD-MANAGER.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/meganuts/projects/USB-Password-Manager/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/meganuts/projects/USB-Password-Manager /home/meganuts/projects/USB-Password-Manager /home/meganuts/projects/USB-Password-Manager/build /home/meganuts/projects/USB-Password-Manager/build /home/meganuts/projects/USB-Password-Manager/build/CMakeFiles/USB-PASSWORD-MANAGER.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/USB-PASSWORD-MANAGER.dir/depend
 

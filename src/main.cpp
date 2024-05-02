@@ -16,6 +16,11 @@ int main() {
 
     encdec->encrypt("../db/test.txt", encdec->generateKey(input, keySize));
 
+    std::cout << "enter passcode again: " << std::endl;
+    std::cin >> input;
+
+    encdec->decrypt("../db/test.txt", encdec->generateKey(input, keySize));
+
     return 0;
 
 }

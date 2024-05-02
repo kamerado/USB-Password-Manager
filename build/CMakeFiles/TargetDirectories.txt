@@ -1,3 +1,3 @@
-/home/noname/projects/USB-Password-Manager/build/CMakeFiles/USB-PASSWORD-MANAGER.dir
-/home/noname/projects/USB-Password-Manager/build/CMakeFiles/edit_cache.dir
-/home/noname/projects/USB-Password-Manager/build/CMakeFiles/rebuild_cache.dir
+/home/meganuts/projects/USB-Password-Manager/build/CMakeFiles/USB-PASSWORD-MANAGER.dir
+/home/meganuts/projects/USB-Password-Manager/build/CMakeFiles/edit_cache.dir
+/home/meganuts/projects/USB-Password-Manager/build/CMakeFiles/rebuild_cache.dir
