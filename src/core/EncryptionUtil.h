@@ -14,19 +14,10 @@ public:
     EncryptionUtil();
     ~EncryptionUtil();
 
-    static CryptoPP::SecByteBlock generateKey(const std::string& passcode, const size_t keySize);
-
-    static void encrypt(std::string fileName, const CryptoPP::SecByteBlock& key);
-
-    static void decrypt(std::string fileName, const CryptoPP::SecByteBlock& key);
-
+    // static CryptoPP::SecByteBlock generateKey(const std::string& passcode, const size_t keySize);
+    void EncryptFile(const char *fin, const char *fout, const char *passwd);
+    void DecryptFile(const char *fin, const char *fout, const char *passwd);
 private:
-
-    // static const size_t TAG_SIZE = 16;
-
-    // static bool validateTag(const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv,
-    //                         const CryptoPP::byte* cipher, size_t cipherLength,
-    //                         const CryptoPP::byte* tag);
 
 
 };
