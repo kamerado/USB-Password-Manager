@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sqlite3.h>
 #include "DatabaseManager.h"
 
 DatabaseManager::DatabaseManager(const std::string& dbPath) : dbPath(dbPath), db(nullptr), isOpen(false) {}
