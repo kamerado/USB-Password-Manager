@@ -33,7 +33,7 @@ CryptoPP::SecByteBlock EncryptionUtil::generateKey(const std::string& passcode, 
         nullptr, 0, iterations
     );
 
-    // std::cout << derivedKey.data() << std::endl;
+    std::cout << "Derived Key: " << derivedKey.data() << std::endl;
 
     return derivedKey;
 }
@@ -54,11 +54,12 @@ void EncryptionUtil::encrypt(std::string fileName, const CryptoPP::SecByteBlock&
 
         // Store IV at beginning of file.
         std::cout << "IV size: " << enc.IVSize() << std::endl;
-        new CryptoPP::ArraySource(iv, sizeof(iv), true, cryptSink);
+        new CryptoPP::ArraySource(iv.data(), iv.size(), true, cryptSink);
+        cryptSink->MessageEnd();
 
         // Encrypt data in file and put into file.
-        // new CryptoPP::FileSource(
-        //     fileName.c_str(), true, new CryptoPP::AuthenticatedEncryptionFilter(enc, cryptSink));
+        new CryptoPP::FileSource(
+            fileName.c_str(), true, new CryptoPP::AuthenticatedEncryptionFilter(enc, cryptSink));
 
     } catch (const CryptoPP::Exception& e) {
         std::cout << "fail";
@@ -67,25 +68,52 @@ void EncryptionUtil::encrypt(std::string fileName, const CryptoPP::SecByteBlock&
 
 }
 
-void EncryptionUtil::decrypt(std::string fileName, const CryptoPP::SecByteBlock& key) {
+// void EncryptionUtil::decrypt(std::string fileName, const CryptoPP::SecByteBlock& key) {
 
-    try {
-        std::string ivString;
+//     try {
+//         std::string ivString;
 
-        auto file = new CryptoPP::FileSource(fileName.c_str(), false, new CryptoPP::StringSink(ivString));
-        file->Pump(12);
+//         auto file = new CryptoPP::FileSource(fileName.c_str(), false, new CryptoPP::StringSink(ivString), true);
+//         file->Pump(12);
         
-        delete file;
+//         delete file;
 
-        CryptoPP::SecByteBlock iv((const CryptoPP::byte*)ivString.data(), ivString.size());
+//         CryptoPP::SecByteBlock iv((const CryptoPP::byte*)ivString.data(), ivString.size());
+
+//         CryptoPP::ChaCha20Poly1305::Decryption dec;
+//         dec.SetKeyWithIV(key, key.size(), iv, iv.size());
+
+//         new CryptoPP::FileSource(fileName.c_str(), true, new CryptoPP::AuthenticatedDecryptionFilter(dec, new CryptoPP::FileSink("../db/test.txt"), 
+//             CryptoPP::AuthenticatedDecryptionFilter::DEFAULT_FLAGS, CryptoPP::AuthenticatedDecryptionFilter::MAC_AT_BEGIN | CryptoPP::AuthenticatedDecryptionFilter::THROW_EXCEPTION));
+//     } catch (const CryptoPP::Exception& e) {
+//         std::cerr << "Encryption failed: " << e.what() << std::endl;
+//     }
+
+// }
+
+void EncryptionUtil::decrypt(std::string fileName, const CryptoPP::SecByteBlock& key) {
+    try {
+        CryptoPP::SecByteBlock iv(12);
+        {
+            CryptoPP::FileSource file(fileName.c_str(), false,
+                                        new CryptoPP::ArraySink(iv.data(), iv.size()));
+            file.Pump(12);
+        }
+
+        std::cout << "Grabbed IV: " << iv.data() << std::endl;
 
         CryptoPP::ChaCha20Poly1305::Decryption dec;
         dec.SetKeyWithIV(key, key.size(), iv, iv.size());
 
-        new CryptoPP::FileSource(fileName.c_str(), true, new CryptoPP::AuthenticatedDecryptionFilter(dec, new CryptoPP::FileSink("../db/test.txt"), 
-            CryptoPP::AuthenticatedDecryptionFilter::DEFAULT_FLAGS, CryptoPP::AuthenticatedDecryptionFilter::MAC_AT_BEGIN | CryptoPP::AuthenticatedDecryptionFilter::THROW_EXCEPTION));
-    } catch (const CryptoPP::Exception& e) {
-        std::cerr << "Encryption failed: " << e.what() << std::endl;
-    }
+        auto sink = new CryptoPP::FileSource(fileName.c_str(), false,
+                                new CryptoPP::AuthenticatedDecryptionFilter(dec,
+                                                                            new CryptoPP::FileSink(fileName.c_str()),
+                                                                            CryptoPP::AuthenticatedDecryptionFilter::DEFAULT_FLAGS,
+                                                                            CryptoPP::AuthenticatedDecryptionFilter::MAC_AT_BEGIN | CryptoPP::AuthenticatedDecryptionFilter::THROW_EXCEPTION));
+        sink->Skip(12);
+        sink->PumpAll2(true);
 
+    } catch (const CryptoPP::Exception& e) {
+        std::cerr << "Decryption failed: " << e.what() << std::endl;
+    }
 }
