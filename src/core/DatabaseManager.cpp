@@ -32,6 +32,7 @@ bool DatabaseManager::open() {
         return false;
     }
     isOpen = true;
+    
     return true;
 }
 
