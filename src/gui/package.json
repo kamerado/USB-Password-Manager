@@ -1,5 +1,5 @@
 {
-    "name": "USB-Password-Manager",
+    "name": "usb-password-manager",
     "version": "1.0.0",
     "description": "An opne source password manager that is kept in your USB",
     "main": "main.js",
