@@ -23,7 +23,9 @@ function createWindow () {
   mainWindow.loadFile('index.html')
 
   // Open DevTools - Remove for PRODUCTION!
-  mainWindow.webContents.openDevTools();
+  mainWindow.on("ready-to-show", () => {
+    mainWindow.webContents.openDevTools();
+  });
 
   // Listen for window being closed
   mainWindow.on('closed',  () => {

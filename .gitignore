@@ -1,3 +1,5 @@
 build/**
 db/**
 !build/.gitkeep
+src/gui/node_modules/**
+src/gui/package-lock.json
