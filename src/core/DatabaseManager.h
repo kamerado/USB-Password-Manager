@@ -21,6 +21,7 @@ public:
     void close(); // Closes the connection to the database
     bool execute(const std::string& sql); // Executes a simple SQL command, such as CREATE or INSERT etc.
     bool query(const std::string& sql, std::vector<std::vector<std::string>>& results); // Executes a SQL query and stores the results
+    void testFunctionality();
 
 private:
     std::string dbPath;

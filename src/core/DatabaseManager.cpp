@@ -76,3 +76,7 @@ int DatabaseManager::callback(void* data, int argc, char** argv, char** azColNam
     }
     return 0;
 }
+
+void DatabaseManager::testFunctionality() {
+    std::cout << "Database manager responding." << std::endl;
+}
