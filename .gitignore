@@ -1,5 +1,10 @@
 build/**
+main
 db/**
 !build/.gitkeep
-src/gui/node_modules/**
-src/gui/package-lock.json
+src/gui/build-GUI-Desktop-Debug
+src/gui/GUI/*
+!src/gui/GUI/mainwindow.h
+!src/gui/GUI/mainwindow.cpp
+!src/gui/GUI/mainwindow.ui
+!src/gui/GUI/CMakeLists.txt
