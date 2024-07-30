@@ -6,7 +6,7 @@
 
 #include "core/DatabaseManager.h"
 #include "core/EncryptionUtil.h"
-#include "mainwindow.h"
+#include "src/gui/GUI/mainwindow.h"
 
 #include <QApplication>
 

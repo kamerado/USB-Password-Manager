@@ -1,9 +1,69 @@
-cmake_minimum_required(VERSION 3.10)  # Minimum CMake version required
+cmake_minimum_required(VERSION 3.30.1)
 
-# Project name
-project(USB-PASSWORD-MANAGER)
+project(GUI VERSION 0.1 LANGUAGES CXX)
 
-# Add executable target
-add_executable(${CMAKE_PROJECT_NAME} src/main.cpp src/core/EncryptionUtil.cpp src/core/EncryptionUtil.h)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-target_link_libraries(${CMAKE_PROJECT_NAME} crypto++)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+
+set(PROJECT_SOURCES
+        src/main.cpp
+        src/gui/GUI/mainwindow.cpp
+        src/gui/GUI/mainwindow.h
+        src/gui/GUI/mainwindow.ui
+        src/gui/GUI/addnewwindow.cpp
+        src/gui/GUI/addnewwindow.h
+        src/gui/GUI/addnewwindow.ui
+        src/gui/GUI/login.cpp
+        src/gui/GUI/login.h
+        src/gui/GUI/login.ui
+        src/core/DatabaseManager.h
+        src/core/DatabaseManager.cpp
+        src/core/EncryptionUtil.h
+        src/core/EncryptionUtil.cpp
+)
+
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(GUI
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+    )
+# Define target properties for Android with Qt 6 as:
+#    set_property(TARGET GUI APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+else()
+    if(ANDROID)
+        add_library(GUI SHARED
+            ${PROJECT_SOURCES}
+        )
+# Define properties for Android with Qt 5 after find_package() calls as:
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else()
+        add_executable(GUI
+            ${PROJECT_SOURCES}
+        )
+    endif()
+endif()
+
+target_link_libraries(GUI PRIVATE Qt${QT_VERSION_MAJOR}::Widgets crypto++ sqlite3)
+
+set_target_properties(GUI PROPERTIES
+    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
+
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(GUI)
+endif()

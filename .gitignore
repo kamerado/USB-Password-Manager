@@ -11,3 +11,6 @@ src/gui/GUI/*
 !src/gui/GUI/login.cpp
 !src/gui/GUI/login.ui
 !src/gui/GUI/CMakeLists.txt
+src/gui/GUI/addnewwindow.ui
+src/gui/GUI/addnewwindow.h
+src/gui/GUI/addnewwindow.cpp
