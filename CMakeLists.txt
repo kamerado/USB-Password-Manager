@@ -29,6 +29,9 @@ set(PROJECT_SOURCES
         src/core/DatabaseManager.cpp
         src/core/EncryptionUtil.h
         src/core/EncryptionUtil.cpp
+        src/gui/GUI/setup.ui
+        src/gui/GUI/setup.h
+        src/gui/GUI/setup.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -2,6 +2,7 @@
 #define LOGIN_H
 
 #include <QDialog>
+#include <src/core/EncryptionUtil.h>
 
 namespace Ui {
 class Login;
@@ -20,6 +21,7 @@ private slots:
 
 private:
     Ui::Login *ui;
+    EncryptionUtil encdec = new EncryptionUtil();
 };
 
 #endif // LOGIN_H

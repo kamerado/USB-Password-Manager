@@ -60,6 +60,9 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "qapplication": "cpp"
+        "qapplication": "cpp",
+        "optional": "cpp",
+        "future": "cpp",
+        "variant": "cpp"
     }
 }

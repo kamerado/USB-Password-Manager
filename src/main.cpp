@@ -3,12 +3,16 @@
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
+#include <filesystem>
 
 #include "core/DatabaseManager.h"
 #include "core/EncryptionUtil.h"
 #include "src/gui/GUI/mainwindow.h"
+#include "src/gui/GUI/login.h"
+#include "src/gui/GUI/setup.h"
 
 #include <QApplication>
+
 
 void createFile(const char *File) {
   std::fstream fs;
@@ -24,10 +28,16 @@ void deleteFile(const char *File) {
 
 int main(int argc, char *argv[])
 {
+  if(!exists("db/passwords.enc")) {
     QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
+    Login s;
+    s.show();
     return a.exec();
+  } else {
+    QApplication a(argc, argv);
+    Setup l;
+    l.show();
+  }
 }
 
 
