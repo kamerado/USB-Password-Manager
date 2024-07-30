@@ -19,6 +19,9 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        addnewwindow.cpp
+        addnewwindow.h
+        addnewwindow.ui
         ../../core/DatabaseManager.h
         ../../core/DatabaseManager.cpp
         ../../core/EncryptionUtil.h

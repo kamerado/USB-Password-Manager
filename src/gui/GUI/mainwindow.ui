@@ -14,11 +14,11 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="StartButton">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>20</y>
+      <x>10</x>
+      <y>10</y>
       <width>83</width>
       <height>25</height>
      </rect>
@@ -30,11 +30,11 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="AddNewButton">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>60</y>
+      <x>10</x>
+      <y>50</y>
       <width>83</width>
       <height>25</height>
      </rect>

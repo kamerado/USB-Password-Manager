@@ -18,11 +18,14 @@ public:
     ~MainWindow();
     void start();
 
+private slots:
+    void on_StartButton_clicked();
+
+    void on_AddNewButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     DatabaseManager* dbm = new DatabaseManager("../../../db/passwords.db");
 
-signals:
-    void start();
 };
 #endif // MAINWINDOW_H

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "addnewwindow.h"
 
 #include "../../core/DatabaseManager.h"
 
@@ -19,8 +20,16 @@ MainWindow::~MainWindow()
 //     dbm->testFunctionality();
 // }
 
-void MainWindow::on_pushButton_toggled(bool checked)
+void MainWindow::on_StartButton_clicked()
 {
     dbm->testFunctionality();
+}
+
+
+void MainWindow::on_AddNewButton_clicked()
+{
+    addnewwindow addnew;
+    addnew.setModal(true);
+    addnew.exec();
 }
 
