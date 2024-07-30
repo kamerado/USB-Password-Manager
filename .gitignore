@@ -7,4 +7,7 @@ src/gui/GUI/*
 !src/gui/GUI/mainwindow.h
 !src/gui/GUI/mainwindow.cpp
 !src/gui/GUI/mainwindow.ui
+!src/gui/GUI/login.h
+!src/gui/GUI/login.cpp
+!src/gui/GUI/login.ui
 !src/gui/GUI/CMakeLists.txt
