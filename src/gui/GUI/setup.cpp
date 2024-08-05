@@ -1,6 +1,9 @@
 #include "setup.h"
 #include "ui_setup.h"
 #include <string>
+#include <QString>
+#include <iostream>
+
 
 Setup::Setup(QWidget *parent) :
     QDialog(parent),
@@ -16,7 +19,10 @@ Setup::~Setup()
 
 void Setup::on_SetupButton_clicked()
 {
-    std::string pw = ui->UsernameInput->toString() + ui->PasswordInput->toString();
+    QString pw = ui->UsernameInput->text() + ui->PasswordInput->text();
+    std::cout << pw.toStdString() << std::endl;
+    dbm
+
     
 
 }

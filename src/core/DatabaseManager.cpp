@@ -1,14 +1,23 @@
 #include <iostream>
 #include <sqlite3.h>
 #include "DatabaseManager.h"
+#include <QtSql>
+#include <QtDebug>
 
-DatabaseManager::DatabaseManager(const std::string& dbPath) : dbPath(dbPath), db(nullptr), isOpen(false) {}
+DatabaseManager::DatabaseManager(const std::string& dbPath) {
+    db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(dbPath);
+
+    if(db.open()) {
+        
+    }
+}
 
 DatabaseManager::~DatabaseManager() {
     close();
 }
 
-DatabaseManager::DatabaseManager(DatabaseManager&& other) noexcept : dbPath(std::move(other.dbPath)), db(other.db), isOpen(other.isOpen) {
+DatabaseManager::DatabaseManager(DatabaseManager&& other) noexcept : dbPath(std::move(other.dbPath)) {
     other.db = nullptr;
     other.isOpen = false;
 }
@@ -25,15 +34,7 @@ DatabaseManager& DatabaseManager::operator=(DatabaseManager&& other) noexcept {
 }
 
 bool DatabaseManager::open() {
-    if (isOpen) return true;
-    int result = sqlite3_open(dbPath.c_str(), &db);
-    if (result != SQLITE_OK) {
-        std::cerr << "Error opening database:  " << sqlite3_errmsg(db) << std::endl;
-        return false;
-    }
-    isOpen = true;
     
-    return true;
 }
 
 void DatabaseManager::close() {

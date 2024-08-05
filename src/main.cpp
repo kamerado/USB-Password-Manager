@@ -13,6 +13,7 @@
 
 #include <QApplication>
 
+namespace fs = std::filesystem;
 
 void createFile(const char *File) {
   std::fstream fs;
@@ -24,19 +25,18 @@ void deleteFile(const char *File) {
   std::remove(File);
 }
 
-
-
 int main(int argc, char *argv[])
 {
-  if(!exists("db/passwords.enc")) {
+  if(!fs::exists("db/passwords.enc")) {
     QApplication a(argc, argv);
-    Login s;
+    Setup s;
     s.show();
     return a.exec();
   } else {
     QApplication a(argc, argv);
-    Setup l;
+    Login l;
     l.show();
+    return a.exec();
   }
 }
 

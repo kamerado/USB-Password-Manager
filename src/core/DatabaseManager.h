@@ -4,6 +4,8 @@
 #include <sqlite3.h>
 #include <string>
 #include <vector>
+#include <QtSql>
+#include <QtDebug>
 
 class DatabaseManager {
 public:
@@ -24,8 +26,7 @@ public:
     void testFunctionality();
 
 private:
-    std::string dbPath;
-    sqlite3* db;
+    QSqlDatabase db;
     bool isOpen;
 
     static int callback(void* data, int argc, char** argv, char** azColName); // SQLite callback function

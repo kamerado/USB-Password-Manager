@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <src/core/EncryptionUtil.h>
+#include <src/core/DatabaseManager.h>
 
 namespace Ui {
 class Setup;
@@ -22,7 +23,7 @@ private slots:
 private:
     Ui::Setup *ui;
     EncryptionUtil* encdec = new EncryptionUtil();
-    DatabaseManager* dbm = DatabaseManager("db/passwords.db");
+    DatabaseManager* dbm = new DatabaseManager("db/passwords.db");
 };
 
 #endif // SETUP_H

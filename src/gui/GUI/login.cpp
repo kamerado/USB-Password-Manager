@@ -2,6 +2,7 @@
 #include "ui_login.h"
 
 #include <strings.h>
+#include <QString>
 
 Login::Login(QWidget *parent) :
     QDialog(parent),
@@ -17,7 +18,7 @@ Login::~Login()
 
 void Login::on_LoginButton_clicked()
 {
-    std::string pw = ui->UsernameInput->toString() + ui->PasswordInput->toString();
+    QString pw = ui->UsernameInput->text() + ui->PasswordInput->text();
 
     //TODO: Decrypt db.
     
