@@ -13,10 +13,9 @@
 using namespace CryptoPP;
 namespace fs = std::filesystem;
 
-EncryptionUtil::EncryptionUtil(const char* pw) {
-  std::cout << "ENCpassword: "<< this->pw << std::endl;
-
-  this->pw = pw;
+EncryptionUtil::EncryptionUtil(std::string& pw) {
+  const char* encP =  strdup(pw.c_str());
+  this->pw = encP;
 }
 EncryptionUtil::~EncryptionUtil() {}
 

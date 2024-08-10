@@ -17,6 +17,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+    MainWindow(Logger* logM, QWidget *parent = nullptr);
     ~MainWindow();
     void closeEvent (QCloseEvent *event);
     void setEnc(EncryptionUtil* encddec);
@@ -33,7 +34,7 @@ private:
     Ui::MainWindow *ui;
     DatabaseManager* db;
     EncryptionUtil* enc;
-    Logger* logM = new Logger();
+    Logger* logM;
 
 };
 #endif // MAINWINDOW_H

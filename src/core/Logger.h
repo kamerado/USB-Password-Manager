@@ -20,7 +20,9 @@ public:
     void log(LogLevel level, const std::string& message);
   
 private: 
-    std::ofstream logFile; // File stream for the log file 
+    std::ofstream logFile; // File stream for the log file
+    std::string logFPath; // name of logfile. Set in the constructor with time stamp of program start.
+    std::string logFName;
   
     // Converts log level to a string for output 
     std::string levelToString(LogLevel level); 

@@ -12,6 +12,14 @@ Setup::Setup(QWidget *parent) :
     ui->setupUi(this);
 }
 
+Setup::Setup(Logger* logM, QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::Setup)
+{
+    ui->setupUi(this);
+    this->logM = logM;
+}
+
 Setup::~Setup()
 {
     delete ui;
@@ -28,8 +36,7 @@ void Setup::setDB(DatabaseManager* database) {
 
 void Setup::on_SetupButton_clicked()
 {
-    const char* pw = (ui->UsernameInput->text().toStdString() + ui->PasswordInput->text().toStdString()).c_str();
-    std::cout << "password: " << pw << std::endl;
+    std::string pw = ui->UsernameInput->text().toStdString() + ui->PasswordInput->text().toStdString();
     this->encdec = new EncryptionUtil(pw);
     this->accept();
 }

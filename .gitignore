@@ -1,6 +1,7 @@
 build/**
 main
 db/**
+LogFiles/**
 !build/.gitkeep
 src/gui/build-GUI-Desktop-Debug
 src/gui/GUI/*

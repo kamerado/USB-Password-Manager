@@ -14,6 +14,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 }
 
+MainWindow::MainWindow(Logger* logM, QWidget *parent)
+    : QMainWindow(parent), 
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+    this->logM = logM;
+}
+
+
 MainWindow::~MainWindow()
 {
     delete ui;

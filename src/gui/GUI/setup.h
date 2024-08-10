@@ -16,6 +16,7 @@ class Setup : public QDialog
 
 public:
     explicit Setup(QWidget *parent = nullptr);  // Default constructor
+    explicit Setup(Logger* logM, QWidget *parent = nullptr);  // Default constructor
     void setDB(DatabaseManager* database);
     void getEnc(void);
     ~Setup();
@@ -30,7 +31,7 @@ private:
     Ui::Setup *ui;
     EncryptionUtil* encdec;
     DatabaseManager* db;
-    Logger* logM = new Logger();
+    Logger* logM;
 };
 
 #endif // SETUP_H

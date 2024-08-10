@@ -18,7 +18,7 @@ namespace fs = std::filesystem;
 
 DatabaseManager* db;
 EncryptionUtil* enc;
-Logger* logM = new Logger();
+Logger* logM;
 
 void createFile(const char *File) {
   std::fstream fs;
@@ -34,11 +34,12 @@ void handler(EncryptionUtil* encdec) {
   enc = encdec;
 }
 
-int main(int argc, char *argv[]) {    
+int main(int argc, char *argv[]) { 
+  logM = new Logger();
   QApplication a(argc, argv);
-  MainWindow m;
+  MainWindow m(logM);
   if(!fs::exists("../db/passwords.dbe")) {
-    Setup s;
+    Setup s(logM);
     QWidget::connect(&s, &Setup::sendEnc, handler);
     if (s.exec() == QDialog::Accepted) {
       db = new DatabaseManager();
@@ -50,7 +51,7 @@ int main(int argc, char *argv[]) {
     }
     return a.exec();
   } else {
-    Login l;
+    Login l(logM);
     QWidget::connect(&l, &Login::sendEnc, handler);
     if (l.exec() == QDialog::Accepted) {
       l.getEnc();

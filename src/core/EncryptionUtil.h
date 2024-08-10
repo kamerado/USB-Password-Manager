@@ -12,7 +12,7 @@
 
 class EncryptionUtil {
 public:
-    EncryptionUtil(const char*);
+    EncryptionUtil(std::string&);
     ~EncryptionUtil();
 
     // static CryptoPP::SecByteBlock generateKey(const std::string& passcode, const size_t keySize);
@@ -22,7 +22,6 @@ private:
     const char* pw;
     const char* dbPath = "../db/passwords.db"; // Cleartext db
     const char* dbePath = "../db/passwords.dbe"; // Enc db
-    Logger* logm = new Logger();
 };
 
 #endif // ENCRYPTIONUTIL_H

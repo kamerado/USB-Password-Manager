@@ -16,6 +16,7 @@ class Login : public QDialog
 
 public:
     explicit Login(QWidget *parent = nullptr);
+    explicit Login(Logger* logM, QWidget *parent = nullptr);
     void setDB(DatabaseManager* database);
     void getEnc(void);
     ~Login();
@@ -30,7 +31,7 @@ private:
     Ui::Login *ui;
     EncryptionUtil* encdec;
     DatabaseManager* db;
-    Logger* logM = new Logger();
+    Logger* logM;
 };
 
 #endif // LOGIN_H
