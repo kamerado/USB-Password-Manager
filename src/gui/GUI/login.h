@@ -3,6 +3,8 @@
 
 #include <QDialog>
 #include <src/core/EncryptionUtil.h>
+#include <src/core/DatabaseManager.h>
+#include <src/core/Logger.h>
 
 namespace Ui {
 class Login;
@@ -14,14 +16,21 @@ class Login : public QDialog
 
 public:
     explicit Login(QWidget *parent = nullptr);
+    void setDB(DatabaseManager* database);
+    void getEnc(void);
     ~Login();
 
 private slots:
     void on_LoginButton_clicked();
 
+signals:
+    void sendEnc(EncryptionUtil* val);
+
 private:
     Ui::Login *ui;
     EncryptionUtil* encdec;
+    DatabaseManager* db;
+    Logger* logM = new Logger();
 };
 
 #endif // LOGIN_H

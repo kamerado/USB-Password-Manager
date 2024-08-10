@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <src/core/EncryptionUtil.h>
 #include <src/core/DatabaseManager.h>
+#include <src/core/Logger.h>
 
 namespace Ui {
 class Setup;
@@ -15,7 +16,7 @@ class Setup : public QDialog
 
 public:
     explicit Setup(QWidget *parent = nullptr);  // Default constructor
-    explicit Setup(const char* dbPath, QWidget *parent = nullptr);
+    void setDB(DatabaseManager* database);
     void getEnc(void);
     ~Setup();
 
@@ -28,7 +29,8 @@ signals:
 private:
     Ui::Setup *ui;
     EncryptionUtil* encdec;
-    DatabaseManager* dbm;
+    DatabaseManager* db;
+    Logger* logM = new Logger();
 };
 
 #endif // SETUP_H

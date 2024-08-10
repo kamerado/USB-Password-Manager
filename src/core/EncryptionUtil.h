@@ -8,6 +8,7 @@
 #include <cryptopp/osrng.h>
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/filters.h>
+#include <src/core/Logger.h>
 
 class EncryptionUtil {
 public:
@@ -19,8 +20,9 @@ public:
     void DecryptFile();
 private:
     const char* pw;
-    const char* dbPath = "db/passwords.db"; // Cleartext db
-    const char* dbePath = "db/passwords.dbe"; // Enc db
+    const char* dbPath = "../db/passwords.db"; // Cleartext db
+    const char* dbePath = "../db/passwords.dbe"; // Enc db
+    Logger* logm = new Logger();
 };
 
 #endif // ENCRYPTIONUTIL_H

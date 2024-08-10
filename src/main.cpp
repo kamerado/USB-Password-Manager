@@ -7,6 +7,7 @@
 
 #include "core/DatabaseManager.h"
 #include "core/EncryptionUtil.h"
+#include "core/Logger.h"
 #include "src/gui/GUI/mainwindow.h"
 #include "src/gui/GUI/login.h"
 #include "src/gui/GUI/setup.h"
@@ -17,6 +18,7 @@ namespace fs = std::filesystem;
 
 DatabaseManager* db;
 EncryptionUtil* enc;
+Logger* logM = new Logger();
 
 void createFile(const char *File) {
   std::fstream fs;
@@ -32,26 +34,30 @@ void handler(EncryptionUtil* encdec) {
   enc = encdec;
 }
 
-int main(int argc, char *argv[])
-{    
-
-  db = new DatabaseManager();
+int main(int argc, char *argv[]) {    
   QApplication a(argc, argv);
   MainWindow m;
-  if(!fs::exists("db/passwords.enc")) {
+  if(!fs::exists("../db/passwords.dbe")) {
     Setup s;
     QWidget::connect(&s, &Setup::sendEnc, handler);
     if (s.exec() == QDialog::Accepted) {
+      db = new DatabaseManager();
       s.getEnc();
       m.setEnc(enc);
+      m.setDB(db);
       m.show();
       s.~Setup();
     }
     return a.exec();
   } else {
     Login l;
+    QWidget::connect(&l, &Login::sendEnc, handler);
     if (l.exec() == QDialog::Accepted) {
-      l.show();
+      l.getEnc();
+      m.setEnc(enc);
+      m.setDB(db);
+      m.show();
+      l.~Login();
     }
     return a.exec();
   }

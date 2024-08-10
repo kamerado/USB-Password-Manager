@@ -64,6 +64,8 @@
         "optional": "cpp",
         "future": "cpp",
         "variant": "cpp",
-        "source_location": "cpp"
+        "source_location": "cpp",
+        "qstring": "cpp",
+        "qdialog": "cpp"
     }
 }

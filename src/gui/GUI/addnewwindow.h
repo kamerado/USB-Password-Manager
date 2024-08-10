@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include <QWidget>
+#include <src/core/Logger.h>
 
 namespace Ui {
 class addnewwindow;
@@ -32,6 +33,7 @@ private:
     Ui::addnewwindow *ui;
 
     int pwSelected = -1;
+    Logger* logM = new Logger();
 };
 
 #endif // ADDNEWWINDOW_H

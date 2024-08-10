@@ -2,7 +2,9 @@
 #include "ui_login.h"
 
 #include <strings.h>
+#include <iostream>
 #include <QString>
+#include <src/core/EncryptionUtil.h>
 
 Login::Login(QWidget *parent) :
     QDialog(parent),
@@ -16,15 +18,24 @@ Login::~Login()
     delete ui;
 }
 
+void Login::getEnc() {
+     emit sendEnc(encdec);
+}
+
+void Login::setDB(DatabaseManager* database) {
+    this->db = database;
+}
+
 void Login::on_LoginButton_clicked()
 {
-    const char* pw = (ui->UsernameInput->text().toStdString() + ui->PasswordInput->text().toStdString()).c_str();
-    encdec = new EncryptionUtil(pw);
+    const char* pass = (ui->UsernameInput->text().toStdString() + ui->PasswordInput->text().toStdString()).c_str();
+    std::cout << "password: " << (ui->UsernameInput->text().toStdString() + ui->PasswordInput->text().toStdString()).c_str() << std::endl;
+    this->encdec = new EncryptionUtil(pass);
     this->accept();
-    this->~Login();
-
+    
     //TODO: Decrypt db.
-    encdec->DecryptFile();
+    this->encdec->DecryptFile();
+    
 
     //TODO: If db opens properly, continue to app.
 }

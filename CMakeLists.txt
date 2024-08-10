@@ -29,6 +29,8 @@ set(PROJECT_SOURCES
         src/core/DatabaseManager.cpp
         src/core/EncryptionUtil.h
         src/core/EncryptionUtil.cpp
+        src/core/Logger.cpp
+        src/core/Logger.h
         src/gui/GUI/setup.ui
         src/gui/GUI/setup.h
         src/gui/GUI/setup.cpp
