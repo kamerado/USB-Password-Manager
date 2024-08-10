@@ -33,6 +33,7 @@ private:
     Ui::addnewwindow *ui;
 
     int pwSelected = -1;
+    QListWidgetItem current;
     Logger* logM = new Logger();
 };
 
