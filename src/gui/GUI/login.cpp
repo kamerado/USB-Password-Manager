@@ -18,10 +18,13 @@ Login::~Login()
 
 void Login::on_LoginButton_clicked()
 {
-    QString pw = ui->UsernameInput->text() + ui->PasswordInput->text();
+    const char* pw = (ui->UsernameInput->text().toStdString() + ui->PasswordInput->text().toStdString()).c_str();
+    encdec = new EncryptionUtil(pw);
+    this->accept();
+    this->~Login();
 
     //TODO: Decrypt db.
-    
+    encdec->DecryptFile();
 
     //TODO: If db opens properly, continue to app.
 }

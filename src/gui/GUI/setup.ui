@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>11</x>
@@ -54,7 +54,11 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QLineEdit" name="PasswordInput"/>
+         <widget class="QLineEdit" name="PasswordInput">
+          <property name="echoMode">
+           <enum>QLineEdit::Password</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_2">

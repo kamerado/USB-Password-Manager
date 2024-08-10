@@ -21,7 +21,7 @@ private slots:
 
 private:
     Ui::Login *ui;
-    EncryptionUtil* encdec = new EncryptionUtil();
+    EncryptionUtil* encdec;
 };
 
 #endif // LOGIN_H

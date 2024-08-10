@@ -15,6 +15,9 @@
 
 namespace fs = std::filesystem;
 
+DatabaseManager* db;
+EncryptionUtil* enc;
+
 void createFile(const char *File) {
   std::fstream fs;
   fs.open(File, std::ios::out);
@@ -25,17 +28,31 @@ void deleteFile(const char *File) {
   std::remove(File);
 }
 
+void handler(EncryptionUtil* encdec) {
+  enc = encdec;
+}
+
 int main(int argc, char *argv[])
-{
+{    
+
+  db = new DatabaseManager();
+  QApplication a(argc, argv);
+  MainWindow m;
   if(!fs::exists("db/passwords.enc")) {
-    QApplication a(argc, argv);
     Setup s;
-    s.show();
+    QWidget::connect(&s, &Setup::sendEnc, handler);
+    if (s.exec() == QDialog::Accepted) {
+      s.getEnc();
+      m.setEnc(enc);
+      m.show();
+      s.~Setup();
+    }
     return a.exec();
   } else {
-    QApplication a(argc, argv);
     Login l;
-    l.show();
+    if (l.exec() == QDialog::Accepted) {
+      l.show();
+    }
     return a.exec();
   }
 }

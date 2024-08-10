@@ -3,6 +3,7 @@
 #include "addnewwindow.h"
 
 #include "../../core/DatabaseManager.h"
+#include "../../core/EncryptionUtil.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,6 +20,10 @@ MainWindow::~MainWindow()
 // void MainWindow::start() {
 //     dbm->testFunctionality();
 // }
+
+void MainWindow::setEnc(EncryptionUtil* encdec) {
+    this->enc = encdec;
+}
 
 void MainWindow::on_StartButton_clicked()
 {

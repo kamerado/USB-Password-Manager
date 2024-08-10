@@ -11,15 +11,16 @@
 
 class EncryptionUtil {
 public:
-    EncryptionUtil();
+    EncryptionUtil(const char*);
     ~EncryptionUtil();
 
     // static CryptoPP::SecByteBlock generateKey(const std::string& passcode, const size_t keySize);
-    void EncryptFile(const char *fin, const char *fout, const char *passwd);
-    void DecryptFile(const char *fin, const char *fout, const char *passwd);
+    void EncryptFile();
+    void DecryptFile();
 private:
-
-
+    const char* pw;
+    const char* dbPath = "db/passwords.db"; // Cleartext db
+    const char* dbePath = "db/passwords.dbe"; // Enc db
 };
 
 #endif // ENCRYPTIONUTIL_H

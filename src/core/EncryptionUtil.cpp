@@ -11,15 +11,19 @@
 
 using namespace CryptoPP;
 
-EncryptionUtil::EncryptionUtil() {}
+EncryptionUtil::EncryptionUtil(const char* pw) {
+  this->pw = pw;
+}
 EncryptionUtil::~EncryptionUtil() {}
 
-void EncryptionUtil::EncryptFile(const char *fin, const char *fout, const char *passwd) {
-  FileSource f(fin, true, new DefaultEncryptorWithMAC(passwd,
-        new FileSink(fout)));
+
+
+void EncryptionUtil::EncryptFile() {
+  FileSource f(this->dbPath, true, new DefaultEncryptorWithMAC(this->pw,
+        new FileSink(this->dbePath)));
 }
 
-void EncryptionUtil::DecryptFile(const char *fin, const char *fout, const char *passwd) {
-  FileSource f(fin, true, new DefaultDecryptorWithMAC(passwd,
-        new FileSink(fout)));
+void EncryptionUtil::DecryptFile() {
+  FileSource f(this->dbePath, true, new DefaultDecryptorWithMAC(this->pw,
+        new FileSink(this->dbPath)));
 }

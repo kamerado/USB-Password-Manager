@@ -11,8 +11,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Sql Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql Widgets REQUIRED)
 
 set(PROJECT_SOURCES
         src/main.cpp
@@ -57,7 +57,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(GUI PRIVATE Qt${QT_VERSION_MAJOR}::Widgets crypto++ sqlite3)
+target_link_libraries(GUI PRIVATE Qt${QT_VERSION_MAJOR}::Widgets crypto++ Qt${QT_VERSIOON_MAJOR}::Sql)
 
 set_target_properties(GUI PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

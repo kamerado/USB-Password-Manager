@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 
+#include "../../core/EncryptionUtil.h"
 #include "../../core/DatabaseManager.h"
 
 QT_BEGIN_NAMESPACE
@@ -16,6 +17,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void setEnc(EncryptionUtil* encddec);
     void start();
 
 private slots:
@@ -25,7 +27,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    DatabaseManager* dbm = new DatabaseManager("../../../db/passwords.db");
+    DatabaseManager* dbm = new DatabaseManager();
+    EncryptionUtil* enc;
 
 };
 #endif // MAINWINDOW_H
