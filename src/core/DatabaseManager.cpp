@@ -16,10 +16,7 @@ DatabaseManager::DatabaseManager(std::unique_ptr<Logger>& logM) {
     
     if(this->db.open()) {
         std::cout << "Database: " << this->dbPath.toStdString() << " has been opened." << std::endl;
-        QSqlQuery query("SELECT COUNT(*) FROM credentials");
-        if (query.next() && query.value(0).toInt() == 0) {
-            this->setupDB();
-        }
+        this->setupDB();
     } else {
         std::cout << "Error loading database: " << this->dbPath.toStdString() << std::endl;
     }
@@ -93,6 +90,19 @@ bool DatabaseManager::deleteEntry(int id) {
         return false;
     } else {
         qDebug() << "Data deleted successfully!";
+        return true;
+    }
+}
+
+bool DatabaseManager::deleteAllEntries() {
+    QSqlQuery query;
+    query.prepare("DELETE FROM credentials");
+
+    if (!query.exec()) {
+        qDebug() << "Error: Could not delete all data from table." << query.lastError();
+        return false;
+    } else {
+        qDebug() << "All data deleted successfully!";
         return true;
     }
 }

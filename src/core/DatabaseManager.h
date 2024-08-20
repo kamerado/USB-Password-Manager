@@ -33,6 +33,7 @@ public:
     bool addEntry(int id, const QString& website, const QString& username, const QString& password);
     bool updateEntry(int id, const QString& new_website, const QString& new_username, const QString& new_password);
     bool deleteEntry(int id);
+    bool deleteAllEntries();
     void closeDatabase();
     // bool open(); // Opens a connection to the database
     // void Close(); // Closes the connection to the database

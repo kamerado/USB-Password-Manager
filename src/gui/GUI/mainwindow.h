@@ -37,6 +37,9 @@ private slots:
 
     void on_Delete_clicked();
 
+    void on_DeleteAll_clicked();
+
+
 private:
     Ui::MainWindow *ui;
     int numRows = 0;

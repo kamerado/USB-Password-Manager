@@ -126,10 +126,28 @@ void MainWindow::on_Delete_clicked()
     }
 }
 
+void MainWindow::on_DeleteAll_clicked()
+{
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Delete All", "Are you sure you want to delete all entrys?",
+                                    QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        ui->CTable->setRowCount(0);
+        this->numRows = 0;
+
+        if (this->db->deleteAllEntries()) {
+            QMessageBox::information(this, "Deleted", "All entries have been deleted.");
+        } else {
+            QMessageBox::warning(this, "Error", "Failed to delete entries from the database.");
+        }
+    }
+}
+
+
 // int MainWindow::getCurrRow() {
 //     return ui->CTable->selectionModel()->selectedRows().at(0).row();
 // }
-
 int MainWindow::getCurrRow() {
     QModelIndexList selectedRows = ui->CTable->selectionModel()->selectedRows();
     if (!selectedRows.isEmpty()) {
