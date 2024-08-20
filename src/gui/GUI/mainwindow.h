@@ -48,5 +48,6 @@ private:
     std::unique_ptr<Logger> logM;
 
     int getCurrRow();
-};
+    bool isValidDomain(const std::string& website);
+    };
 #endif // MAINWINDOW_H

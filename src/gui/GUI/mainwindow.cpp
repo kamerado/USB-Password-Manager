@@ -6,6 +6,7 @@
 #include <QItemSelectionModel>
 #include <iostream>
 #include <memory>
+#include <regex>
 
 #include "../../core/DatabaseManager.h"
 #include "../../core/EncryptionUtil.h"
@@ -63,18 +64,42 @@ void MainWindow::on_exitButton_clicked()
     this->close();
 }
 
+bool MainWindow::isValidDomain(const std::string& website) {
+    // Add tegex domain check.
+    // std::regex domainPattern(R"(^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+(com|net|org)$)");
+    std::string domain;
+
+    auto idx = website.find(".");
+    if (idx != std::string::npos) {
+        domain = website.substr(idx, website.length());
+    }
+
+    if (domain == ".com" || domain == ".org" || domain == ".net") {
+        return true;
+    } else {
+        return false;
+    }
+    // return std::regex_match(website, domainPattern);
+}
+
+
 void MainWindow::on_Add_clicked()
 {
     QString website = ui->webiteInput->text();
     QString username = ui->usernameInput->text();
     QString password = ui->passwordInput->text();
 
+    if (!isValidDomain(website.toStdString())) {
+        QMessageBox::warning(this, "Invalid Website", "The website must end with a valid domain name.");
+        return;
+    }
+
     this->numRows++;
-    if(this->db->addEntry(numRows, website, username, password)){
+    if (this->db->addEntry(numRows, website, username, password)) {
         ui->CTable->setRowCount(numRows);
-        ui->CTable->setItem(numRows-1, 0, new QTableWidgetItem(website));
-        ui->CTable->setItem(numRows-1, 1, new QTableWidgetItem(username));
-        ui->CTable->setItem(numRows-1, 2, new QTableWidgetItem(password));
+        ui->CTable->setItem(numRows - 1, 0, new QTableWidgetItem(website));
+        ui->CTable->setItem(numRows - 1, 1, new QTableWidgetItem(username));
+        ui->CTable->setItem(numRows - 1, 2, new QTableWidgetItem(password));
     }
 }
 
@@ -87,6 +112,11 @@ void MainWindow::on_Edit_clicked()
     int row = getCurrRow();
     
     if (row >= 0) {
+        if (!isValidDomain(website.toStdString())) {
+            QMessageBox::warning(this, "Invalid Website", "The website must end with a valid domain name.");
+            return;
+        }
+
         int id = row + 1;
         std::cout << "Editing row ID: " << id << std::endl;
         if (this->db->updateEntry(id, website, username, password)) {
@@ -100,6 +130,51 @@ void MainWindow::on_Edit_clicked()
         QMessageBox::warning(this, "Selection Error", "No row is selected for editing.");
     }
 }
+
+// void MainWindow::on_Add_clicked()
+// {
+//     QString website = ui->webiteInput->text();
+//     if (isValidDomain(website.toStdString())) {
+//         std::cout << "valid" << std::endl;
+//     } else {
+//         std::cout << "invalid" << std::endl;
+//     }
+
+//     QString username = ui->usernameInput->text();
+//     QString password = ui->passwordInput->text();
+
+//     this->numRows++;
+//     if(this->db->addEntry(numRows, website, username, password)){
+//         ui->CTable->setRowCount(numRows);
+//         ui->CTable->setItem(numRows-1, 0, new QTableWidgetItem(website));
+//         ui->CTable->setItem(numRows-1, 1, new QTableWidgetItem(username));
+//         ui->CTable->setItem(numRows-1, 2, new QTableWidgetItem(password));
+//     }
+// }
+
+// void MainWindow::on_Edit_clicked()
+// {
+//     QString website = ui->webiteInput->text();
+//     QString username = ui->usernameInput->text();
+//     QString password = ui->passwordInput->text();
+
+//     int row = getCurrRow();
+    
+//     if (row >= 0) {
+//         int id = row + 1;
+//         std::cout << "Editing row ID: " << id << std::endl;
+//         if (this->db->updateEntry(id, website, username, password)) {
+//             ui->CTable->setItem(row, 0, new QTableWidgetItem(website));
+//             ui->CTable->setItem(row, 1, new QTableWidgetItem(username));
+//             ui->CTable->setItem(row, 2, new QTableWidgetItem(password));
+//         } else {
+//             QMessageBox::warning(this, "Update Failed", "Failed to update the entry in the database.");
+//         }
+//     } else {
+//         QMessageBox::warning(this, "Selection Error", "No row is selected for editing.");
+//     }
+// }
+
 // void MainWindow::on_Delete_clicked()
 // {
 //     int row = getCurrRow() - 1;
@@ -156,6 +231,15 @@ int MainWindow::getCurrRow() {
         return -1;
     }
 }
+
+// bool MainWindow::isValidDomain(const std::string website) {
+//     auto idx = website.find(".");
+//     if (idx != std::string::npos) {
+//         auto domain = website.substr(idx, website.length());
+//         std::cout << domain << std::endl;
+//     }
+//     return false;
+// }
 
 void MainWindow::syncUIWithDB() {
     QList<rowEntry> results = this->db->queryAll();

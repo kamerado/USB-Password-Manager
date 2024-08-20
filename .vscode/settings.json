@@ -70,6 +70,8 @@
         "qtdebug": "cpp",
         "qtsql": "cpp",
         "qitemselectionmodel": "cpp",
-        "qsqldatabase": "cpp"
+        "qsqldatabase": "cpp",
+        "bitset": "cpp",
+        "regex": "cpp"
     }
 }
