@@ -15,10 +15,7 @@
 #include <QApplication>
 
 namespace fs = std::filesystem;
-
-DatabaseManager* db;
-EncryptionUtil* enc;
-Logger* logM;
+std::unique_ptr<EncryptionUtil> enc;
 
 void createFile(const char *File) {
   std::fstream fs;
@@ -30,26 +27,27 @@ void deleteFile(const char *File) {
   std::remove(File);
 }
 
-void handler(EncryptionUtil* encdec) {
-  enc = encdec;
+void handler(std::unique_ptr<EncryptionUtil>& encdec) {
+  enc = std::move(encdec);
 }
 
-int main(int argc, char *argv[]) { 
-  logM = new Logger();
+int main(int argc, char *argv[]) {
+
+  std::unique_ptr<Logger> logM = std::make_unique<Logger>();
+  std::unique_ptr<DatabaseManager> db = std::make_unique<DatabaseManager>(logM);
   QApplication a(argc, argv);
   MainWindow m(logM);
+  int ret;
   if(!fs::exists("../db/passwords.dbe")) {
     Setup s(logM);
     QWidget::connect(&s, &Setup::sendEnc, handler);
     if (s.exec() == QDialog::Accepted) {
-      db = new DatabaseManager();
       s.getEnc();
       m.setEnc(enc);
       m.setDB(db);
       m.show();
-      s.~Setup();
     }
-    return a.exec();
+    ret = a.exec();
   } else {
     Login l(logM);
     QWidget::connect(&l, &Login::sendEnc, handler);
@@ -57,11 +55,13 @@ int main(int argc, char *argv[]) {
       l.getEnc();
       m.setEnc(enc);
       m.setDB(db);
+      m.syncUIWithDB();
       m.show();
-      l.~Login();
     }
-    return a.exec();
+    ret = a.exec();
   }
+  std::cout << "exiting" << std::endl;
+  return ret;
 }
 
 

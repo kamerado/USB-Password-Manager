@@ -66,6 +66,10 @@
         "variant": "cpp",
         "source_location": "cpp",
         "qstring": "cpp",
-        "qdialog": "cpp"
+        "qdialog": "cpp",
+        "qtdebug": "cpp",
+        "qtsql": "cpp",
+        "qitemselectionmodel": "cpp",
+        "qsqldatabase": "cpp"
     }
 }

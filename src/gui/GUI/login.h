@@ -5,6 +5,7 @@
 #include <src/core/EncryptionUtil.h>
 #include <src/core/DatabaseManager.h>
 #include <src/core/Logger.h>
+#include <memory>
 
 namespace Ui {
 class Login;
@@ -16,8 +17,8 @@ class Login : public QDialog
 
 public:
     explicit Login(QWidget *parent = nullptr);
-    explicit Login(Logger* logM, QWidget *parent = nullptr);
-    void setDB(DatabaseManager* database);
+    explicit Login(std::unique_ptr<Logger>& logM, QWidget *parent = nullptr);
+    void setDB(std::unique_ptr<DatabaseManager>& database);
     void getEnc(void);
     ~Login();
 
@@ -25,13 +26,13 @@ private slots:
     void on_LoginButton_clicked();
 
 signals:
-    void sendEnc(EncryptionUtil* val);
+    void sendEnc(std::unique_ptr<EncryptionUtil>& val);
 
 private:
     Ui::Login *ui;
-    EncryptionUtil* encdec;
-    DatabaseManager* db;
-    Logger* logM;
+    std::unique_ptr<EncryptionUtil> encdec;
+    std::unique_ptr<DatabaseManager> db;
+    std::unique_ptr<Logger> logM;
 };
 
 #endif // LOGIN_H

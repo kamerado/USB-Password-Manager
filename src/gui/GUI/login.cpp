@@ -4,6 +4,7 @@
 #include <strings.h>
 #include <iostream>
 #include <QString>
+#include <memory>
 #include <src/core/EncryptionUtil.h>
 
 Login::Login(QWidget *parent) :
@@ -13,31 +14,28 @@ Login::Login(QWidget *parent) :
     ui->setupUi(this);
 }
 
-Login::Login(Logger* logM, QWidget *parent) :
+Login::Login(std::unique_ptr<Logger>& logM, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Login)
 {
     ui->setupUi(this);
-    this->logM = logM;
+    this->logM = std::move(logM);
 }
 
-Login::~Login()
-{
-    delete ui;
-}
+Login::~Login(){}
 
 void Login::getEnc() {
      emit sendEnc(encdec);
 }
 
-void Login::setDB(DatabaseManager* database) {
-    this->db = database;
+void Login::setDB(std::unique_ptr<DatabaseManager>& database) {
+    this->db = std::move(database);
 }
 
 void Login::on_LoginButton_clicked()
 {
     std::string pass = ui->UsernameInput->text().toStdString() + ui->PasswordInput->text().toStdString();
-    this->encdec = new EncryptionUtil(pass);
+    this->encdec = std::make_unique<EncryptionUtil>(pass);
     this->accept();
     
     //TODO: Decrypt db.

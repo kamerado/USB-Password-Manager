@@ -25,7 +25,13 @@ Logger::Logger() {
 } 
 
 // Destructor: Closes the log file 
-Logger::~Logger() { logFile.close(); } 
+Logger::~Logger() {
+        if (this != nullptr) {
+        if (this->logFile.is_open()) {
+            this->logFile.close();
+        }
+    }
+}
 
 // Logs a message with a given log level 
 void Logger::log(LogLevel level, const std::string& message) { 

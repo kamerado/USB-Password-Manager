@@ -17,9 +17,9 @@ EncryptionUtil::EncryptionUtil(std::string& pw) {
   const char* encP =  strdup(pw.c_str());
   this->pw = encP;
 }
-EncryptionUtil::~EncryptionUtil() {}
 
-
+EncryptionUtil::~EncryptionUtil() {
+}
 
 void EncryptionUtil::EncryptFile() {
   FileSource f(this->dbPath, true, new DefaultEncryptorWithMAC(this->pw,

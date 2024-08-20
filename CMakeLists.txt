@@ -19,9 +19,6 @@ set(PROJECT_SOURCES
         src/gui/GUI/mainwindow.cpp
         src/gui/GUI/mainwindow.h
         src/gui/GUI/mainwindow.ui
-        src/gui/GUI/addnewwindow.cpp
-        src/gui/GUI/addnewwindow.h
-        src/gui/GUI/addnewwindow.ui
         src/gui/GUI/login.cpp
         src/gui/GUI/login.h
         src/gui/GUI/login.ui
