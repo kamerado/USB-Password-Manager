@@ -28,6 +28,8 @@ set(PROJECT_SOURCES
         src/core/EncryptionUtil.cpp
         src/core/Logger.cpp
         src/core/Logger.h
+        src/core/MessageWorker.cpp
+        src/core/MessageWorker.h
         src/gui/GUI/setup.ui
         src/gui/GUI/setup.h
         src/gui/GUI/setup.cpp

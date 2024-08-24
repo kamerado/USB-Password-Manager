@@ -72,6 +72,7 @@ bool DatabaseManager::updateEntry(int id, const QString& new_website, const QStr
         qDebug() << "Error: Could not update data in table." << query.lastError();
         return false;
     } else {
+        this->db.commit();
         qDebug() << "Data updated successfully!";
         return true;
     }
@@ -139,9 +140,6 @@ QList<rowEntry> DatabaseManager::queryAll() {
 }
 
 void DatabaseManager::closeDatabase() {
-    // Get the database connection by its connection name
-    // QSqlDatabase db = QSqlDatabase::database();
-
     if (this->db.isOpen()) {
         this->db.close();  // Close the database connection
         qDebug() << "Database closed successfully!";

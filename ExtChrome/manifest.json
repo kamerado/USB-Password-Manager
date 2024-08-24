@@ -1,0 +1,22 @@
+{
+    "manifest_version": 3,
+    "name": "usbpm",
+    "description": "Helper extension.",
+    "version": "1.0",
+    "permissions": [
+        "nativeMessaging"
+      ],
+    "content_scripts": [
+        {
+            "matches": ["http://*/*", "https://*/*"],
+            "run_at": "document_idle",
+            "js": ["content_script.js"]
+        }
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+      "default_popup": "popup.html"
+    }
+  }

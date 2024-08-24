@@ -10,12 +10,15 @@
 
 #include "../../core/DatabaseManager.h"
 #include "../../core/EncryptionUtil.h"
+#include "../../core/MessageWorker.h"
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), 
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    startNativeMessagingThread();
 
 }
 
@@ -26,16 +29,21 @@ MainWindow::MainWindow(std::unique_ptr<Logger>& logM, QWidget *parent)
     ui->setupUi(this);
     this->logM = std::move(logM);
     ui->CTable->setColumnCount(3);
-    ui->CTable->horizontalHeader()->setVisible(false);
+    QStringList headers;
+    headers << "Website" << "Username" << "Password";
+    ui->CTable->setHorizontalHeaderLabels(headers);
     ui->CTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch );
     ui->CTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch );
     ui->CTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch );
 }
 
-
 MainWindow::~MainWindow()
 {
     delete ui;
+    if (workerThread) {
+        workerThread->quit();
+        workerThread->wait();
+    }
 }
 
 void MainWindow::closeEvent (QCloseEvent *event)
@@ -64,25 +72,6 @@ void MainWindow::on_exitButton_clicked()
     this->close();
 }
 
-bool MainWindow::isValidDomain(const std::string& website) {
-    // Add tegex domain check.
-    // std::regex domainPattern(R"(^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+(com|net|org)$)");
-    std::string domain;
-
-    auto idx = website.find(".");
-    if (idx != std::string::npos) {
-        domain = website.substr(idx, website.length());
-    }
-
-    if (domain == ".com" || domain == ".org" || domain == ".net") {
-        return true;
-    } else {
-        return false;
-    }
-    // return std::regex_match(website, domainPattern);
-}
-
-
 void MainWindow::on_Add_clicked()
 {
     QString website = ui->webiteInput->text();
@@ -110,6 +99,7 @@ void MainWindow::on_Edit_clicked()
     QString password = ui->passwordInput->text();
 
     int row = getCurrRow();
+    std::cout << row << std::endl;
     
     if (row >= 0) {
         if (!isValidDomain(website.toStdString())) {
@@ -131,63 +121,12 @@ void MainWindow::on_Edit_clicked()
     }
 }
 
-// void MainWindow::on_Add_clicked()
-// {
-//     QString website = ui->webiteInput->text();
-//     if (isValidDomain(website.toStdString())) {
-//         std::cout << "valid" << std::endl;
-//     } else {
-//         std::cout << "invalid" << std::endl;
-//     }
-
-//     QString username = ui->usernameInput->text();
-//     QString password = ui->passwordInput->text();
-
-//     this->numRows++;
-//     if(this->db->addEntry(numRows, website, username, password)){
-//         ui->CTable->setRowCount(numRows);
-//         ui->CTable->setItem(numRows-1, 0, new QTableWidgetItem(website));
-//         ui->CTable->setItem(numRows-1, 1, new QTableWidgetItem(username));
-//         ui->CTable->setItem(numRows-1, 2, new QTableWidgetItem(password));
-//     }
-// }
-
-// void MainWindow::on_Edit_clicked()
-// {
-//     QString website = ui->webiteInput->text();
-//     QString username = ui->usernameInput->text();
-//     QString password = ui->passwordInput->text();
-
-//     int row = getCurrRow();
-    
-//     if (row >= 0) {
-//         int id = row + 1;
-//         std::cout << "Editing row ID: " << id << std::endl;
-//         if (this->db->updateEntry(id, website, username, password)) {
-//             ui->CTable->setItem(row, 0, new QTableWidgetItem(website));
-//             ui->CTable->setItem(row, 1, new QTableWidgetItem(username));
-//             ui->CTable->setItem(row, 2, new QTableWidgetItem(password));
-//         } else {
-//             QMessageBox::warning(this, "Update Failed", "Failed to update the entry in the database.");
-//         }
-//     } else {
-//         QMessageBox::warning(this, "Selection Error", "No row is selected for editing.");
-//     }
-// }
-
-// void MainWindow::on_Delete_clicked()
-// {
-//     int row = getCurrRow() - 1;
-//     ui->CTable->removeRow(row);
-//     this->db->deleteEntry(row + 1);
-// }
-
 void MainWindow::on_Delete_clicked()
 {
     int row = getCurrRow();
     
     if (row >= 0) {
-        int id = row +1;
+        int id = ui->CTable->item(row, 0)->text().toInt();
         if (this->db->deleteEntry(id)) {
             ui->CTable->removeRow(row);
             this->numRows--;
@@ -219,10 +158,6 @@ void MainWindow::on_DeleteAll_clicked()
     }
 }
 
-
-// int MainWindow::getCurrRow() {
-//     return ui->CTable->selectionModel()->selectedRows().at(0).row();
-// }
 int MainWindow::getCurrRow() {
     QModelIndexList selectedRows = ui->CTable->selectionModel()->selectedRows();
     if (!selectedRows.isEmpty()) {
@@ -232,14 +167,24 @@ int MainWindow::getCurrRow() {
     }
 }
 
-// bool MainWindow::isValidDomain(const std::string website) {
-//     auto idx = website.find(".");
-//     if (idx != std::string::npos) {
-//         auto domain = website.substr(idx, website.length());
-//         std::cout << domain << std::endl;
-//     }
-//     return false;
-// }
+// TODO: implement correct domain checking
+bool MainWindow::isValidDomain(const std::string& website) {
+    // Add tegex domain check.
+    // std::regex domainPattern(R"(^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+(com|net|org)$)");
+    std::string domain;
+
+    auto idx = website.find(".");
+    if (idx != std::string::npos) {
+        domain = website.substr(idx, website.length());
+    }
+
+    if (domain == ".com" || domain == ".org" || domain == ".net") {
+        return true;
+    } else {
+        return false;
+    }
+    // return std::regex_match(website, domainPattern);
+}
 
 void MainWindow::syncUIWithDB() {
     QList<rowEntry> results = this->db->queryAll();
@@ -256,4 +201,24 @@ void MainWindow::syncUIWithDB() {
         ui->CTable->setItem(numRows-1, 1, new QTableWidgetItem(username));
         ui->CTable->setItem(numRows-1, 2, new QTableWidgetItem(password));
     }
+}
+
+void MainWindow::startNativeMessagingThread() {
+    workerThread = new QThread(this);
+    this->worker = new NativeMessagingWorker();
+
+    // Move the worker to the thread
+    worker->moveToThread(workerThread);
+
+    // Connect signals and slots
+    connect(workerThread, &QThread::started, worker, &NativeMessagingWorker::run);
+    connect(worker, &NativeMessagingWorker::messageReceived, this, &MainWindow::onMessageReceived);
+
+    // Start the thread
+    workerThread->start();
+}
+
+void MainWindow::onMessageReceived(const QString &message) {
+    QMessageBox::information(this, "Message from native app:", message);
+    // Update the GUI with the received message
 }

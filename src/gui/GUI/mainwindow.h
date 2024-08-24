@@ -5,6 +5,7 @@
 
 #include "../../core/EncryptionUtil.h"
 #include "../../core/DatabaseManager.h"
+#include "../../core/MessageWorker.h"
 #include <src/core/Logger.h>
 #include <memory>
 
@@ -25,7 +26,6 @@ public:
     void setDB(std::unique_ptr<DatabaseManager>& database);
     void syncUIWithDB();
     
-
 private slots:
     void on_StartButton_clicked();
 
@@ -38,9 +38,12 @@ private slots:
     void on_Delete_clicked();
 
     void on_DeleteAll_clicked();
-
+    
+    void onMessageReceived(const QString &message);
 
 private:
+    QThread *workerThread;               // Thread for handling native messaging communication
+    NativeMessagingWorker *worker;  
     Ui::MainWindow *ui;
     int numRows = 0;
     std::unique_ptr<DatabaseManager> db;
@@ -49,5 +52,6 @@ private:
 
     int getCurrRow();
     bool isValidDomain(const std::string& website);
+    void startNativeMessagingThread();
     };
 #endif // MAINWINDOW_H
