@@ -43,7 +43,7 @@ public:
 
 private:
     QSqlDatabase db;
-    const QString dbPath = "../db/passwords.db";
+    const QString dbPath = "../../db/passwords.db";
     bool isOpen;
     std::unique_ptr<Logger> logM;
 

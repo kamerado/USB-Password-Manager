@@ -20,8 +20,8 @@ public:
     void DecryptFile();
 private:
     const char* pw;
-    const char* dbPath = "../db/passwords.db"; // Cleartext db
-    const char* dbePath = "../db/passwords.dbe"; // Enc db
+    const char* dbPath = "../../db/passwords.db"; // Cleartext db
+    const char* dbePath = "../../db/passwords.dbe"; // Enc db
 };
 
 #endif // ENCRYPTIONUTIL_H

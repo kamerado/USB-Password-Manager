@@ -19,7 +19,7 @@ public slots:
 
 private:
     // Helper functions to manage communication with the native messaging protocol
-    std::string readMessage();
+    char* readMessage();
     void writeMessage(const std::string &message);
 };
 

@@ -24,10 +24,11 @@ public:
     void closeEvent (QCloseEvent *event);
     void setEnc(std::unique_ptr<EncryptionUtil>& encddec);
     void setDB(std::unique_ptr<DatabaseManager>& database);
+    void startMessageThread(void);
     void syncUIWithDB();
     
 private slots:
-    void on_StartButton_clicked();
+    void on_StartButton_toggled(bool checked);
 
     void on_exitButton_clicked();
 
@@ -40,6 +41,9 @@ private slots:
     void on_DeleteAll_clicked();
     
     void onMessageReceived(const QString &message);
+
+signals:
+    void startThread(bool);
 
 private:
     QThread *workerThread;               // Thread for handling native messaging communication

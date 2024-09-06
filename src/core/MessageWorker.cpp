@@ -1,16 +1,20 @@
 #include "../../src/core/MessageWorker.h"
 #include <iostream>
 #include <QDebug>
+#include <future>
+#include <thread>
 
 NativeMessagingWorker::NativeMessagingWorker(QObject *parent) : QObject(parent) {
-    // Constructor code (if needed)
+    // setmode(fileno(stdin),O_BINARY);
+    // auto future = std::async(std::launch::async, this->run);
 }
 
 void NativeMessagingWorker::run() {
+    std::cout << "Starting message server." << std::endl;
     // Infinite loop to read and write messages
     while (true) {
         // Simulate reading a message from stdin
-        std::string inputMessage = readMessage();
+        char* inputMessage = readMessage();
 
         // Emit signal with the received message
         emit messageReceived(QString::fromStdString(inputMessage));
@@ -22,12 +26,13 @@ void NativeMessagingWorker::run() {
 }
 
 // Helper function to read a message from stdin
-std::string NativeMessagingWorker::readMessage() {
-    uint32_t messageLength;
-    std::cin.read(reinterpret_cast<char*>(&messageLength), sizeof(messageLength));
+char* NativeMessagingWorker::readMessage() {
+    char* message;
 
-    std::string message(messageLength, 0);
-    std::cin.read(&message[0], messageLength);
+    // read length header.
+    uint32_t reqLen = 0;
+    std::cin.read(reinterpret_cast<char*>(&reqLen) , 4);
+    std::cin.read(reinterpret_cast<char*>(&message), reqLen);
 
     return message;
 }

@@ -1,25 +1,39 @@
-function connectToNativeApp() {
-    const nativeAppName = "com.kamerado.native_app";  // This should match your native app registration
-    const port = chrome.runtime.connectNative(nativeAppName);
-    
-    port.onMessage.addListener((msg) => {
-      console.log("Received message from native app: ", msg);
+var port = chrome.runtime.connectNative("com.kamerado.native_app");
+
+// Listen for messages from the content script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Check if the action is "sendToNativeApp"
+  console.log("before if statement.")
+  if (message.action === "sendToNativeApp") {
+    console.log("Message from content script: ", message.data);
+
+    // Connect to the native app
+    // const port = chrome.runtime.connectNative("com.kamerado.native_app");
+
+    // Send the message to the native app
+    port.postMessage(message.data);
+
+    // Listen for a response from the native app
+    port.onMessage.addListener((response) => {
+      console.log("Response from native app: ", response);
+      // Send the response back to the content script
+      // sendResponse(response);
     });
-  
+    // Handle disconnection
     port.onDisconnect.addListener(() => {
-      console.log("Disconnected from native app");
+      const lastError = chrome.runtime.lastError;
+      if (lastError) {
+        console.error("Disconneted for native app with error: ", lastError.message);
+      } else {
+        console.error("Disconnected from native app without an error.");
+      }
+      sendResponse({ error: "Failed to communicate with native app" });
     });
-  
-    return port;
+    // Return true to indicate that we will respond asynchronously
+    return true;
   }
-  
-  // Sending a message to the native app
-  function sendMessageToNativeApp(message) {
-    const port = connectToNativeApp();
-    port.postMessage(message);
-  }
-  
-  // Example usage
-  chrome.action.onClicked.addListener(() => {
-    sendMessageToNativeApp({ text: "Hello from the extension" });
-  });
+});
+
+
+
+// THIS IS THE IMPROVED ERROR HANDLING

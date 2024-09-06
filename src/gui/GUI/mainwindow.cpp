@@ -62,9 +62,17 @@ void MainWindow::setDB(std::unique_ptr<DatabaseManager>& database) {
     this->db = std::move(database);
 }
 
-void MainWindow::on_StartButton_clicked()
+void MainWindow::on_StartButton_toggled(bool checked)
 {
-    db->testFunctionality();
+    // this->workerThread->run();
+    std::cout << "mainwindow.cpp: starting native messaging thread." << std::endl;
+    if (checked) {
+        // startNativeMessagingThread();
+        std::cout << "Clicked." << std::endl;
+        this->startMessageThread();
+    } else {
+        std::cout << "Unclicked." << std::endl;
+    }
 }
 
 void MainWindow::on_exitButton_clicked()
@@ -158,6 +166,10 @@ void MainWindow::on_DeleteAll_clicked()
     }
 }
 
+void MainWindow::startMessageThread() {
+     emit startThread(true);
+}
+
 int MainWindow::getCurrRow() {
     QModelIndexList selectedRows = ui->CTable->selectionModel()->selectedRows();
     if (!selectedRows.isEmpty()) {
@@ -203,19 +215,20 @@ void MainWindow::syncUIWithDB() {
     }
 }
 
+// REDO
 void MainWindow::startNativeMessagingThread() {
-    workerThread = new QThread(this);
-    this->worker = new NativeMessagingWorker();
+    // workerThread = new QThread(this);
+    // this->worker = new NativeMessagingWorker();
 
-    // Move the worker to the thread
-    worker->moveToThread(workerThread);
+    // // Move the worker to the thread
+    // worker->moveToThread(workerThread);
 
-    // Connect signals and slots
-    connect(workerThread, &QThread::started, worker, &NativeMessagingWorker::run);
-    connect(worker, &NativeMessagingWorker::messageReceived, this, &MainWindow::onMessageReceived);
+    // // Connect signals and slots
+    // connect(workerThread, &QThread::started, worker, &NativeMessagingWorker::run);
+    // connect(worker, &NativeMessagingWorker::messageReceived, this, &MainWindow::onMessageReceived);
 
-    // Start the thread
-    workerThread->start();
+    // // Start the thread
+    // workerThread->start();
 }
 
 void MainWindow::onMessageReceived(const QString &message) {
