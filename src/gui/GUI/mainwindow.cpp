@@ -1,25 +1,29 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <QCloseEvent>
+#include <QFuture>
 #include <QItemSelectionModel>
 #include <QList>
 #include <QMessageBox>
+#include <QtConcurrent/QtConcurrent>
 #include <iostream>
 #include <memory>
+#include <qfuture.h>
 
 #include "../../core/DatabaseManager.h"
 #include "../../core/EncryptionUtil.h"
+#include "src/core/MessageWorker.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
-  startNativeMessagingThread();
 }
 
 MainWindow::MainWindow(std::unique_ptr<Logger> &logM, QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
   this->logM = std::move(logM);
+  mw = std::make_unique<NativeMessagingWorker>();
   ui->CTable->setColumnCount(3);
   QStringList headers;
   headers << "Website" << "Username" << "Password";
@@ -31,16 +35,13 @@ MainWindow::MainWindow(std::unique_ptr<Logger> &logM, QWidget *parent)
 
 MainWindow::~MainWindow() {
   delete ui;
-  if (workerThread) {
-    workerThread->quit();
-    workerThread->wait();
+  if (workerThread.isRunning()) {
+    workerThread.cancel();
   }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-  // this->db->~DatabaseManager();
   this->enc->EncryptFile();
-  // this->enc->~EncryptionUtil();
   event->accept();
 }
 
@@ -53,14 +54,14 @@ void MainWindow::setDB(std::unique_ptr<DatabaseManager> &database) {
 }
 
 void MainWindow::on_StartButton_toggled(bool checked) {
-  // this->workerThread->run();
   std::cout << "mainwindow.cpp: starting native messaging thread." << std::endl;
   if (checked) {
-    // startNativeMessagingThread();
-    std::cout << "Clicked." << std::endl;
+    std::cout << "mainwindow.cpp: starting native messaging thread."
+              << std::endl;
     this->startMessageThread();
   } else {
-    std::cout << "Unclicked." << std::endl;
+    std::cout << "mainwindow.cpp: stopping native messaging thread."
+              << std::endl;
     this->endMessageThread();
   }
 }
@@ -172,9 +173,6 @@ int MainWindow::getCurrRow() {
 
 // TODO: implement correct domain checking
 bool MainWindow::isValidDomain(const std::string &website) {
-  // Add tegex domain check.
-  // std::regex
-  // domainPattern(R"(^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+(com|net|org)$)");
   std::string domain;
 
   auto idx = website.find(".");
@@ -187,13 +185,11 @@ bool MainWindow::isValidDomain(const std::string &website) {
   } else {
     return false;
   }
-  // return std::regex_match(website, domainPattern);
 }
 
 void MainWindow::syncUIWithDB() {
   QList<rowEntry> results = this->db->queryAll();
   for (const rowEntry &row : results) {
-    // int id = row.id; unused.
     QString website = row.website;
     QString username = row.username;
     QString password = row.password;
@@ -206,23 +202,15 @@ void MainWindow::syncUIWithDB() {
     ui->CTable->setItem(numRows - 1, 2, new QTableWidgetItem(password));
   }
 }
+void run(NativeMessagingWorker mw) { mw.run(); }
 
 // REDO
-void MainWindow::startNativeMessagingThread() {
-  // workerThread = new QThread(this);
-  // this->worker = new NativeMessagingWorker();
-
-  // // Move the worker to the thread
-  // worker->moveToThread(workerThread);
-
-  // // Connect signals and slots
-  // connect(workerThread, &QThread::started, worker,
-  // &NativeMessagingWorker::run); connect(worker,
-  // &NativeMessagingWorker::messageReceived, this,
-  // &MainWindow::onMessageReceived);
-
-  // // Start the thread
-  // workerThread->start();
+void MainWindow::toggleNativeMessagingThread(bool toggled) {
+  if (toggled) {
+    this->workerThread = QtConcurrent::run(run, mw);
+  } else {
+    this->workerThread = QFuture<void>();
+  }
 }
 
 void MainWindow::onMessageReceived(const QString &message) {

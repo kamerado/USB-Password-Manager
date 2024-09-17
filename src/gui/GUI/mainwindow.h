@@ -48,16 +48,18 @@ signals:
   void startThread(bool);
 
 private:
-  QThread *workerThread; // Thread for handling native messaging communication
+  QFuture<void>
+      workerThread; // Thread for handling native messaging communication
+  std::unique_ptr<NativeMessagingWorker> mw;
   NativeMessagingWorker *worker;
   Ui::MainWindow *ui;
   int numRows = 0;
   std::unique_ptr<DatabaseManager> db;
   std::unique_ptr<EncryptionUtil> enc;
   std::unique_ptr<Logger> logM;
+  void toggleNativeMessagingThread(bool);
 
   int getCurrRow();
   bool isValidDomain(const std::string &website);
-  void startNativeMessagingThread();
 };
 #endif // MAINWINDOW_H

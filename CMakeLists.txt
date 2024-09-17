@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Sql Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Sql Widgets Qt6Concurrent REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql Widgets REQUIRED)
 
 set(PROJECT_SOURCES
@@ -36,29 +36,33 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(GUI
+  qt_add_executable(GUI
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-    )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET GUI APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+  )
+  # Define target properties for Android with Qt 6 as:
+  #    set_property(TARGET GUI APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+  #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+  # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html
+  # #target-creation
 else()
-    if(ANDROID)
-        add_library(GUI SHARED
+  if(ANDROID)
+    add_library(GUI SHARED
             ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(GUI
+    )
+    # Define properties for Android with Qt 5 after find_package() calls as:
+    #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+  else()
+    add_executable(GUI
             ${PROJECT_SOURCES}
-        )
-    endif()
+    )
+  endif()
 endif()
 
-target_link_libraries(GUI PRIVATE Qt${QT_VERSION_MAJOR}::Widgets crypto++ Qt${QT_VERSIOON_MAJOR}::Sql)
+target_link_libraries(GUI PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    crypto++
+    Qt${QT_VERSIOON_MAJOR}::Sql)
 
 set_target_properties(GUI PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
@@ -70,5 +74,5 @@ set_target_properties(GUI PROPERTIES
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(GUI)
+  qt_finalize_executable(GUI)
 endif()
