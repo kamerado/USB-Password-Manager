@@ -5,8 +5,9 @@
 
 #include "../../core/DatabaseManager.h"
 #include "../../core/EncryptionUtil.h"
-#include "../../core/MessageWorker.h"
+#include "src/core/CefThread.h"
 #include <memory>
+#include <qt5/QtCore/qthread.h>
 #include <src/core/Logger.h>
 
 QT_BEGIN_NAMESPACE
@@ -25,8 +26,6 @@ public:
   void closeEvent(QCloseEvent *event);
   void setEnc(std::unique_ptr<EncryptionUtil> &encddec);
   void setDB(std::unique_ptr<DatabaseManager> &database);
-  void startMessageThread(void);
-  void endMessageThread(void);
   void syncUIWithDB();
 
 private slots:
@@ -42,22 +41,20 @@ private slots:
 
   void on_DeleteAll_clicked();
 
-  void onMessageReceived(const QString &message);
-
 signals:
   void startThread(bool);
 
 private:
-  QFuture<void>
-      workerThread; // Thread for handling native messaging communication
-  std::unique_ptr<NativeMessagingWorker> mw;
-  NativeMessagingWorker *worker;
   Ui::MainWindow *ui;
+
+  QThread cefThread;
+  std::shared_ptr<CefThread> cefWorker;
+  void initializeCEF();
+
   int numRows = 0;
   std::unique_ptr<DatabaseManager> db;
   std::unique_ptr<EncryptionUtil> enc;
   std::unique_ptr<Logger> logM;
-  void toggleNativeMessagingThread(bool);
 
   int getCurrRow();
   bool isValidDomain(const std::string &website);

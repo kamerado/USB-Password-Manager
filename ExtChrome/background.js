@@ -1,39 +1,36 @@
-var port = chrome.runtime.connectNative("com.kamerado.native_app");
+let port = null;
 
-// Listen for messages from the content script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // Check if the action is "sendToNativeApp"
-  console.log("before if statement.")
-  if (message.action === "sendToNativeApp") {
-    console.log("Message from content script: ", message.data);
+function connectToNativeHost() {
+  port = chrome.runtime.connectNative('com.kamerado.native_app');
 
-    // Connect to the native app
-    // const port = chrome.runtime.connectNative("com.kamerado.native_app");
-
-    // Send the message to the native app
-    port.postMessage(message.data);
-
-    // Listen for a response from the native app
-    port.onMessage.addListener((response) => {
-      console.log("Response from native app: ", response);
-      // Send the response back to the content script
-      // sendResponse(response);
+  port.onMessage.addListener((message) => {
+    console.log('Received from native app:', message);
+    chrome.runtime.sendMessage({
+      type: 'MESSAGE_FROM_NATIVE_APP',
+      payload: message,
     });
-    // Handle disconnection
-    port.onDisconnect.addListener(() => {
-      const lastError = chrome.runtime.lastError;
-      if (lastError) {
-        console.error("Disconneted for native app with error: ", lastError.message);
-      } else {
-        console.error("Disconnected from native app without an error.");
-      }
-      sendResponse({ error: "Failed to communicate with native app" });
-    });
-    // Return true to indicate that we will respond asynchronously
-    return true;
+  });
+
+  port.onDisconnect.addListener(() => {
+    console.log('Disconnected from native app');
+    port = null;
+  });
+}
+
+connectToNativeHost();
+
+function sendMessageToNativeApp(message) {
+  if (port) {
+    port.postMessage(message);
+  } else {
+    console.error('Port is not connected');
+  }
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === 'SEND_TO_NATIVE_APP') {
+    sendMessageToNativeApp(request.payload);
+    sendResponse({ status: 'Message sent to native app' });
   }
 });
 
-
-
-// THIS IS THE IMPROVED ERROR HANDLING

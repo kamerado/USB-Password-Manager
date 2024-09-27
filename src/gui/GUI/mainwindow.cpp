@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "../src/gui/GUI/mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <QCloseEvent>
 #include <QFuture>
@@ -6,13 +6,22 @@
 #include <QList>
 #include <QMessageBox>
 #include <QtConcurrent/QtConcurrent>
+#include <QtConcurrent/qtconcurrentrun.h>
+#include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <qapplication.h>
 #include <qfuture.h>
+#include <qglobal.h>
+#include <qmessagebox.h>
+#include <qnamespace.h>
+#include <qobject.h>
+#include <qobjectdefs.h>
+#include <qt5/QtCore/qchar.h>
 
 #include "../../core/DatabaseManager.h"
 #include "../../core/EncryptionUtil.h"
-#include "src/core/MessageWorker.h"
+#include "src/core/CefThread.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -23,7 +32,6 @@ MainWindow::MainWindow(std::unique_ptr<Logger> &logM, QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
   this->logM = std::move(logM);
-  mw = std::make_unique<NativeMessagingWorker>();
   ui->CTable->setColumnCount(3);
   QStringList headers;
   headers << "Website" << "Username" << "Password";
@@ -33,15 +41,39 @@ MainWindow::MainWindow(std::unique_ptr<Logger> &logM, QWidget *parent)
   ui->CTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
 }
 
-MainWindow::~MainWindow() {
-  delete ui;
-  if (workerThread.isRunning()) {
-    workerThread.cancel();
+MainWindow::~MainWindow() { delete ui; }
+
+void MainWindow::initializeCEF() {
+  if (cefWorker == nullptr) {
+    cefWorker = std::make_shared<CefThread>();
+    cefWorker->moveToThread(&cefThread);
+
+    connect(&cefThread, &QThread::finished, cefWorker.get(),
+            &QObject::deleteLater);
+    connect(this, &MainWindow::destroyed, cefWorker.get(),
+            &CefThread::shutdown);
+    connect(
+        cefWorker.get(), &CefThread::initialized, this, [this](bool success) {
+          if (success) {
+            QMetaObject::invokeMethod(cefWorker.get(), "createBrowser",
+                                      Qt::QueuedConnection);
+          } else {
+            QMessageBox::critical(this, "Error", "Failed to initialize CEF");
+            exit(0);
+          }
+        });
+
+    cefThread.start();
+    QMetaObject::invokeMethod(cefWorker.get(), "initialize",
+                              Qt::QueuedConnection);
   }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
   this->enc->EncryptFile();
+  cefWorker->shutdown();
+  cefThread.quit();
+  cefThread.wait();
   event->accept();
 }
 
@@ -54,15 +86,14 @@ void MainWindow::setDB(std::unique_ptr<DatabaseManager> &database) {
 }
 
 void MainWindow::on_StartButton_toggled(bool checked) {
-  std::cout << "mainwindow.cpp: starting native messaging thread." << std::endl;
   if (checked) {
-    std::cout << "mainwindow.cpp: starting native messaging thread."
-              << std::endl;
-    this->startMessageThread();
+    std::cout << "mainwindow.cpp: starting CEF." << std::endl;
+    if (!cefWorker->threadInitialized()) {
+      initializeCEF();
+    }
   } else {
-    std::cout << "mainwindow.cpp: stopping native messaging thread."
-              << std::endl;
-    this->endMessageThread();
+    std::cout << "mainwindow.cpp: stopping CEF." << std::endl;
+    cefWorker->shutdown();
   }
 }
 
@@ -159,9 +190,6 @@ void MainWindow::on_DeleteAll_clicked() {
   }
 }
 
-void MainWindow::startMessageThread() { emit startThread(true); }
-void MainWindow::endMessageThread() { emit startThread(false); }
-
 int MainWindow::getCurrRow() {
   QModelIndexList selectedRows = ui->CTable->selectionModel()->selectedRows();
   if (!selectedRows.isEmpty()) {
@@ -201,19 +229,4 @@ void MainWindow::syncUIWithDB() {
     ui->CTable->setItem(numRows - 1, 1, new QTableWidgetItem(username));
     ui->CTable->setItem(numRows - 1, 2, new QTableWidgetItem(password));
   }
-}
-void run(NativeMessagingWorker mw) { mw.run(); }
-
-// REDO
-void MainWindow::toggleNativeMessagingThread(bool toggled) {
-  if (toggled) {
-    this->workerThread = QtConcurrent::run(run, mw);
-  } else {
-    this->workerThread = QFuture<void>();
-  }
-}
-
-void MainWindow::onMessageReceived(const QString &message) {
-  QMessageBox::information(this, "Message from native app:", message);
-  // Update the GUI with the received message
 }

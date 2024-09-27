@@ -1,8 +1,10 @@
 build/**
+libs/**
 .vscode/**
 .cache/**
 main
 db/**
 LogFiles/**
 !build/.gitkeep
+!libs/.gitkeep
 src/gui/build-GUI-Desktop-Debug

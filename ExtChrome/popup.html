@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src='./popup.js'></script>
+    <title>Native Messaging Extension</title>
+    <script src="popup.js"></script>
   </head>
   <body>
-    <button id='connect-button'>Connect To Native Host</button>
-    <div style="display: inline-block">
-        <input id='input-text' type='text' style="width: 200px" />&nbsp;<button id='send-message-button'>Send</button>
-    </div>
-    <div id='response'></div>
+    <input type="text" id="messageInput" placeholder="Enter message" />
+    <button id="sendButton">Send to Native App</button>
+    <div id="responseArea"></div>
   </body>
 </html>
+
