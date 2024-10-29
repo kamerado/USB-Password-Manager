@@ -1,6 +1,7 @@
 #include "core/DatabaseManager.h"
 #include "core/EncryptionUtil.h"
 #include "core/Logger.h"
+#include "src/core/WebSocket.h"
 #include "src/gui/GUI/login.h"
 #include "src/gui/GUI/mainwindow.h"
 #include "src/gui/GUI/setup.h"
@@ -14,6 +15,7 @@
 
 #include <QApplication>
 #include <qfuture.h>
+#include <qobject.h>
 #include <qthread.h>
 
 namespace fs = std::filesystem;
@@ -33,7 +35,7 @@ int main(int argc, char *argv[]) {
   MainWindow m(logM);
 
   int ret;
-  if (!fs::exists("../../db/passwords.dbe")) {
+  if (!fs::exists("../db/passwords.dbe")) {
     Setup s(logM);
     QWidget::connect(&s, &Setup::sendEnc, handler);
     if (s.exec() == QDialog::Accepted) {
