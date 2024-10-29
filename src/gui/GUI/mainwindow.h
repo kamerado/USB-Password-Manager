@@ -5,8 +5,11 @@
 
 #include "../../core/DatabaseManager.h"
 #include "../../core/EncryptionUtil.h"
-#include "src/core/CefThread.h"
+#include "src/core/WebSocket.h"
 #include <memory>
+#include <qglobal.h>
+#include <qpushbutton.h>
+#include <qt5/QtCore/qchar.h>
 #include <qt5/QtCore/qthread.h>
 #include <src/core/Logger.h>
 
@@ -27,29 +30,28 @@ public:
   void setEnc(std::unique_ptr<EncryptionUtil> &encddec);
   void setDB(std::unique_ptr<DatabaseManager> &database);
   void syncUIWithDB();
+  void startServer();
+  void stopServer();
+  void waitForServerStop();
 
 private slots:
   void on_StartButton_toggled(bool checked);
-
   void on_exitButton_clicked();
-
   void on_Add_clicked();
-
   void on_Edit_clicked();
-
   void on_Delete_clicked();
-
   void on_DeleteAll_clicked();
 
-signals:
-  void startThread(bool);
+public slots:
+  void parseMessage(const QString &);
 
 private:
   Ui::MainWindow *ui;
-
-  QThread cefThread;
-  std::shared_ptr<CefThread> cefWorker;
-  void initializeCEF();
+  QThread *serverThread;
+  QPushButton *startbtn;
+  WebSocketServer *server = nullptr;
+  void setupConnections();
+  void receiveToggleSignal(bool &);
 
   int numRows = 0;
   std::unique_ptr<DatabaseManager> db;
