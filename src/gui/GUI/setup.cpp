@@ -9,7 +9,7 @@ Setup::Setup(QWidget *parent) : QDialog(parent), ui(new Ui::Setup) {
   ui->setupUi(this);
 }
 
-Setup::Setup(std::unique_ptr<Logger> &logM, QWidget *parent)
+Setup::Setup(std::shared_ptr<Logger *> &logM, QWidget *parent)
     : QDialog(parent), ui(new Ui::Setup) {
   ui->setupUi(this);
   this->logM = std::move(logM);

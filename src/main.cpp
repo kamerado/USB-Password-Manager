@@ -1,7 +1,6 @@
 #include "core/DatabaseManager.h"
 #include "core/EncryptionUtil.h"
 #include "core/Logger.h"
-#include "src/core/WebSocket.h"
 #include "src/gui/GUI/login.h"
 #include "src/gui/GUI/mainwindow.h"
 #include "src/gui/GUI/setup.h"
@@ -28,7 +27,7 @@ void handler(std::unique_ptr<EncryptionUtil> &encdec) {
 
 int main(int argc, char *argv[]) {
 
-  std::unique_ptr<Logger> logM = std::make_unique<Logger>();
+  std::shared_ptr<Logger *> logM = std::make_shared<Logger *>(new Logger(true));
   std::unique_ptr<DatabaseManager> db = std::make_unique<DatabaseManager>(logM);
 
   QApplication a(argc, argv);
