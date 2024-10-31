@@ -34,10 +34,10 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
 }
 
-MainWindow::MainWindow(std::unique_ptr<Logger> &logM, QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow) {
+MainWindow::MainWindow(std::shared_ptr<Logger *> &logM, QWidget *parent)
+    : QMainWindow(parent), ui(new Ui::MainWindow), logger(logM) {
+  (*logger)->log(DEBUG, "DEBUG: MainWindow constructor starting");
   ui->setupUi(this);
-  this->logM = std::move(logM);
   // startbtn = dynamic_cast<QPushButton *>(ui->StartButton);
   ui->CTable->setColumnCount(3);
   QStringList headers;
@@ -47,14 +47,13 @@ MainWindow::MainWindow(std::unique_ptr<Logger> &logM, QWidget *parent)
   ui->CTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
   ui->CTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
   if (server == nullptr) {
-    server = new WebSocketServer(this);
+    server = new WebSocketServer(logger);
     serverThread = new QThread(this);
     server->moveToThread(serverThread);
 
     QObject::connect(serverThread, &QThread::started, server,
                      [this]() { server->start(8080); });
-    // QObject::connect(server, &WebSocketServer::messageReceived, this,
-    //                  &MainWindow::parseMessage);
+
     QObject::connect(serverThread, &QThread::finished, server,
                      &QObject::deleteLater);
 
@@ -62,16 +61,10 @@ MainWindow::MainWindow(std::unique_ptr<Logger> &logM, QWidget *parent)
     QObject::connect(server, &WebSocketServer::messageReceived, this,
                      &MainWindow::parseMessage, Qt::QueuedConnection);
 
-    std::cout << "DEBUG: MainWindow constructor starting" << std::endl;
-
-    // Ensure UI is initialized before setting up connections
-    // QMetaObject::invokeMethod(
-    //     this, [this]() { setupConnections(); }, Qt::QueuedConnection);
     serverThread->start();
-    std::cout << "DEBUG: MainWindow constructor completed" << std::endl;
+    (*logger)->log(DEBUG, "DEBUG: MainWindow constructor completed");
   }
 }
-
 MainWindow::~MainWindow() {
   stopServer();
   waitForServerStop();
@@ -80,7 +73,7 @@ MainWindow::~MainWindow() {
 
 void MainWindow::startServer() {
   if (server == nullptr) {
-    server = new WebSocketServer(this);
+    server = new WebSocketServer(logger);
     serverThread = new QThread(this);
     server->moveToThread(serverThread);
 
@@ -111,8 +104,8 @@ void MainWindow::waitForServerStop() {
 }
 
 void MainWindow::on_StartButton_toggled(bool checked) {
-  std::cout << "DEBUG: on_StartButton_toggled called with checked = " << checked
-            << std::endl;
+  (*logger)->log(DEBUG, "DEBUG: on_StartButton_toggled called with checked = " +
+                            std::string((checked) ? "true" : "false"));
   if (checked) {
     // startService();
   } else {
@@ -121,37 +114,37 @@ void MainWindow::on_StartButton_toggled(bool checked) {
 }
 
 void MainWindow::receiveToggleSignal(bool &status) {
-  std::cout << "DEBUG: receiveToggleSignal entry with status = " << status
-            << std::endl;
+  (*logger)->log(DEBUG, "DEBUG: receiveToggleSignal entry with status = " +
+                            std::string((status) ? "true" : "false"));
 
   if (!ui) {
-    std::cerr << "Error: 'ui' is not initialized." << std::endl;
+    (*logger)->log(ERROR, "Error: 'ui' is not initialized.");
     return;
   }
 
   if (!ui->StartButton) {
-    std::cerr << "Error: 'StartButton' is not initialized in the UI."
-              << std::endl;
+    (*logger)->log(ERROR, "Error: 'StartButton' is not initialized in the UI.");
+
     return;
   }
   bool tmp = status;
   if (ui->StartButton) {
     ui->StartButton->setChecked(tmp);
   } else {
-    std::cerr << "Error: startbtn is not a QPushButton." << std::endl;
+    (*logger)->log(ERROR, "Error: startbtn is not a QPushButton.");
   }
 }
 
 void MainWindow::parseMessage(const QString &message) {
-  std::cout << "DEBUG: parseMessage received: " << message.toStdString()
-            << std::endl;
+  (*logger)->log(DEBUG,
+                 "DEBUG: parseMessage received: " + message.toStdString());
   try {
     using json = nlohmann::json;
     json j = json::parse(message.toStdString());
 
     if (!j.contains("type") || !j["type"].is_string()) {
-      std::cerr << "Error: Missing or invalid 'type' field in message."
-                << std::endl;
+      (*logger)->log(ERROR,
+                     "Error: Missing or invalid 'type' field in message.");
       return;
     }
 
@@ -159,40 +152,26 @@ void MainWindow::parseMessage(const QString &message) {
 
     if (typeStr == "status") {
       if (!j.contains("status") || !j["status"].is_boolean()) {
-        std::cerr << "Error: 'status' field missing or not a boolean."
-                  << std::endl;
+        (*logger)->log(ERROR,
+                       "Error: 'status' field missing or not a boolean.");
         return;
       }
 
       bool status = j["status"];
-      std::cout << "DEBUG: Status value extracted: " << status << std::endl;
+      (*logger)->log(DEBUG, "DEBUG: Status value extracted: " +
+                                std::string((status) ? "true" : "false"));
 
       bool statusCopy = status;
       receiveToggleSignal(statusCopy);
+    } else if (typeStr == "request") {
+      // TODO: send to request handler -> DB.
     }
+
   } catch (const nlohmann::json::parse_error &e) {
-    std::cerr << "Error parsing JSON: " << e.what() << std::endl;
+    (*logger)->log(ERROR, "Error parsing JSON: " + std::string(e.what()));
   } catch (const std::exception &e) {
-    std::cerr << "Error: " << e.what() << std::endl;
+    (*logger)->log(ERROR, "Error: " + std::string(e.what()));
   }
-}
-void MainWindow::setupConnections() {
-  // std::cout << "DEBUG: Setting up connections" << std::endl;
-  //
-  // if (!ui || !ui->StartButton) {
-  //   std::cerr << "Error: UI components not properly initialized" <<
-  //   std::endl; return;
-  // }
-  //
-  // // Configure button
-  // ui->StartButton->setCheckable(true);
-  //
-  // // Connect using new-style signal/slot syntax
-  // connect(ui->StartButton, &QPushButton::toggled, this,
-  //         &MainWindow::on_StartButton_toggled,
-  //         Qt::QueuedConnection); // Use QueuedConnection for thread safety
-  //
-  // std::cout << "DEBUG: Connections established" << std::endl;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {

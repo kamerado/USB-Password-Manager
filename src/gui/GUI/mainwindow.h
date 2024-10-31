@@ -24,7 +24,7 @@ class MainWindow : public QMainWindow {
 
 public:
   MainWindow(QWidget *parent = nullptr);
-  MainWindow(std::unique_ptr<Logger> &logM, QWidget *parent = nullptr);
+  MainWindow(std::shared_ptr<Logger *> &logM, QWidget *parent = nullptr);
   ~MainWindow();
   void closeEvent(QCloseEvent *event);
   void setEnc(std::unique_ptr<EncryptionUtil> &encddec);
@@ -50,13 +50,12 @@ private:
   QThread *serverThread;
   QPushButton *startbtn;
   WebSocketServer *server = nullptr;
-  void setupConnections();
   void receiveToggleSignal(bool &);
 
   int numRows = 0;
   std::unique_ptr<DatabaseManager> db;
   std::unique_ptr<EncryptionUtil> enc;
-  std::unique_ptr<Logger> logM;
+  std::shared_ptr<Logger *> logger;
 
   int getCurrRow();
   bool isValidDomain(const std::string &website);
