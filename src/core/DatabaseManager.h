@@ -15,16 +15,25 @@ struct rowEntry {
   QString password;
 };
 
+struct request {};
+
+namespace RequestHandler {
+
+void parseRequest(const std::string &requestStr);
+
+};
+
 class DatabaseManager {
 public:
-  DatabaseManager(std::unique_ptr<Logger> &logM);
+  DatabaseManager();
+  DatabaseManager(std::shared_ptr<Logger *> &logM);
   ~DatabaseManager();
 
-  // DatabaseManager(const DatabaseManager&) = delete;
-  // DatabaseManager& operator=(const DatabaseManager&) = delete;
+  DatabaseManager(const DatabaseManager &) = delete;
+  DatabaseManager &operator=(const DatabaseManager &) = delete;
 
-  // DatabaseManager(DatabaseManager&&) noexcept;
-  // DatabaseManager& operator=(DatabaseManager&&) noexcept;
+  DatabaseManager(DatabaseManager &&) noexcept;
+  DatabaseManager &operator=(DatabaseManager &&) noexcept;
 
   // Public Interface
   void setupDB();
@@ -47,7 +56,7 @@ private:
   QSqlDatabase db;
   const QString dbPath = "../db/passwords.db";
   bool isOpen;
-  std::unique_ptr<Logger> logM;
+  std::shared_ptr<Logger *> logger;
 };
 
 #endif // DATABASEMANAGER_H
