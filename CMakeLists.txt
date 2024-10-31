@@ -14,8 +14,9 @@ set(CMAKE_CXX_COMPILER gcc)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Sql Widgets Qt6Concurrent  REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Sql Widgets Qt6Concurrent REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql Widgets REQUIRED)
+find_package(spdlog REQUIRED)
 
 link_directories("${PROJECT_SOURCE_DIR}/libs")
 
@@ -53,6 +54,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
       crypto++
       Qt${QT_VERSION_MAJOR}::Sql
       stdc++
+      spdlog::spdlog
   )
 
   set_target_properties(nativegui PROPERTIES
