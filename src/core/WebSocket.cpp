@@ -1,5 +1,5 @@
 #include "src/core/WebSocket.h"
-#include "src/gui/GUI/mainwindow.h"
+#include "src/core/Logger.h"
 #include <QCoreApplication>
 #include <QString>
 #include <QTimer>
@@ -7,13 +7,17 @@
 #include <cstdint>
 #include <exception>
 #include <iostream>
+#include <memory>
 #include <qcoreapplication.h>
+#include <qfuture.h>
 #include <qglobal.h>
 #include <qobject.h>
 #include <qtimer.h>
+#include <string>
 #include <websocketpp/common/connection_hdl.hpp>
 
-WebSocketServer::WebSocketServer(QObject *parent) : QObject(parent) {
+WebSocketServer::WebSocketServer(std::shared_ptr<Logger *> &logM) {
+  logger = logM;
   try {
     wsServer.clear_access_channels(websocketpp::log::alevel::all);
     wsServer.clear_error_channels(websocketpp::log::alevel::all);
@@ -26,26 +30,28 @@ WebSocketServer::WebSocketServer(QObject *parent) : QObject(parent) {
           onMessage(hdl, msg);
         });
   } catch (const std::exception &e) {
-    std::cerr << "WebSocketServer initialization error: " << e.what()
-              << std::endl;
+    (*logger)->log(ERROR, "WebSocketServer initialization error: " +
+                              std::string(e.what()));
   }
 
-  std::cout << "WebSocketServer: Initialized" << std::endl;
+  (*logger)->log(INFO, "WebSocketServer: Initialized");
 }
 
 void WebSocketServer::start(uint16_t port) {
   if (!SocketInitialized) {
     try {
-      std::cout << "WebSocketServer: Starting server on port " << port
-                << std::endl;
+      (*logger)->log(INFO, ("WebSocketServer: Starting server on port ") +
+                               std::to_string(port));
       wsServer.listen(port);
       wsServer.start_accept();
 
-      QtConcurrent::run([this] { wsServer.run(); });
+      thread = std::make_shared<QFuture<void>>(
+          QtConcurrent::run([this] { wsServer.run(); }));
 
       SocketInitialized = true;
     } catch (std::exception &e) {
-      std::cerr << "WebSocketServer start error: " << e.what() << std::endl;
+      (*logger)->log(ERROR,
+                     "WebSocketServer start error: " + std::string(e.what()));
     }
   }
 }
@@ -57,10 +63,10 @@ void WebSocketServer::stop() {
       wsServer.stop_listening();
       wsServer.stop();
       SocketInitialized = false;
-      // emit sendToggleSignal();
     }
   } catch (std::exception &e) {
-    std::cerr << "WebSocketServer stop error: " << e.what() << std::endl;
+    (*logger)->log(ERROR,
+                   "WebSocketServer stop error: " + std::string(e.what()));
   }
 }
 
@@ -71,13 +77,7 @@ bool WebSocketServer::isInitialized() const { return this->SocketInitialized; }
 void WebSocketServer::onMessage(websocketpp::connection_hdl hdl,
                                 server_t::message_ptr msg) {
   QString message = QString::fromStdString(msg->get_payload());
-  std::cout << message.toStdString() << std::endl;
+  (*logger)->log(DEBUG, "DEBUG: WebSocketServer message sent: " +
+                            message.toStdString());
   emit messageReceived(message);
 }
-
-// void WebSocketServer::receiveToggleSignal() {
-//   // TODO: handle receiving toggle signal and sending info to extension.
-//   std::cout << "WebSocketServer: Received toggle signal from MainWindow."
-//             << std::endl;
-//   toggleSocket();
-// }

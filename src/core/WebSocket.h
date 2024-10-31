@@ -3,19 +3,24 @@
 #include <websocketpp/roles/server_endpoint.hpp>
 #pragma once
 
+#include <QFuture>
 #include <QObject>
 #include <QThread> // For QThread::msleep
 #include <cstdint>
+#include <memory>
 #include <qobject.h>
 #include <qtmetamacros.h>
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
+
+#include "src/core/Logger.h"
+
 class WebSocketServer : public QObject {
   Q_OBJECT
 
 public:
   using server_t = websocketpp::server<websocketpp::config::asio>;
-  explicit WebSocketServer(QObject *parent = nullptr);
+  explicit WebSocketServer(std::shared_ptr<Logger *> &logM);
   void start(uint16_t port);
   void stop();
   bool isInitialized() const;
@@ -33,6 +38,8 @@ signals:
   void sendToggleSignal();
 
 private:
+  std::shared_ptr<Logger *> logger;
+  std::shared_ptr<QFuture<void>> thread;
   void onMessage(websocketpp::connection_hdl hdl, server_t::message_ptr msg);
   server_t wsServer;
   bool SocketInitialized = false;
