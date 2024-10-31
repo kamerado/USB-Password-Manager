@@ -1,31 +1,44 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <fstream>
-#include <string>
+#include <memory>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
-  
-// Enum to represent log levels 
-enum LogLevel { DEBUG, INFO, WARNING, ERROR, CRITICAL }; 
-  
-class Logger { 
-public: 
-    // Constructor: Opens the log file in append mode 
-    Logger(); 
-  
-    // Destructor: Closes the log file 
-    ~Logger();
-  
-    // Logs a message with a given log level 
-    void log(LogLevel level, const std::string& message);
-  
-private: 
-    std::ofstream logFile; // File stream for the log file
-    std::string logFPath; // name of logfile. Set in the constructor with time stamp of program start.
-    std::string logFName;
-  
-    // Converts log level to a string for output 
-    std::string levelToString(LogLevel level); 
+// Enum to represent log levels
+typedef enum {
+  DEBUG = spdlog::level::debug,
+  INFO = spdlog::level::info,
+  WARNING = spdlog::level::warn,
+  ERROR = spdlog::level::err,
+  CRITICAL = spdlog::level::critical,
+  TRACE = spdlog::level::trace
+} LogLevel;
+
+class Logger {
+public:
+  Logger(bool toStdOut = false);
+
+  Logger(const Logger &) = delete;
+  Logger &operator=(const Logger &) = delete;
+
+  Logger(Logger &&other) noexcept;
+  Logger &operator=(Logger &&other) noexcept;
+
+  // Destructor: Closes the log file
+  ~Logger();
+
+  template <typename T> void addSink(std::shared_ptr<T> sink);
+
+  // Logs a message with a given log level
+  void log(LogLevel level, const std::string &message);
+
+private:
+  std::shared_ptr<spdlog::logger> myLogger =
+      std::make_shared<spdlog::logger>("myLogger");
 };
 
 #endif

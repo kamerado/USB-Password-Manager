@@ -1,83 +1,34 @@
-#include <ctime> 
-#include <fstream> 
-#include <iostream> 
-#include <sstream>
-
 #include "Logger.h"
-// Constructor: Opens the log file in append mode 
-Logger::Logger() {
-    // Get current timestamp 
-    time_t now = time(0); 
-    tm* timeinfo = localtime(&now); 
-    char timestamp[20]; 
-    strftime(timestamp, sizeof(timestamp), 
-                "%Y-%m-%d %H:%M:%S", timeinfo); 
-
-    // Create log entry 
-    std::ostringstream logFilePath; 
-    logFilePath << "../LogFiles/[" << timestamp << "]Log.txt" << std::endl;
-        // Create log entry 
-    std::ostringstream logFileName; 
-    logFileName << "[" << timestamp << "]Log.txt" << std::endl;
-
-    this->logFPath = logFilePath.str();
-    this->logFName = logFileName.str();
-} 
-
-// Destructor: Closes the log file 
-Logger::~Logger() {
-        if (this != nullptr) {
-        if (this->logFile.is_open()) {
-            this->logFile.close();
-        }
-    }
+#include <iostream>
+#include <memory>
+#include <spdlog/common.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+// Constructor: Opens the log file in append mode
+Logger::Logger(bool toStdOut) {
+  if (toStdOut) {
+    myLogger->sinks().push_back(
+        std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+  }
 }
 
-// Logs a message with a given log level 
-void Logger::log(LogLevel level, const std::string& message) { 
-    // Get current timestamp 
-    time_t now = time(0); 
-    tm* timeinfo = localtime(&now); 
-    char timestamp[20]; 
-    strftime(timestamp, sizeof(timestamp), 
-                "%Y-%m-%d %H:%M:%S", timeinfo); 
+// Destructor: Closes the log file
+Logger::~Logger() {}
 
-    // Create log entry 
-    std::ostringstream logEntry; 
-    logEntry << "[" << timestamp << "] "
-                << levelToString(level) << ": " << message 
-                << std::endl;
+Logger::Logger(Logger &&other) noexcept {}
+Logger &Logger::operator=(Logger &&other) noexcept {
+  if (this != &other) {
+  }
+  return *this;
+}
+template <typename T> void Logger::addSink(std::shared_ptr<T> sink) {
+  try {
+    myLogger->sinks().push_back(sink);
+  } catch (std::exception &e) {
+    std::cerr << "Error adding sink: " << e.what() << std::endl;
+  }
+}
 
-    logFile.open(this->logFName, std::ios::app);
-    if (!logFile.is_open()) { 
-        std::cerr << "Error opening log file." << std::endl; 
-    } 
-    std::cout << "opened LogFile: " << this->logFName << "successfully." << std::endl;
-
-    // Output to console 
-    std::cout << logEntry.str(); 
-
-    // Output to log file 
-    if (logFile.is_open()) { 
-        logFile << logEntry.str(); 
-        logFile.flush(); // Ensure immediate write to file 
-    } 
-} 
-
-// Converts log level to a string for output 
-std::string Logger::levelToString(LogLevel level) { 
-    switch (level) { 
-    case DEBUG: 
-        return "DEBUG"; 
-    case INFO: 
-        return "INFO"; 
-    case WARNING: 
-        return "WARNING"; 
-    case ERROR: 
-        return "ERROR"; 
-    case CRITICAL: 
-        return "CRITICAL"; 
-    default: 
-        return "UNKNOWN"; 
-    } 
-} 
+// Logs a message with a given log level
+void Logger::log(LogLevel level, const std::string &message) {
+  myLogger->log(static_cast<spdlog::level::level_enum>(level), message);
+}
