@@ -5,6 +5,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 // Constructor: Opens the log file in append mode
 Logger::Logger(bool toStdOut) {
+  myLogger->set_level(spdlog::level::debug);
   if (toStdOut) {
     myLogger->sinks().push_back(
         std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
