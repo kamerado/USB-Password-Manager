@@ -14,7 +14,6 @@
 #include <qobject.h>
 #include <qtimer.h>
 #include <string>
-#include <websocketpp/common/connection_hdl.hpp>
 
 WebSocketServer::WebSocketServer(std::shared_ptr<Logger *> &logM) {
   logger = logM;
@@ -70,6 +69,12 @@ void WebSocketServer::stop() {
   }
 }
 
+void WebSocketServer::sendEntry(websocketpp::connection_hdl &hdl,
+                                server_t::message_ptr &msg,
+                                std::string &message) {
+  wsServer.send(hdl, message, msg->get_opcode());
+}
+
 WebSocketServer::~WebSocketServer() { stop(); }
 
 bool WebSocketServer::isInitialized() const { return this->SocketInitialized; }
@@ -79,5 +84,5 @@ void WebSocketServer::onMessage(websocketpp::connection_hdl hdl,
   QString message = QString::fromStdString(msg->get_payload());
   (*logger)->log(DEBUG, "DEBUG: WebSocketServer message sent: " +
                             message.toStdString());
-  emit messageReceived(message);
+  emit messageReceived(message, hdl, msg);
 }

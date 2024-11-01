@@ -10,6 +10,7 @@
 #include <memory>
 #include <qobject.h>
 #include <qtmetamacros.h>
+#include <websocketpp/common/connection_hdl.hpp>
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 
@@ -26,6 +27,8 @@ public:
   bool isInitialized() const;
   ~WebSocketServer();
   void toggleSocket();
+  void sendEntry(websocketpp::connection_hdl &hdl, server_t::message_ptr &msg,
+                 std::string &message);
 
 public slots:
   // void initialize();
@@ -34,7 +37,8 @@ public slots:
 
 signals:
   void initialized(bool success);
-  void messageReceived(const QString &message);
+  void messageReceived(const QString &message, websocketpp::connection_hdl &hdl,
+                       server_t::message_ptr &msg);
   void sendToggleSignal();
 
 private:
