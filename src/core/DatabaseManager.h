@@ -6,7 +6,10 @@
 #include <QtDebug>
 #include <QtSql>
 #include <memory>
+#include <qsqlquery.h>
+#include <qt5/QtCore/qchar.h>
 #include <src/core/Logger.h>
+#include <vector>
 
 struct rowEntry {
   int id;
@@ -44,13 +47,12 @@ public:
   bool deleteEntry(int id);
   bool deleteAllEntries();
   void closeDatabase();
-  // bool open(); // Opens a connection to the database
-  // void Close(); // Closes the connection to the database
-  // bool execute(const std::string& sql); // Executes a simple SQL command,
+  std::vector<QString>
+  executeCheck(QString &website); // Executes a simple SQL command,
   // such as CREATE or INSERT etc.
   QList<rowEntry>
   queryAll(); // Executes a SQL query for all entrys and returns the results
-  void testFunctionality();
+  std::vector<QString> parseRequest(const std::string &requestStr);
 
 private:
   QSqlDatabase db;

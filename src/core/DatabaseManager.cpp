@@ -7,7 +7,11 @@
 #include <QtDebug>
 #include <QtSql>
 #include <memory>
-
+#include <nlohmann/json.hpp>
+#include <qsqlquery.h>
+#include <qt5/QtCore/qchar.h>
+#include <string>
+#include <vector>
 DatabaseManager::DatabaseManager() {}
 
 DatabaseManager::DatabaseManager(std::shared_ptr<Logger *> &logM) {
@@ -16,12 +20,12 @@ DatabaseManager::DatabaseManager(std::shared_ptr<Logger *> &logM) {
   this->db.setDatabaseName(this->dbPath);
 
   if (this->db.open()) {
-    (*logger)->log(INFO, "Database: " + this->dbPath.toStdString() +
+    (*logger)->log(INFO, "DatabaseManager: " + this->dbPath.toStdString() +
                              " has been opened.");
     this->setupDB();
   } else {
-    (*logger)->log(ERROR,
-                   "Error loading database: " + this->dbPath.toStdString());
+    (*logger)->log(ERROR, "DatabaseManager: loading database: " +
+                              this->dbPath.toStdString());
   }
 }
 
@@ -50,7 +54,7 @@ void DatabaseManager::setupDB() {
                   "primary key, website text, username text, password text);");
   if (!dbquery.exec()) {
     // qWarning("%s", dbquery.lastError().text().toLocal8Bit().data());
-    (*logger)->log(ERROR, "Fail DB Setup");
+    (*logger)->log(ERROR, "DatabaseManager: Fail DB Setup");
     return;
   }
 }
@@ -68,10 +72,11 @@ bool DatabaseManager::addEntry(int id, const QString &website,
   query.addBindValue(password);
 
   if (!query.exec()) {
-    qDebug() << "Error: Could not insert data into table." << query.lastError();
+    (*logger)->log(ERROR, "DatabaseManager: Could not insert data into table." +
+                              query.lastError().text().toStdString());
     return false;
   } else {
-    qDebug() << "Data inserted successfully!";
+    (*logger)->log(INFO, "DatabaseManager: Data inserted successfully!");
     return true;
   }
 }
@@ -91,11 +96,12 @@ bool DatabaseManager::updateEntry(int id, const QString &new_website,
 
   // Execute the update query
   if (!query.exec()) {
-    qDebug() << "Error: Could not update data in table." << query.lastError();
+    (*logger)->log(ERROR, "DatabaseManager: Could not update data in table." +
+                              query.lastError().text().toStdString());
     return false;
   } else {
     this->db.commit();
-    qDebug() << "Data updated successfully!";
+    (*logger)->log(INFO, "DatabaseManager: Data updated successfully!");
     return true;
   }
 }
@@ -109,10 +115,11 @@ bool DatabaseManager::deleteEntry(int id) {
 
   // Execute the delete query
   if (!query.exec()) {
-    qDebug() << "Error: Could not delete data from table." << query.lastError();
+    (*logger)->log(ERROR, "DatabaseManager: Could not delete data from table." +
+                              query.lastError().text().toStdString());
     return false;
   } else {
-    qDebug() << "Data deleted successfully!";
+    (*logger)->log(INFO, "DatabaseManager: Data deleted successfully!");
     return true;
   }
 }
@@ -122,11 +129,12 @@ bool DatabaseManager::deleteAllEntries() {
   query.prepare("DELETE FROM credentials");
 
   if (!query.exec()) {
-    qDebug() << "Error: Could not delete all data from table."
-             << query.lastError();
+    (*logger)->log(ERROR,
+                   "DatabaseManager: Could not delete all data from table." +
+                       query.lastError().text().toStdString());
     return false;
   } else {
-    qDebug() << "All data deleted successfully!";
+    (*logger)->log(INFO, "DatabaseManager: All data deleted successfully!");
     return true;
   }
 }
@@ -135,7 +143,8 @@ QList<rowEntry> DatabaseManager::queryAll() {
   QSqlQuery query("SELECT * FROM credentials");
   QList<rowEntry> results;
   if (!query.exec()) {
-    qDebug() << "Error: Could not execute query" << query.lastError().text();
+    (*logger)->log(ERROR, "DatabaseManager: Could not execute query" +
+                              query.lastError().text().toStdString());
     return results; // Return empty list
   }
 
@@ -160,12 +169,117 @@ QList<rowEntry> DatabaseManager::queryAll() {
 void DatabaseManager::closeDatabase() {
   if (this->db.isOpen()) {
     this->db.close(); // Close the database connection
-    qDebug() << "Database closed successfully!";
+    (*logger)->log(INFO, "DatabaseManager: Database closed successfully!");
   }
 
   // Remove the connection from the connection pool
   QSqlDatabase::removeDatabase(this->dbPath);
-  qDebug() << "Database connection removed.";
+  (*logger)->log(INFO, "DatabaseManager: Database connection removed.");
 }
 
-void RequestHandler::parseRequest(const std::string &requestStr) {}
+std::vector<QString>
+DatabaseManager::parseRequest(const std::string &requestStr) {
+  (*logger)->log(DEBUG,
+                 "DatabaseManager: parseRequest received: " + requestStr);
+  try {
+    using json = nlohmann::json;
+    json j = json::parse(requestStr);
+
+    if (!j.contains("type") || !j["type"].is_string()) {
+      (*logger)->log(
+          ERROR,
+          "DatabaseManager: Missing or invalid 'type' field in message.");
+      return std::vector<QString>();
+    }
+
+    const std::string &typeStr = j["type"];
+
+    if (typeStr == "new-entry") {
+      if (!j.contains("website") || !j["website"].is_string()) {
+        (*logger)->log(
+            ERROR, "DatabaseManager: 'website' field missing or not a string");
+        return std::vector<QString>();
+      }
+      std::string website = j["website"];
+      (*logger)->log(DEBUG,
+                     "DatabaseManager: website value extracted: " + website);
+
+      if (!j.contains("username") || !j["username"].is_string()) {
+        (*logger)->log(
+            ERROR,
+            "DatabaseManager: 'username' field missing or not a string.");
+        return std::vector<QString>();
+      }
+      std::string username = j["username"];
+      (*logger)->log(DEBUG,
+                     "DatabaseManager: username value extracted: " + username);
+
+      if (!j.contains("password") || !j["password"].is_string()) {
+        (*logger)->log(
+            ERROR,
+            "DatabaseManager: 'password' field missing or not a string.");
+        return std::vector<QString>();
+      }
+      std::string password = j["password"];
+      (*logger)->log(DEBUG,
+                     "DatabaseManager: password value extracted: " + password);
+
+      std::vector<QString> tmp = std::vector<QString>();
+      tmp.push_back(QString::fromStdString(typeStr));
+      tmp.push_back(QString::fromStdString(website));
+      tmp.push_back(QString::fromStdString(username));
+      tmp.push_back(QString::fromStdString(password));
+      return tmp;
+
+    } else if (typeStr == "check-entry") {
+      if (!j.contains("website") || !j["website"].is_string()) {
+        (*logger)->log(
+            ERROR, "DatabaseManager: 'website' field missing or not a string");
+        return std::vector<QString>();
+      }
+
+      std::string website = j["website"];
+      std::vector<QString> tmp = std::vector<QString>();
+      tmp.push_back(QString::fromStdString(typeStr));
+      tmp.push_back(QString::fromStdString(website));
+      (*logger)->log(DEBUG, "DatabaseManager: website check value extracted: " +
+                                website);
+
+      return tmp;
+    }
+
+  } catch (const nlohmann::json::parse_error &e) {
+    (*logger)->log(ERROR,
+                   "DatabaseManager: parsing JSON: " + std::string(e.what()));
+  } catch (const std::exception &e) {
+    (*logger)->log(ERROR, "DatabaseManager: " + std::string(e.what()));
+  }
+  return std::vector<QString>();
+}
+
+std::vector<QString> DatabaseManager::executeCheck(QString &website) {
+  std::vector<QString> tmp;
+  QSqlQuery query("SELECT * FROM credentials WHERE website = ? ");
+
+  query.addBindValue(website);
+
+  if (!query.exec()) {
+    (*logger)->log(ERROR, "DatabaseManager: Could not delete data from table." +
+                              query.lastError().text().toStdString());
+    return std::vector<QString>();
+  } else {
+    if (query.next()) {
+      int id = query.value(0).toInt();
+      QString website = query.value(1).toString();
+      QString username = query.value(2).toString();
+      QString password = query.value(3).toString();
+      tmp.push_back(username);
+      tmp.push_back(password);
+    } else {
+      (*logger)->log(DEBUG, "DatabaseManager: No query return results.");
+      return std::vector<QString>();
+    }
+
+    return tmp;
+  }
+}
