@@ -12,6 +12,8 @@
 #include <qt5/QtCore/qchar.h>
 #include <qt5/QtCore/qthread.h>
 #include <src/core/Logger.h>
+#include <websocketpp/config/asio_no_tls.hpp>
+#include <websocketpp/roles/server_endpoint.hpp>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -43,7 +45,9 @@ private slots:
   void on_DeleteAll_clicked();
 
 public slots:
-  void parseMessage(const QString &);
+  void parseMessage(
+      const QString &, websocketpp::connection_hdl &hdl,
+      websocketpp::server<websocketpp::config::asio>::message_ptr &msg);
 
 private:
   Ui::MainWindow *ui;

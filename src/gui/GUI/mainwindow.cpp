@@ -23,6 +23,8 @@
 #include <qt5/QtCore/qchar.h>
 #include <qt5/QtCore/qthread.h>
 #include <sys/socket.h>
+#include <vector>
+#include <websocketpp/common/connection_hdl.hpp>
 
 #include "../src/core/WebSocket.h"
 
@@ -104,8 +106,9 @@ void MainWindow::waitForServerStop() {
 }
 
 void MainWindow::on_StartButton_toggled(bool checked) {
-  (*logger)->log(DEBUG, "DEBUG: on_StartButton_toggled called with checked = " +
-                            std::string((checked) ? "true" : "false"));
+  (*logger)->log(DEBUG,
+                 "MainWindow: on_StartButton_toggled called with checked = " +
+                     std::string((checked) ? "true" : "false"));
   if (checked) {
     // startService();
   } else {
@@ -114,16 +117,17 @@ void MainWindow::on_StartButton_toggled(bool checked) {
 }
 
 void MainWindow::receiveToggleSignal(bool &status) {
-  (*logger)->log(DEBUG, "DEBUG: receiveToggleSignal entry with status = " +
+  (*logger)->log(DEBUG, "MainWindow: receiveToggleSignal entry with status = " +
                             std::string((status) ? "true" : "false"));
 
   if (!ui) {
-    (*logger)->log(ERROR, "Error: 'ui' is not initialized.");
+    (*logger)->log(ERROR, "MainWindow: 'ui' is not initialized.");
     return;
   }
 
   if (!ui->StartButton) {
-    (*logger)->log(ERROR, "Error: 'StartButton' is not initialized in the UI.");
+    (*logger)->log(ERROR,
+                   "MainWindow: 'StartButton' is not initialized in the UI.");
 
     return;
   }
@@ -131,20 +135,22 @@ void MainWindow::receiveToggleSignal(bool &status) {
   if (ui->StartButton) {
     ui->StartButton->setChecked(tmp);
   } else {
-    (*logger)->log(ERROR, "Error: startbtn is not a QPushButton.");
+    (*logger)->log(ERROR, "MainWindow: startbtn is not a QPushButton.");
   }
 }
 
-void MainWindow::parseMessage(const QString &message) {
+void MainWindow::parseMessage(
+    const QString &message, websocketpp::connection_hdl &hdl,
+    websocketpp::server<websocketpp::config::asio>::message_ptr &msg) {
   (*logger)->log(DEBUG,
-                 "DEBUG: parseMessage received: " + message.toStdString());
+                 "MainWindow: parseMessage received: " + message.toStdString());
   try {
     using json = nlohmann::json;
     json j = json::parse(message.toStdString());
 
     if (!j.contains("type") || !j["type"].is_string()) {
       (*logger)->log(ERROR,
-                     "Error: Missing or invalid 'type' field in message.");
+                     "MainWindow: Missing or invalid 'type' field in message.");
       return;
     }
 
@@ -153,24 +159,90 @@ void MainWindow::parseMessage(const QString &message) {
     if (typeStr == "status") {
       if (!j.contains("status") || !j["status"].is_boolean()) {
         (*logger)->log(ERROR,
-                       "Error: 'status' field missing or not a boolean.");
+                       "MainWindow: 'status' field missing or not a boolean.");
         return;
       }
 
       bool status = j["status"];
-      (*logger)->log(DEBUG, "DEBUG: Status value extracted: " +
+      (*logger)->log(DEBUG, "MainWindow: Status value extracted: " +
                                 std::string((status) ? "true" : "false"));
 
       bool statusCopy = status;
       receiveToggleSignal(statusCopy);
     } else if (typeStr == "request") {
-      // TODO: send to request handler -> DB.
-    }
+      if (!j.contains("request") || !j["request"].is_string()) {
+        (*logger)->log(ERROR, "MainWindow: 'request' field missing or string");
+        return;
+      }
 
+      (*logger)->log(INFO, "MainWindow: parsing request...");
+      std::vector<QString> entry = db->parseRequest(j["request"]);
+
+      if (entry.at(0) == "new-entry") {
+        // if (!isValidDomain(entry.at(1).toStdString())) {
+        //   QMessageBox::warning(
+        //       this, "Invalid Website",
+        //       "The website must end with a valid domain name.");
+        //   return;
+        // }
+        //
+        // this->numRows++;
+        // if (this->db->addEntry(numRows, entry.at(0), entry.at(1),
+        //                        entry.at(2))) {
+        //   ui->CTable->setRowCount(numRows);
+        //   ui->CTable->setItem(numRows - 1, 0,
+        //                       new QTableWidgetItem(entry.at(0)));
+        //   ui->CTable->setItem(numRows - 1, 1,
+        //                       new QTableWidgetItem(entry.at(1)));
+        //   ui->CTable->setItem(numRows - 1, 2,
+        //                       new QTableWidgetItem(entry.at(2)));
+        // }
+      } else if (entry.at(0) == "check-entry") {
+        std::vector<QString> result = db->executeCheck(entry.at(1));
+        if (result.size() > 0) {
+          json entry = {{"username", result.at(0).toStdString()},
+                        {"password", result.at(1).toStdString()}};
+          json message = {{"action", "receive-entry"}, {"entry", entry}};
+
+          std::string jsonString = message.dump();
+          (*logger)->log(INFO, jsonString);
+          server->sendEntry(hdl, msg, jsonString);
+          return;
+        } else {
+          json message = {{"action", "receive-null-entry"}};
+
+          std::string jsonString = message.dump();
+          (*logger)->log(INFO, jsonString);
+          server->sendEntry(hdl, msg, jsonString);
+
+          (*logger)->log(DEBUG, "MainWindow: Nothing in vector.");
+          return;
+        }
+
+        if (!isValidDomain(entry.at(0).toStdString())) {
+          QMessageBox::warning(
+              this, "Invalid Website",
+              "The website must end with a valid domain name.");
+          return;
+        }
+
+        this->numRows++;
+        if (this->db->addEntry(numRows, entry.at(0), entry.at(1),
+                               entry.at(2))) {
+          ui->CTable->setRowCount(numRows);
+          ui->CTable->setItem(numRows - 1, 0,
+                              new QTableWidgetItem(entry.at(0)));
+          ui->CTable->setItem(numRows - 1, 1,
+                              new QTableWidgetItem(entry.at(1)));
+          ui->CTable->setItem(numRows - 1, 2,
+                              new QTableWidgetItem(entry.at(2)));
+        }
+      }
+    }
   } catch (const nlohmann::json::parse_error &e) {
-    (*logger)->log(ERROR, "Error parsing JSON: " + std::string(e.what()));
+    (*logger)->log(ERROR, "MainWindow parsing JSON: " + std::string(e.what()));
   } catch (const std::exception &e) {
-    (*logger)->log(ERROR, "Error: " + std::string(e.what()));
+    (*logger)->log(ERROR, "MainWindow: " + std::string(e.what()));
   }
 }
 
