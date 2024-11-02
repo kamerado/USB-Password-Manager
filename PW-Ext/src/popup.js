@@ -31,7 +31,7 @@ function toggle_start() {
       updateStartButton(isOn);
 
       // Send message to background to toggle service.
-      chrome.runtime.sendMessage({ action: "toggleBackground", state: isOn }, (responce) => {
+      chrome.runtime.sendMessage({ action: "toggleBackground", status: isOn }, (responce) => {
         if (responce && responce.status) {
           console.log(responce.status, "background function running: ", responce.status);
         }

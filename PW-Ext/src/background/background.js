@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (isRunning) {
       console.log("Starting background function...");
       if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ type: "status", status: isRunning }));
+        socket.send(JSON.stringify({ type: "status", status: true }));
         console.log("Sent status to WebSocket:", isRunning);
       } else {
         console.warn("WebSocket is not open. Cannot send message.");
