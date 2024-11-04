@@ -69,7 +69,7 @@ void WebSocketServer::stop() {
   }
 }
 
-void WebSocketServer::sendEntry(websocketpp::connection_hdl &hdl,
+void WebSocketServer::sendEntry(websocketpp::connection_hdl hdl,
                                 server_t::message_ptr &msg,
                                 std::string &message) {
   wsServer.send(hdl, message, msg->get_opcode());

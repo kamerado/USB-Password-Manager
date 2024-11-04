@@ -27,7 +27,7 @@ public:
   bool isInitialized() const;
   ~WebSocketServer();
   void toggleSocket();
-  void sendEntry(websocketpp::connection_hdl &hdl, server_t::message_ptr &msg,
+  void sendEntry(websocketpp::connection_hdl hdl, server_t::message_ptr &msg,
                  std::string &message);
 
 public slots:
@@ -37,8 +37,8 @@ public slots:
 
 signals:
   void initialized(bool success);
-  void messageReceived(const QString &message, websocketpp::connection_hdl &hdl,
-                       server_t::message_ptr &msg);
+  void messageReceived(const QString &message, websocketpp::connection_hdl hdl,
+                       server_t::message_ptr msg);
   void sendToggleSignal();
 
 private:
