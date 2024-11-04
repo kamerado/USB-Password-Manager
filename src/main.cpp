@@ -26,11 +26,11 @@ void handler(std::unique_ptr<EncryptionUtil> &encdec) {
 }
 
 int main(int argc, char *argv[]) {
+  QApplication a(argc, argv);
 
   std::shared_ptr<Logger *> logM = std::make_shared<Logger *>(new Logger(true));
   std::unique_ptr<DatabaseManager> db = std::make_unique<DatabaseManager>(logM);
 
-  QApplication a(argc, argv);
   MainWindow m(logM);
 
   int ret;
