@@ -8,3 +8,4 @@ LogFiles/**
 !build/.gitkeep
 !libs/.gitkeep
 src/gui/build-GUI-Desktop-Debug
+CMakeLists.txt.user
