@@ -25,7 +25,7 @@
         <x>0</x>
         <y>0</y>
         <width>1546</width>
-        <height>811</height>
+        <height>779</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -54,7 +54,7 @@
             <x>0</x>
             <y>0</y>
             <width>1526</width>
-            <height>169</height>
+            <height>161</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
@@ -129,7 +129,7 @@
             <x>0</x>
             <y>0</y>
             <width>1526</width>
-            <height>170</height>
+            <height>162</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_9">
@@ -155,7 +155,7 @@
             <x>0</x>
             <y>0</y>
             <width>1526</width>
-            <height>170</height>
+            <height>162</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
@@ -239,7 +239,7 @@
             <x>0</x>
             <y>0</y>
             <width>1526</width>
-            <height>170</height>
+            <height>162</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
@@ -329,6 +329,30 @@
       </layout>
      </widget>
     </widget>
+   </item>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ExitBtn">
+       <property name="text">
+        <string>Exit</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

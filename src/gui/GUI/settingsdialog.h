@@ -2,6 +2,7 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include "src/core/settings.h"
 
 namespace Ui {
 class SettingsDialog;
@@ -15,8 +16,36 @@ public:
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
+private slots:
+    void on_SetMasterPwBtn_clicked();
+
+    void on_SetAutoLockTimoutBtn_clicked();
+
+    void on_AttemptsBtn_clicked();
+
+    void on_ToggleSelfDestruct_checkStateChanged(const Qt::CheckState &arg1);
+
+    void on_PwLengthBtn_clicked();
+
+    void on_DefaultUsernameBtn_clicked();
+
+    void on_PwExpDaysBtn_clicked();
+
+    void on_ClipBoardTimeoutBtn_clicked();
+
+    void on_ToggleReuseWarnings_checkStateChanged(const Qt::CheckState &arg1);
+
+    void on_BrowseFilesBtn_clicked();
+
+    void on_AutoBackupHrsBtn_clicked();
+
+    void on_ToggleAutomaticBackups_checkStateChanged(const Qt::CheckState &arg1);
+
+    void on_ToggleDarkMode_checkStateChanged(const Qt::CheckState &arg1);
+
 private:
     Ui::SettingsDialog *ui;
+    std::unique_ptr<Settings> settings;
 };
 
 #endif // SETTINGSDIALOG_H
