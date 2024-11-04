@@ -7,15 +7,15 @@ console.log("Content script initialization started");
 
   console.log("Content script IIFE started");
 
-  const observer = new MutationObserver((mutations) => {
-    console.log("Mutation observed:", mutations.length, "changes");
-    if (mutations.some(mutation => mutation.type === "childList" || mutation.attributeName === "class")) {
-      console.log("Relevant mutation detected, checking for login form...");
-      runTask();
-      observer.disconnect();
-      console.log("Observer disconnected after detecting changes");
-    }
-  });
+  // const observer = new MutationObserver((mutations) => {
+  //   console.log("Mutation observed:", mutations.length, "changes");
+  //   if (mutations.some(mutation => mutation.type === "childList" || mutation.attributeName === "class")) {
+  //     console.log("Relevant mutation detected, checking for login form...");
+  //     runTask();
+  //     observer.disconnect();
+  //     console.log("Observer disconnected after detecting changes");
+  //   }
+  // });
 
   function getLoginFields() {
     console.log("Starting login field detection");
@@ -95,7 +95,7 @@ console.log("Content script initialization started");
     }
   }
 
-  async function fillForm(username, password) {
+  function fillForm(username, password) {
     console.log("Attempting to fill form");
     const loginFields = getLoginFields();
     if (loginFields.length > 0) {
@@ -116,7 +116,8 @@ console.log("Content script initialization started");
       console.log("Starting runTask");
       const response = await checkForLoginForm();
       if (response) {
-        await fillForm(response.username, response.password);
+
+        // fillForm(response.username, response.password);
       }
     } catch (error) {
       console.error("Error in runTask:", error.message);
@@ -126,16 +127,4 @@ console.log("Content script initialization started");
   console.log("Initial runTask execution");
   runTask();
 
-  const formContainer = document.querySelector("body");
-  if (formContainer) {
-    console.log("Setting up mutation observer on body");
-    observer.observe(formContainer, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["class", "id"],
-    });
-  } else {
-    console.error("Could not find body element for observer");
-  }
 })();

@@ -17,11 +17,22 @@ function connectWebSocket() {
     console.log("Message from server:", event.data);
     const data = JSON.parse(event.data);
 
-    if (data.action === "receive-entry") {
-      console.log("Received entry action", data.entry ? "with entry" : "without entry");
-      if (data.entry === null) {
+    if (data.action === "receive-null-entry") {
+      console.log(
+        "Received entry action",
+        data.entry ? "with entry" : "without entry"
+      );
+      if (!data.entry) {
+        console.log("handler new credentials");
         // TODO: handle creating new login credentials.
+        chrome.windows.create({
+          url: chrome.runtime.getURL("src/newEntry/newEntry.html"),
+          type: "popup",
+          height: 147,
+          width: 222
+        });
       } else {
+        console.log("handler loggin");
         // TODO: handle logging into website.
       }
     }
@@ -61,32 +72,46 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ status: "background function state changed", running: isRunning });
   }
   if (message.action === 'loginFormDetected') {
-    if (_start.textContent === "ON") {
-      console.log("Starting background function...");
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({
-          type: "check-entry",
-          website: message.request.website
-        }));
-        console.log("Sent request to WebSocket:", message.request);
+    chrome.storage.local.get("isOn", (result) => {
+      if (result) {
+        console.log("Login form retected being processed");
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({
+            type: "check-entry",
+            website: message.request.website
+          }));
+          console.log("Sent request to WebSocket:", message.request);
+        } else {
+          console.warn("WebSocket is not open. Cannot send message.");
+        }
+        console.log("Sending check entry response.")
+        sendResponse({
+          status: "Sent check entry", entry: JSON.stringify({
+            type: "check-entry",
+            website: message.request.website
+          })
+        });
       } else {
-        console.warn("WebSocket is not open. Cannot send message.");
+        console.log("Stopping background function...");
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({ type: "status", status: false }));
+          console.log("Sent stop status to WebSocket");
+        }
+        sendResponse({
+          status: "Sent check entry", entry: JSON.stringify({
+            type: "check-entry",
+            website: message.request.website
+          })
+        });
       }
-    } else {
-      console.log("Stopping background function...");
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ type: "status", status: false }));
-        console.log("Sent stop status to WebSocket");
-      }
-      sendResponse({
-        status: "Sent check entry", entry: JSON.stringify({
-          type: "check-entry",
-          website: message.request.website
-        })
-      });
+    });
+
+    return true;
+  }
+  if (message.action === "get-default-username") {
+    if (socket.readyState === WebS.OPEN) {
+      socket.send(JSON.stringify({}))
     }
-
-
   }
   return false;
 });
@@ -102,16 +127,3 @@ function getHostname(callback) {
     }
   });
 }
-
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  console.log(`Tab ${tabId} updated. Status:`, changeInfo.status);
-  if (changeInfo.status === "complete" && tab.active) {
-    console.log("Injecting content script into tab:", tabId);
-    chrome.scripting.executeScript({
-      target: { tabId: tabId },
-      files: ["src/content_script/content_script.js"]
-    })
-      .then(() => console.log("Content script injection successful"))
-      .catch((error) => console.error("Error injecting content script:", error));
-  }
-});
