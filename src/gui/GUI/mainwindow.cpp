@@ -1,5 +1,6 @@
 #include "../../../src/gui/GUI/mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "src/gui/GUI/settingsdialog.h"
 #include <QCloseEvent>
 #include <QFuture>
 #include <QItemSelectionModel>
@@ -24,9 +25,12 @@
 #include <qt5/QtCore/qthread.h>
 #include <sys/socket.h>
 #include <vector>
+#include <QtCore/qmetatype.h>
 #include <websocketpp/common/connection_hdl.hpp>
 
-#include "../src/core/WebSocket.h"
+Q_DECLARE_METATYPE(websocketpp::connection_hdl)
+
+#include "src/core/WebSocket.h"
 
 #include "../../core/DatabaseManager.h"
 #include "../../core/EncryptionUtil.h"
@@ -40,6 +44,7 @@ MainWindow::MainWindow(std::shared_ptr<Logger *> &logM, QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), logger(logM) {
   (*logger)->log(DEBUG, "DEBUG: MainWindow constructor starting");
   ui->setupUi(this);
+  qRegisterMetaType<websocketpp::connection_hdl>("websocketpp::connection_hdl");
   // startbtn = dynamic_cast<QPushButton *>(ui->StartButton);
   ui->CTable->setColumnCount(3);
   QStringList headers;
@@ -49,18 +54,18 @@ MainWindow::MainWindow(std::shared_ptr<Logger *> &logM, QWidget *parent)
   ui->CTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
   ui->CTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
   if (server == nullptr) {
-    server = new WebSocketServer(logger);
-    serverThread = new QThread(this);
-    server->moveToThread(serverThread);
+    server = std::make_unique<WebSocketServer>(logger);
+    serverThread = std::make_unique<QThread>(this);
+    server->moveToThread(&(*serverThread));
 
-    QObject::connect(serverThread, &QThread::started, server,
+    QObject::connect(&(*serverThread), &QThread::started, &(*server),
                      [this]() { server->start(8080); });
 
-    QObject::connect(serverThread, &QThread::finished, server,
+    QObject::connect(&(*serverThread), &QThread::finished, &(*server),
                      &QObject::deleteLater);
 
     // Handle incoming messages on the main thread using queued connections
-    QObject::connect(server, &WebSocketServer::messageReceived, this,
+    QObject::connect(&(*server), &WebSocketServer::messageReceived, this,
                      &MainWindow::parseMessage, Qt::QueuedConnection);
 
     serverThread->start();
@@ -69,22 +74,22 @@ MainWindow::MainWindow(std::shared_ptr<Logger *> &logM, QWidget *parent)
 }
 MainWindow::~MainWindow() {
   stopServer();
-  waitForServerStop();
+  // waitForServerStop();
   delete ui;
 }
 
 void MainWindow::startServer() {
   if (server == nullptr) {
-    server = new WebSocketServer(logger);
-    serverThread = new QThread(this);
-    server->moveToThread(serverThread);
+    server = std::make_unique<WebSocketServer>(logger);
+    serverThread = std::make_unique<QThread>(this);
+    server->moveToThread(&(*serverThread));
 
-    QObject::connect(serverThread, &QThread::started, server,
-                     [this]() { server->start(8080); });
-    QObject::connect(server, &WebSocketServer::messageReceived, this,
-                     &MainWindow::parseMessage);
-    QObject::connect(serverThread, &QThread::finished, server,
-                     &QObject::deleteLater);
+    // QObject::connect(serverThread, &QThread::started, server,
+    //                  [this]() { server->start(8080); });
+    // QObject::connect(server, &WebSocketServer::messageReceived, this,
+    //                  &MainWindow::parseMessage, Qt::QueuedConnection);
+    // QObject::connect(serverThread, &QThread::finished, server,
+    //                  &QObject::deleteLater);
     serverThread->start();
   }
 }
@@ -101,7 +106,6 @@ void MainWindow::waitForServerStop() {
   if (!serverThread->isRunning()) {
     serverThread->wait();
   }
-  delete server;
   server = nullptr;
 }
 
@@ -140,8 +144,8 @@ void MainWindow::receiveToggleSignal(bool &status) {
 }
 
 void MainWindow::parseMessage(
-    const QString &message, websocketpp::connection_hdl &hdl,
-    websocketpp::server<websocketpp::config::asio>::message_ptr &msg) {
+    const QString &message, websocketpp::connection_hdl hdl,
+    websocketpp::server<websocketpp::config::asio>::message_ptr msg) {
   (*logger)->log(DEBUG,
                  "MainWindow: parseMessage received: " + message.toStdString());
   try {
@@ -169,75 +173,86 @@ void MainWindow::parseMessage(
 
       bool statusCopy = status;
       receiveToggleSignal(statusCopy);
-    } else if (typeStr == "request") {
-      if (!j.contains("request") || !j["request"].is_string()) {
-        (*logger)->log(ERROR, "MainWindow: 'request' field missing or string");
+    }
+
+    // if (typeStr == "request") {
+    //   if (!j.contains("request") || !j["request"].is_string()) {
+    //     (*logger)->log(ERROR, "MainWindow: 'request' field missing or
+    //     string"); return;
+    //   }
+    //
+    //   (*logger)->log(INFO, "MainWindow: parsing request...");
+    //   std::vector<QString> entry = db->parseRequest(j["request"]);
+    //
+    //   if (entry.at(0) == "new-entry") {
+    //     // if (!isValidDomain(entry.at(1).toStdString())) {
+    //     //   QMessageBox::warning(
+    //     //       this, "Invalid Website",
+    //     //       "The website must end with a valid domain name.");
+    //     //   return;
+    //     // }
+    //     //
+    //     // this->numRows++;
+    //     // if (this->db->addEntry(numRows, entry.at(0), entry.at(1),
+    //     //                        entry.at(2))) {
+    //     //   ui->CTable->setRowCount(numRows);
+    //     //   ui->CTable->setItem(numRows - 1, 0,
+    //     //                       new QTableWidgetItem(entry.at(0)));
+    //     //   ui->CTable->setItem(numRows - 1, 1,
+    //     //                       new QTableWidgetItem(entry.at(1)));
+    //     //   ui->CTable->setItem(numRows - 1, 2,
+    //     //                       new QTableWidgetItem(entry.at(2)));
+    //     // }
+    //   }
+    // }
+    if (typeStr == "check-entry") {
+      if (!j.contains("website") || !j["website"].is_string()) {
+        (*logger)->log(ERROR,
+                       "MainWindow: 'website' field missing or not a string.");
+        return;
+      }
+      QString tmp = QString::fromStdString(std::string(j["website"]));
+      std::vector<QString> result = db->executeCheck(tmp);
+      if (result.size() > 0) {
+        json entry = {{"username", result.at(0).toStdString()},
+                      {"password", result.at(1).toStdString()}};
+        json message = {{"action", "receive-entry"}, {"entry", entry}};
+
+        std::string jsonString = message.dump();
+        (*logger)->log(DEBUG, jsonString);
+        server->sendEntry(hdl, msg, jsonString);
+        return;
+      } else {
+        json message = {{"action", "receive-null-entry"}};
+
+        std::string jsonString = message.dump();
+        (*logger)->log(INFO, jsonString);
+        server->sendEntry(hdl, msg, jsonString);
+
+        (*logger)->log(DEBUG, "MainWindow: Nothing in vector.");
         return;
       }
 
-      (*logger)->log(INFO, "MainWindow: parsing request...");
-      std::vector<QString> entry = db->parseRequest(j["request"]);
+      // if (!isValidDomain(j["website"])) {
+      //   QMessageBox::warning(
+      //       this, "Invalid Website",
+      //       "The website must end with a valid domain name.");
+      //   return;
+      // }
 
-      if (entry.at(0) == "new-entry") {
-        // if (!isValidDomain(entry.at(1).toStdString())) {
-        //   QMessageBox::warning(
-        //       this, "Invalid Website",
-        //       "The website must end with a valid domain name.");
-        //   return;
-        // }
-        //
-        // this->numRows++;
-        // if (this->db->addEntry(numRows, entry.at(0), entry.at(1),
-        //                        entry.at(2))) {
-        //   ui->CTable->setRowCount(numRows);
-        //   ui->CTable->setItem(numRows - 1, 0,
-        //                       new QTableWidgetItem(entry.at(0)));
-        //   ui->CTable->setItem(numRows - 1, 1,
-        //                       new QTableWidgetItem(entry.at(1)));
-        //   ui->CTable->setItem(numRows - 1, 2,
-        //                       new QTableWidgetItem(entry.at(2)));
-        // }
-      } else if (entry.at(0) == "check-entry") {
-        std::vector<QString> result = db->executeCheck(entry.at(1));
-        if (result.size() > 0) {
-          json entry = {{"username", result.at(0).toStdString()},
-                        {"password", result.at(1).toStdString()}};
-          json message = {{"action", "receive-entry"}, {"entry", entry}};
-
-          std::string jsonString = message.dump();
-          (*logger)->log(INFO, jsonString);
-          server->sendEntry(hdl, msg, jsonString);
-          return;
-        } else {
-          json message = {{"action", "receive-null-entry"}};
-
-          std::string jsonString = message.dump();
-          (*logger)->log(INFO, jsonString);
-          server->sendEntry(hdl, msg, jsonString);
-
-          (*logger)->log(DEBUG, "MainWindow: Nothing in vector.");
-          return;
-        }
-
-        if (!isValidDomain(entry.at(0).toStdString())) {
-          QMessageBox::warning(
-              this, "Invalid Website",
-              "The website must end with a valid domain name.");
-          return;
-        }
-
-        this->numRows++;
-        if (this->db->addEntry(numRows, entry.at(0), entry.at(1),
-                               entry.at(2))) {
-          ui->CTable->setRowCount(numRows);
-          ui->CTable->setItem(numRows - 1, 0,
-                              new QTableWidgetItem(entry.at(0)));
-          ui->CTable->setItem(numRows - 1, 1,
-                              new QTableWidgetItem(entry.at(1)));
-          ui->CTable->setItem(numRows - 1, 2,
-                              new QTableWidgetItem(entry.at(2)));
-        }
-      }
+      // this->numRows++;
+      // if (this->db->addEntry(numRows, entry.at(0), entry.at(1),
+      //                        entry.at(2))) {
+      //   ui->CTable->setRowCount(numRows);
+      //   ui->CTable->setItem(numRows - 1, 0,
+      //                       new QTableWidgetItem(entry.at(0)));
+      //   ui->CTable->setItem(numRows - 1, 1,
+      //                       new QTableWidgetItem(entry.at(1)));
+      //   ui->CTable->setItem(numRows - 1, 2,
+      //                       new QTableWidgetItem(entry.at(2)));
+      // }
+    }
+    if (typeStr == "get-default-username") {
     }
   } catch (const nlohmann::json::parse_error &e) {
     (*logger)->log(ERROR, "MainWindow parsing JSON: " + std::string(e.what()));
@@ -350,6 +365,11 @@ void MainWindow::on_DeleteAll_clicked() {
                            "Failed to delete entries from the database.");
     }
   }
+}
+
+void MainWindow::on_SettingsButton_clicked() {
+    SettingsDialog settingsDialog(this);
+    settingsDialog.exec();
 }
 
 int MainWindow::getCurrRow() {

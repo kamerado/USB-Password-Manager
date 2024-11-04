@@ -43,17 +43,17 @@ private slots:
   void on_Edit_clicked();
   void on_Delete_clicked();
   void on_DeleteAll_clicked();
-
+  void on_SettingsButton_clicked();
 public slots:
   void parseMessage(
-      const QString &, websocketpp::connection_hdl &hdl,
-      websocketpp::server<websocketpp::config::asio>::message_ptr &msg);
+      const QString &, websocketpp::connection_hdl hdl,
+      websocketpp::server<websocketpp::config::asio>::message_ptr msg);
 
 private:
   Ui::MainWindow *ui;
-  QThread *serverThread;
-  QPushButton *startbtn;
-  WebSocketServer *server = nullptr;
+  std::unique_ptr<QThread> serverThread;
+  std::unique_ptr<QPushButton> startbtn;
+  std::unique_ptr<WebSocketServer> server = nullptr;
   void receiveToggleSignal(bool &);
 
   int numRows = 0;
