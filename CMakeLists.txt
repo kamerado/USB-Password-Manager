@@ -24,30 +24,22 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_DIR}/")
 
 set(PROJECT_SOURCES
         src/main.cpp
-        src/gui/GUI/mainwindow.cpp
-        src/gui/GUI/mainwindow.h
-        src/gui/GUI/mainwindow.ui
-        src/gui/GUI/login.cpp
-        src/gui/GUI/login.h
-        src/gui/GUI/login.ui
-        src/core/DatabaseManager.h
-        src/core/DatabaseManager.cpp
-        src/core/EncryptionUtil.h
-        src/core/EncryptionUtil.cpp
-        src/core/Logger.cpp
-        src/core/Logger.h
-        src/core/WebSocket.cpp
-        src/core/WebSocket.h
-
-        src/gui/GUI/setup.ui
-        src/gui/GUI/setup.h
-        src/gui/GUI/setup.cpp
+        src/gui/GUI/mainwindow.cpp src/gui/GUI/mainwindow.h src/gui/GUI/mainwindow.ui
+        src/gui/GUI/login.cpp src/gui/GUI/login.h src/gui/GUI/login.ui
+        src/core/DatabaseManager.h src/core/DatabaseManager.cpp
+        src/core/EncryptionUtil.h src/core/EncryptionUtil.cpp
+        src/core/Logger.cpp src/core/Logger.h
+        src/core/WebSocket.h src/core/WebSocket.cpp
+        src/gui/GUI/setup.ui src/gui/GUI/setup.h src/gui/GUI/setup.cpp
+        src/core/settings.h src/core/settings.cpp
+        src/gui/GUI/settingsdialog.h src/gui/GUI/settingsdialog.cpp src/gui/GUI/settingsdialog.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
   qt_add_executable(nativegui
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+
   )
   target_link_libraries(nativegui PRIVATE
       Qt${QT_VERSION_MAJOR}::Widgets
