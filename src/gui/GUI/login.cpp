@@ -30,7 +30,7 @@ void Login::on_LoginButton_clicked() {
   this->encdec = std::make_unique<EncryptionUtil>(pass);
   this->accept();
 
-  // TODO: Decrypt db.
+  // Decrypt db.
   this->encdec->DecryptFile();
 
   // TODO: If db opens properly, continue to app.

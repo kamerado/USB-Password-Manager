@@ -2,6 +2,7 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QMessageBox>
 #include "src/core/settings.h"
 
 namespace Ui {
@@ -16,6 +17,8 @@ public:
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
+    void onLoadSettings();
+
 private slots:
     void on_SetMasterPwBtn_clicked();
 
@@ -23,7 +26,7 @@ private slots:
 
     void on_AttemptsBtn_clicked();
 
-    void on_ToggleSelfDestruct_checkStateChanged(const Qt::CheckState &arg1);
+    void on_ToggleSelfDestruct_checkStateChanged(const Qt::CheckState &checkState);
 
     void on_PwLengthBtn_clicked();
 
@@ -33,15 +36,15 @@ private slots:
 
     void on_ClipBoardTimeoutBtn_clicked();
 
-    void on_ToggleReuseWarnings_checkStateChanged(const Qt::CheckState &arg1);
+    void on_ToggleReuseWarnings_checkStateChanged(const Qt::CheckState &checkState);
 
     void on_BrowseFilesBtn_clicked();
 
     void on_AutoBackupHrsBtn_clicked();
 
-    void on_ToggleAutomaticBackups_checkStateChanged(const Qt::CheckState &arg1);
+    void on_ToggleAutomaticBackups_checkStateChanged(const Qt::CheckState &checkState);
 
-    void on_ToggleDarkMode_checkStateChanged(const Qt::CheckState &arg1);
+    void on_ToggleDarkMode_checkStateChanged(const Qt::CheckState &checkState);
 
 private:
     Ui::SettingsDialog *ui;

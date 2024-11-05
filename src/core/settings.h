@@ -15,13 +15,17 @@ public:
     QString getMasterPasswordHash() const;
     void setMasterPassword(const QString& password);
     int getAutoLockTimeout() const;
-    void setAutoLockTimoue(int timeSeconds);
+    void setAutoLockTimeout(int timeSeconds);
     bool getSelfDestructEnabled() const;
     void setSelfDestructEnabled(bool enabled);
 
     // Password manager settings
     int getPasswordLength() const;
     void setPasswordLength(int length);
+    int getDefaultAttempts() const;
+    void setDefaultAttempts(int attempts);
+    QString getDefaultUsername() const;
+    void setDefaultUsername(const QString& username);
     bool getIsPasswordReuseWarningEnabled() const;
     void setIsPasswordReuseWarningEnabled(bool enabled);
     int getPasswordExpirationDays() const;
@@ -32,6 +36,8 @@ public:
     void setLocalBackupEnabled(bool enabled);
     QString getBackupPath() const;
     void setBackupPath(const QString& path);
+    int getBackupIntervalHrs() const;
+    void setBackupIntervalHrs(int intervalHrs);
 
     // ClipBoard settings
     int getClipboardTimeout() const;

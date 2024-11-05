@@ -16,7 +16,7 @@ void Settings::setMasterPassword(const QString& password) {
 int Settings::getAutoLockTimeout() const {
     return settings.value("Security/AutoLockTimeout").toInt();
 }
-void Settings::setAutoLockTimoue(int timeSeconds) {
+void Settings::setAutoLockTimeout(int timeSeconds) {
     settings.value("Security/AutoLockTimeout", timeSeconds);
 }
 
@@ -33,6 +33,20 @@ int Settings::getPasswordLength() const {
 }
 void Settings::setPasswordLength(int length) {
     settings.value("PasswordManagement/PasswordLength", length);
+}
+
+int Settings::getDefaultAttempts() const {
+    return settings.value("PasswordManagement/DefaultAttempts").toInt();
+}
+void Settings::setDefaultAttempts(int attempts) {
+    settings.value("PasswordManagemnt/DefaultAttempts", attempts);
+}
+
+QString Settings::getDefaultUsername() const {
+    return settings.value("PasswordManagement/DefaultUsername").toString();
+}
+void Settings::setDefaultUsername(const QString& username) {
+    settings.value("PasswordManagement/DefaultUsername", username);
 }
 
 bool Settings::getIsPasswordReuseWarningEnabled() const {
@@ -62,6 +76,13 @@ QString Settings::getBackupPath() const {
 }
 void Settings::setBackupPath(const QString& path) {
     settings.value("Backup/BackupPath", path);
+}
+
+int Settings::getBackupIntervalHrs() const {
+    return settings.value("Backup/BackupInterval").toInt();
+}
+void Settings::setBackupIntervalHrs(int intervalHrs) {
+    settings.value("Backup/BackupInterval", intervalHrs);
 }
 
 // ClipBoard settings
