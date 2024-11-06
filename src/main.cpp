@@ -25,6 +25,19 @@ void handler(std::unique_ptr<EncryptionUtil> &encdec) {
   enc = std::move(encdec);
 }
 
+template <typename T>
+void startGui(T &w, MainWindow &m, std::shared_ptr<Logger *> &p_logger,
+              std::unique_ptr<DatabaseManager> &p_db) {
+  QWidget::connect(&w, &T::sendEnc, handler);
+  if (w.exec() == QDialog::Accepted) {
+    w.getEnc();
+    m.setEnc(enc);
+    m.setDB(p_db);
+    m.syncUIWithDB();
+    m.show();
+  }
+}
+
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
 
@@ -36,25 +49,11 @@ int main(int argc, char *argv[]) {
   int ret;
   if (!fs::exists("../db/passwords.dbe")) {
     Setup s(logM);
-    QWidget::connect(&s, &Setup::sendEnc, handler);
-    if (s.exec() == QDialog::Accepted) {
-      s.getEnc();
-      m.setEnc(enc);
-      m.setDB(db);
-      m.syncUIWithDB();
-      m.show();
-    }
+    startGui<Setup>(s, m, logM, db);
     ret = a.exec();
   } else {
     Login l(logM);
-    QWidget::connect(&l, &Login::sendEnc, handler);
-    if (l.exec() == QDialog::Accepted) {
-      l.getEnc();
-      m.setEnc(enc);
-      m.setDB(db);
-      m.syncUIWithDB();
-      m.show();
-    }
+    startGui<Login>(l, m, logM, db);
     ret = a.exec();
   }
   std::cout << "exiting" << std::endl;
