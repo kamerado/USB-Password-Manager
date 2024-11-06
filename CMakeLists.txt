@@ -14,7 +14,7 @@ set(CMAKE_CXX_COMPILER gcc)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Sql Widgets Qt6Concurrent REQUIRED)
+find_package(QT NAMES Qt6 COMPONENTS Sql Widgets Qt6Concurrent REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql Widgets REQUIRED)
 find_package(spdlog REQUIRED)
 
@@ -36,12 +36,16 @@ set(PROJECT_SOURCES
 
         src/gui/GUI/settingsdialog.h src/gui/GUI/settingsdialog.cpp
         src/gui/GUI/settingsdialog.ui
+
+        src/gui/GUI/inputdialog.h src/gui/GUI/inputdialog.cpp
+        src/gui/GUI/inputdialog.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
   qt_add_executable(nativegui
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+
 
   )
   target_link_libraries(nativegui PRIVATE
