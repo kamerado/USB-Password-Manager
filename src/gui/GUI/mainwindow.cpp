@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/qtconcurrentrun.h>
+#include <QtCore/qmetatype.h>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
@@ -25,7 +26,6 @@
 #include <qt5/QtCore/qthread.h>
 #include <sys/socket.h>
 #include <vector>
-#include <QtCore/qmetatype.h>
 #include <websocketpp/common/connection_hdl.hpp>
 
 Q_DECLARE_METATYPE(websocketpp::connection_hdl)
@@ -57,13 +57,10 @@ MainWindow::MainWindow(std::shared_ptr<Logger *> &logM, QWidget *parent)
     server = std::make_unique<WebSocketServer>(logger);
     serverThread = std::make_unique<QThread>(this);
     server->moveToThread(&(*serverThread));
-
     QObject::connect(&(*serverThread), &QThread::started, &(*server),
                      [this]() { server->start(8080); });
-
     QObject::connect(&(*serverThread), &QThread::finished, &(*server),
                      &QObject::deleteLater);
-
     // Handle incoming messages on the main thread using queued connections
     QObject::connect(&(*server), &WebSocketServer::messageReceived, this,
                      &MainWindow::parseMessage, Qt::QueuedConnection);
@@ -114,9 +111,9 @@ void MainWindow::on_StartButton_toggled(bool checked) {
                  "MainWindow: on_StartButton_toggled called with checked = " +
                      std::string((checked) ? "true" : "false"));
   if (checked) {
-    // startService();
+    // TODO: startService();
   } else {
-    // stopService();
+    // TODO: stopService();
   }
 }
 
@@ -174,37 +171,6 @@ void MainWindow::parseMessage(
       bool statusCopy = status;
       receiveToggleSignal(statusCopy);
     }
-
-    // if (typeStr == "request") {
-    //   if (!j.contains("request") || !j["request"].is_string()) {
-    //     (*logger)->log(ERROR, "MainWindow: 'request' field missing or
-    //     string"); return;
-    //   }
-    //
-    //   (*logger)->log(INFO, "MainWindow: parsing request...");
-    //   std::vector<QString> entry = db->parseRequest(j["request"]);
-    //
-    //   if (entry.at(0) == "new-entry") {
-    //     // if (!isValidDomain(entry.at(1).toStdString())) {
-    //     //   QMessageBox::warning(
-    //     //       this, "Invalid Website",
-    //     //       "The website must end with a valid domain name.");
-    //     //   return;
-    //     // }
-    //     //
-    //     // this->numRows++;
-    //     // if (this->db->addEntry(numRows, entry.at(0), entry.at(1),
-    //     //                        entry.at(2))) {
-    //     //   ui->CTable->setRowCount(numRows);
-    //     //   ui->CTable->setItem(numRows - 1, 0,
-    //     //                       new QTableWidgetItem(entry.at(0)));
-    //     //   ui->CTable->setItem(numRows - 1, 1,
-    //     //                       new QTableWidgetItem(entry.at(1)));
-    //     //   ui->CTable->setItem(numRows - 1, 2,
-    //     //                       new QTableWidgetItem(entry.at(2)));
-    //     // }
-    //   }
-    // }
     if (typeStr == "check-entry") {
       if (!j.contains("website") || !j["website"].is_string()) {
         (*logger)->log(ERROR,
@@ -232,27 +198,9 @@ void MainWindow::parseMessage(
         (*logger)->log(DEBUG, "MainWindow: Nothing in vector.");
         return;
       }
-
-      // if (!isValidDomain(j["website"])) {
-      //   QMessageBox::warning(
-      //       this, "Invalid Website",
-      //       "The website must end with a valid domain name.");
-      //   return;
-      // }
-
-      // this->numRows++;
-      // if (this->db->addEntry(numRows, entry.at(0), entry.at(1),
-      //                        entry.at(2))) {
-      //   ui->CTable->setRowCount(numRows);
-      //   ui->CTable->setItem(numRows - 1, 0,
-      //                       new QTableWidgetItem(entry.at(0)));
-      //   ui->CTable->setItem(numRows - 1, 1,
-      //                       new QTableWidgetItem(entry.at(1)));
-      //   ui->CTable->setItem(numRows - 1, 2,
-      //                       new QTableWidgetItem(entry.at(2)));
-      // }
     }
     if (typeStr == "get-default-username") {
+      // TODO: Handle get-default-username request.
     }
   } catch (const nlohmann::json::parse_error &e) {
     (*logger)->log(ERROR, "MainWindow parsing JSON: " + std::string(e.what()));
@@ -368,8 +316,8 @@ void MainWindow::on_DeleteAll_clicked() {
 }
 
 void MainWindow::on_SettingsButton_clicked() {
-    SettingsDialog settingsDialog(this);
-    settingsDialog.exec();
+  SettingsDialog settingsDialog(logger, this);
+  settingsDialog.exec();
 }
 
 int MainWindow::getCurrRow() {

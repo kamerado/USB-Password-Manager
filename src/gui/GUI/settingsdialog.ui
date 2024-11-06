@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>695</width>
-    <height>650</height>
+    <height>781</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -78,8 +78,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>675</width>
-        <height>602</height>
+        <width>661</width>
+        <height>756</height>
        </rect>
       </property>
       <property name="minimumSize">
@@ -92,342 +92,6 @@
        <property name="verticalSpacing">
         <number>0</number>
        </property>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>UI</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QScrollArea" name="SecuritySettings">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>Security Settings</string>
-         </property>
-         <property name="toolTipDuration">
-          <number>3</number>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
-         </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
-         </property>
-         <widget class="QWidget" name="SecurityWidget">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>641</width>
-            <height>171</height>
-           </rect>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_3">
-           <property name="sizeConstraint">
-            <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
-           </property>
-           <property name="verticalSpacing">
-            <number>0</number>
-           </property>
-           <item row="1" column="2">
-            <widget class="QPushButton" name="SetAutoLockTimoutBtn">
-             <property name="toolTip">
-              <string>Sets AutoLock Timeout</string>
-             </property>
-             <property name="text">
-              <string>Edit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_16">
-             <property name="text">
-              <string>Attempt Limit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QCheckBox" name="ToggleSelfDestruct">
-             <property name="text">
-              <string>Toggle Self Destruct</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="AutoLockTimeoutInput">
-             <property name="toolTip">
-              <string>Read only. Press Edit button to edit entry.</string>
-             </property>
-             <property name="text">
-              <string>240</string>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="AttemptsInput">
-             <property name="toolTip">
-              <string>Read only. Press Edit button to edit entry.</string>
-             </property>
-             <property name="text">
-              <string>5</string>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>AutoLock timeout seconds</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QPushButton" name="SetMasterPwBtn">
-             <property name="toolTip">
-              <string>Sets Master Password Hash</string>
-             </property>
-             <property name="text">
-              <string>Edit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Orientation::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Policy::MinimumExpanding</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>59</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="2" column="2">
-            <widget class="QPushButton" name="AttemptsBtn">
-             <property name="toolTip">
-              <string>Sets Attempt Limit Before Self Destruct</string>
-             </property>
-             <property name="text">
-              <string>Edit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Master Password</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QScrollArea" name="PwManagementSettings">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>Password Management Settings</string>
-         </property>
-         <property name="toolTipDuration">
-          <number>3</number>
-         </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="PWManagementWidget">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>641</width>
-            <height>225</height>
-           </rect>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_5">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>Password Length</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QPushButton" name="DefaultUsernameBtn">
-             <property name="toolTip">
-              <string>Sets Default Account Username</string>
-             </property>
-             <property name="text">
-              <string>Edit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_15">
-             <property name="text">
-              <string>Clipboard Timeout Seconds</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="3">
-            <widget class="QPushButton" name="PwExpDaysBtn">
-             <property name="toolTip">
-              <string>Sets Password Expiration</string>
-             </property>
-             <property name="text">
-              <string>Edit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="2">
-            <widget class="QLineEdit" name="ClipBoardTimeoutSecInput">
-             <property name="toolTip">
-              <string>Read only. Press Edit button to edit entry.</string>
-             </property>
-             <property name="text">
-              <string>30</string>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_11">
-             <property name="text">
-              <string>Default Account Username</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QLineEdit" name="DefaultUsernameInput">
-             <property name="toolTip">
-              <string>Read only. Press Edit button to edit entry.</string>
-             </property>
-             <property name="text">
-              <string>changeme</string>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QPushButton" name="PwLengthBtn">
-             <property name="toolTip">
-              <string>Sets Default password length</string>
-             </property>
-             <property name="text">
-              <string>Edit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLineEdit" name="PwLengthInput">
-             <property name="toolTip">
-              <string>Read only. Press Edit button to edit entry.</string>
-             </property>
-             <property name="text">
-              <string>16</string>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="3">
-            <widget class="QPushButton" name="ClipBoardTimeoutBtn">
-             <property name="toolTip">
-              <string>Sets ClipBoard Timeout</string>
-             </property>
-             <property name="text">
-              <string>Edit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QLineEdit" name="PwExpirationInput">
-             <property name="toolTip">
-              <string>Read only. Press Edit button to edit entry.</string>
-             </property>
-             <property name="text">
-              <string>14</string>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_10">
-             <property name="text">
-              <string>Password Expiration Days</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QCheckBox" name="ToggleReuseWarnings">
-             <property name="text">
-              <string>Toggle Reuse Warnings</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <spacer name="verticalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Orientation::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Policy::MinimumExpanding</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>59</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
        <item row="5" column="0">
         <widget class="QScrollArea" name="BackupSettings">
          <property name="sizePolicy">
@@ -513,6 +177,9 @@
              <property name="text">
               <string>Backup FilePath</string>
              </property>
+             <property name="buddy">
+              <cstring>BrowseFilesBtn</cstring>
+             </property>
             </widget>
            </item>
            <item row="1" column="0">
@@ -520,64 +187,13 @@
              <property name="text">
               <string>AutoBackup interval hours</string>
              </property>
+             <property name="buddy">
+              <cstring>AutoBackupHrsBtn</cstring>
+             </property>
             </widget>
            </item>
            <item row="3" column="0">
             <spacer name="verticalSpacer_4">
-             <property name="orientation">
-              <enum>Qt::Orientation::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Policy::MinimumExpanding</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>59</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QScrollArea" name="UISettings">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>UI SEttings</string>
-         </property>
-         <property name="toolTipDuration">
-          <number>3</number>
-         </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="UIWidget">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>655</width>
-            <height>111</height>
-           </rect>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_9">
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="ToggleDarkMode">
-             <property name="text">
-              <string>Toggle DarkMode</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <spacer name="verticalSpacer_2">
              <property name="orientation">
               <enum>Qt::Orientation::Vertical</enum>
              </property>
@@ -625,6 +241,404 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="0">
+        <widget class="QScrollArea" name="SecuritySettings">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Security Settings</string>
+         </property>
+         <property name="toolTipDuration">
+          <number>3</number>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+         </property>
+         <widget class="QWidget" name="SecurityWidget">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>641</width>
+            <height>171</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <property name="sizeConstraint">
+            <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+           </property>
+           <property name="verticalSpacing">
+            <number>0</number>
+           </property>
+           <item row="1" column="2">
+            <widget class="QPushButton" name="SetAutoLockTimoutBtn">
+             <property name="toolTip">
+              <string>Sets AutoLock Timeout</string>
+             </property>
+             <property name="text">
+              <string>Edit</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>Attempt Limit</string>
+             </property>
+             <property name="buddy">
+              <cstring>AttemptsBtn</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QCheckBox" name="ToggleSelfDestruct">
+             <property name="text">
+              <string>Toggle Self Destruct</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="AutoLockTimeoutInput">
+             <property name="toolTip">
+              <string>Read only. Press Edit button to edit entry.</string>
+             </property>
+             <property name="text">
+              <string>240</string>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="AttemptsInput">
+             <property name="toolTip">
+              <string>Read only. Press Edit button to edit entry.</string>
+             </property>
+             <property name="text">
+              <string>5</string>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>AutoLock timeout seconds</string>
+             </property>
+             <property name="buddy">
+              <cstring>SetAutoLockTimoutBtn</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="SetMasterPwBtn">
+             <property name="toolTip">
+              <string>Sets Master Password Hash</string>
+             </property>
+             <property name="text">
+              <string>Edit</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Policy::MinimumExpanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>59</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="2" column="2">
+            <widget class="QPushButton" name="AttemptsBtn">
+             <property name="toolTip">
+              <string>Sets Attempt Limit Before Self Destruct</string>
+             </property>
+             <property name="text">
+              <string>Edit</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Master Password</string>
+             </property>
+             <property name="buddy">
+              <cstring>SetMasterPwBtn</cstring>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QScrollArea" name="PwManagementSettings">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Password Management Settings</string>
+         </property>
+         <property name="toolTipDuration">
+          <number>3</number>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="PWManagementWidget">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>641</width>
+            <height>225</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>Password Length</string>
+             </property>
+             <property name="buddy">
+              <cstring>PwLengthBtn</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QPushButton" name="DefaultUsernameBtn">
+             <property name="toolTip">
+              <string>Sets Default Account Username</string>
+             </property>
+             <property name="text">
+              <string>Edit</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>Clipboard Timeout Seconds</string>
+             </property>
+             <property name="buddy">
+              <cstring>ClipBoardTimeoutBtn</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QPushButton" name="PwExpDaysBtn">
+             <property name="toolTip">
+              <string>Sets Password Expiration</string>
+             </property>
+             <property name="text">
+              <string>Edit</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLineEdit" name="ClipBoardTimeoutSecInput">
+             <property name="toolTip">
+              <string>Read only. Press Edit button to edit entry.</string>
+             </property>
+             <property name="text">
+              <string>30</string>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Default Account Username</string>
+             </property>
+             <property name="buddy">
+              <cstring>DefaultUsernameBtn</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLineEdit" name="DefaultUsernameInput">
+             <property name="toolTip">
+              <string>Read only. Press Edit button to edit entry.</string>
+             </property>
+             <property name="text">
+              <string>changeme</string>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="PwLengthBtn">
+             <property name="toolTip">
+              <string>Sets Default password length</string>
+             </property>
+             <property name="text">
+              <string>Edit</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLineEdit" name="PwLengthInput">
+             <property name="toolTip">
+              <string>Read only. Press Edit button to edit entry.</string>
+             </property>
+             <property name="text">
+              <string>16</string>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="QPushButton" name="ClipBoardTimeoutBtn">
+             <property name="toolTip">
+              <string>Sets ClipBoard Timeout</string>
+             </property>
+             <property name="text">
+              <string>Edit</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLineEdit" name="PwExpirationInput">
+             <property name="toolTip">
+              <string>Read only. Press Edit button to edit entry.</string>
+             </property>
+             <property name="text">
+              <string>14</string>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>Password Expiration Days</string>
+             </property>
+             <property name="buddy">
+              <cstring>PwExpDaysBtn</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QCheckBox" name="ToggleReuseWarnings">
+             <property name="text">
+              <string>Toggle Reuse Warnings</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Policy::MinimumExpanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>59</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QScrollArea" name="UISettings">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>UI SEttings</string>
+         </property>
+         <property name="toolTipDuration">
+          <number>3</number>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="UIWidget">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>641</width>
+            <height>105</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_9">
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="ToggleDarkMode">
+             <property name="text">
+              <string>Toggle DarkMode</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Policy::MinimumExpanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>59</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_5">
          <property name="sizePolicy">
@@ -635,6 +649,19 @@
          </property>
          <property name="text">
           <string>Password Management</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>UI</string>
          </property>
         </widget>
        </item>
