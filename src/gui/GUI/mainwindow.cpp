@@ -13,7 +13,7 @@
 #include <exception>
 #include <iostream>
 #include <memory>
-#include <nlohmann/json.hpp>
+#include "libs/jsoncpp/include/json/json.h"
 #include <qapplication.h>
 #include <qfuture.h>
 #include <qglobal.h>
@@ -22,8 +22,6 @@
 #include <qobject.h>
 #include <qobjectdefs.h>
 #include <qpushbutton.h>
-#include <qt5/QtCore/qchar.h>
-#include <qt5/QtCore/qthread.h>
 #include <sys/socket.h>
 #include <vector>
 #include <websocketpp/common/connection_hdl.hpp>

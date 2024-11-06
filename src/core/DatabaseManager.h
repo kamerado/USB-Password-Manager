@@ -7,7 +7,6 @@
 #include <QtSql>
 #include <memory>
 #include <qsqlquery.h>
-#include <qt5/QtCore/qchar.h>
 #include <src/core/Logger.h>
 #include <vector>
 

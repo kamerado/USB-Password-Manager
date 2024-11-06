@@ -7,9 +7,8 @@
 #include <QtDebug>
 #include <QtSql>
 #include <memory>
-#include <nlohmann/json.hpp>
+#include "libs/jsoncpp/include/json/json.h"
 #include <qsqlquery.h>
-#include <qt5/QtCore/qchar.h>
 #include <string>
 #include <vector>
 DatabaseManager::DatabaseManager() {}

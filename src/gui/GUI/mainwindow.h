@@ -9,8 +9,6 @@
 #include <memory>
 #include <qglobal.h>
 #include <qpushbutton.h>
-#include <qt5/QtCore/qchar.h>
-#include <qt5/QtCore/qthread.h>
 #include <src/core/Logger.h>
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/roles/server_endpoint.hpp>

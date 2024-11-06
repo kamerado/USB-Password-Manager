@@ -9,16 +9,18 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(CMAKE_C_COMPILER gcc)
-set(CMAKE_CXX_COMPILER gcc)
+set(CMAKE_CXX_COMPILER /usr/bin/g++)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 find_package(QT NAMES Qt6 COMPONENTS Sql Widgets Qt6Concurrent REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql Widgets REQUIRED)
-find_package(spdlog REQUIRED)
+add_subdirectory(libs/spdlog)
 
-link_directories("${PROJECT_SOURCE_DIR}/libs")
+# JsonCpp
+option(JSONCPP_WITH_TESTS OFF)  # Disable tests
+option(JSONCPP_WITH_POST_BUILD_UNITTEST OFF)  # Disable post-build tests
+add_subdirectory(libs/jsoncpp)
 
 set(PROJECT_SOURCES
         src/main.cpp
@@ -41,19 +43,46 @@ set(PROJECT_SOURCES
         src/gui/GUI/inputdialog.ui
 )
 
+
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
   qt_add_executable(nativegui
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-
-
   )
+
+# After your existing Qt and spdlog configuration
+
+# ASIO (header-only)
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/asio/asio/include/asio.hpp")
+    message(FATAL_ERROR "ASIO submodule not initialized. Please run: git submodule update --init --recursive")
+endif()
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/asio/asio/include
+)
+
+# Tell ASIO to be standalone (no Boost)
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    ASIO_STANDALONE
+    ASIO_HAS_STD_CHRONO
+)
+
+# WebSocket++ (header-only)
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/websocketpp/websocketpp/client.hpp")
+    message(FATAL_ERROR "WebSocket++ submodule not initialized. Please run: git submodule update --init --recursive")
+endif()
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/websocketpp
+)
   target_link_libraries(nativegui PRIVATE
       Qt${QT_VERSION_MAJOR}::Widgets
       crypto++
       Qt${QT_VERSION_MAJOR}::Sql
       stdc++
       spdlog::spdlog
+      jsoncpp_lib
   )
 
   set_target_properties(nativegui PROPERTIES
