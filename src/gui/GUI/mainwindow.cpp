@@ -1,4 +1,4 @@
-#include "../../../src/gui/GUI/mainwindow.h"
+#include "src/gui/GUI/mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "src/gui/GUI/settingsdialog.h"
 #include <QCloseEvent>
@@ -13,7 +13,7 @@
 #include <exception>
 #include <iostream>
 #include <memory>
-#include "libs/jsoncpp/include/json/json.h"
+#include <nlohmann/json.hpp>
 #include <qapplication.h>
 #include <qfuture.h>
 #include <qglobal.h>

@@ -16,7 +16,7 @@
 #include <qfuture.h>
 #include <qobject.h>
 #include <qthread.h>
-
+#define BOOST_USE_SHADOW_STACK 0
 namespace fs = std::filesystem;
 
 std::unique_ptr<EncryptionUtil> enc;

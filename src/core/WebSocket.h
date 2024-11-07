@@ -11,6 +11,8 @@
 #include <qobject.h>
 #include <qtmetamacros.h>
 #include <websocketpp/common/connection_hdl.hpp>
+
+#define ASIO_USE_TS_EXECUTOR_AS_DEFAULT
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 

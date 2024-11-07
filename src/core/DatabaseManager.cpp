@@ -7,7 +7,7 @@
 #include <QtDebug>
 #include <QtSql>
 #include <memory>
-#include "libs/jsoncpp/include/json/json.h"
+#include <nlohmann/json.hpp>
 #include <qsqlquery.h>
 #include <string>
 #include <vector>
