@@ -1,5 +1,4 @@
 build/**
-libs/**
 .vscode/**
 .cache/**
 main
