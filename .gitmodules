@@ -4,9 +4,12 @@
 [submodule "libs/websocketpp"]
 	path = libs/websocketpp
 	url = https://github.com/zaphoyd/websocketpp.git
-[submodule "libs/asio"]
-	path = libs/asio
-	url = https://github.com/chriskohlhoff/asio.git
-[submodule "libs/jsoncpp"]
-	path = libs/jsoncpp
-	url = https://github.com/open-source-parsers/jsoncpp.git
+[submodule "libs/json"]
+	path = libs/json
+	url = https://github.com/nlohmann/json.git
+[submodule "libs/boost"]
+	path = libs/boost
+	url = https://github.com/boostorg/boost.git
+[submodule "libs/cryptopp-cmake"]
+	path = libs/cryptopp-cmake
+	url = https://github.com/abdes/cryptopp-cmake.git
