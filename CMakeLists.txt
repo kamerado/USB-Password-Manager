@@ -13,14 +13,23 @@ set(CMAKE_CXX_COMPILER /usr/bin/g++)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/libs)
+
+add_subdirectory(${EXTERNAL_DIR}/spdlog)
+include_directories(${EXTERNAL_DIR}/spdlog/include)
+
+include_directories(${EXTERNAL_DIR}/json/include)
+
+include_directories(${EXTERNAL_DIR}/websocketpp)
+
+add_subdirectory(${EXTERNAL_DIR}/boost)
+include_directories(${EXTERNAL_DIR}/boost)
+
+add_subdirectory(libs/cryptopp-cmake)
+
 find_package(QT NAMES Qt6 COMPONENTS Sql Widgets Qt6Concurrent REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql Widgets REQUIRED)
-add_subdirectory(libs/spdlog)
-
-# JsonCpp
-option(JSONCPP_WITH_TESTS OFF)  # Disable tests
-option(JSONCPP_WITH_POST_BUILD_UNITTEST OFF)  # Disable post-build tests
-add_subdirectory(libs/jsoncpp)
 
 set(PROJECT_SOURCES
         src/main.cpp
@@ -43,46 +52,18 @@ set(PROJECT_SOURCES
         src/gui/GUI/inputdialog.ui
 )
 
-
-
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
   qt_add_executable(nativegui
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
   )
-
-# After your existing Qt and spdlog configuration
-
-# ASIO (header-only)
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/asio/asio/include/asio.hpp")
-    message(FATAL_ERROR "ASIO submodule not initialized. Please run: git submodule update --init --recursive")
-endif()
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/libs/asio/asio/include
-)
-
-# Tell ASIO to be standalone (no Boost)
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-    ASIO_STANDALONE
-    ASIO_HAS_STD_CHRONO
-)
-
-# WebSocket++ (header-only)
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/websocketpp/websocketpp/client.hpp")
-    message(FATAL_ERROR "WebSocket++ submodule not initialized. Please run: git submodule update --init --recursive")
-endif()
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/libs/websocketpp
-)
   target_link_libraries(nativegui PRIVATE
       Qt${QT_VERSION_MAJOR}::Widgets
-      crypto++
+      cryptopp
       Qt${QT_VERSION_MAJOR}::Sql
       stdc++
       spdlog::spdlog
-      jsoncpp_lib
+      ${Boost_LIBRARIES}
   )
 
   set_target_properties(nativegui PROPERTIES
