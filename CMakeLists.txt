@@ -21,14 +21,9 @@ include_directories(${EXTERNAL_DIR}/spdlog/include)
 
 include_directories(${EXTERNAL_DIR}/json/include)
 
-include_directories(${EXTERNAL_DIR}/websocketpp)
-
-add_subdirectory(${EXTERNAL_DIR}/boost)
-include_directories(${EXTERNAL_DIR}/boost)
-
 add_subdirectory(libs/cryptopp-cmake)
 
-find_package(QT NAMES Qt6 COMPONENTS Sql Widgets Qt6Concurrent REQUIRED)
+find_package(QT NAMES Qt6 COMPONENTS Sql Widgets Qt6Concurrent WebSockets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql Widgets REQUIRED)
 
 set(PROJECT_SOURCES
@@ -61,9 +56,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
       Qt${QT_VERSION_MAJOR}::Widgets
       cryptopp
       Qt${QT_VERSION_MAJOR}::Sql
+      Qt${QT_VERSION_MAJOR}::WebSockets
       stdc++
       spdlog::spdlog
-      ${Boost_LIBRARIES}
   )
 
   set_target_properties(nativegui PROPERTIES

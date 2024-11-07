@@ -18,16 +18,11 @@
 WebSocketServer::WebSocketServer(std::shared_ptr<Logger *> &logM) {
   logger = logM;
   try {
-    wsServer.clear_access_channels(websocketpp::log::alevel::all);
-    wsServer.clear_error_channels(websocketpp::log::alevel::all);
 
-    wsServer.init_asio();
-    wsServer.set_reuse_addr(true);
-
-    wsServer.set_message_handler(
-        [this](websocketpp::connection_hdl hdl, server_t::message_ptr msg) {
-          onMessage(hdl, msg);
-        });
+    /*wsServer.set_message_handler(*/
+    /*    [this](websocketpp::connection_hdl hdl, server_t::message_ptr msg) {*/
+    /*      onMessage(hdl, msg);*/
+    /*    });*/
   } catch (const std::exception &e) {
     (*logger)->log(ERROR, "WebSocketServer initialization error: " +
                               std::string(e.what()));
