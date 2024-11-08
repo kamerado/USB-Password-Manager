@@ -17,7 +17,6 @@ SettingsDialog::SettingsDialog(std::shared_ptr<Logger> &p_log, QWidget *parent)
 
   logger->log(DEBUG, "SettingsDialog: Loading settings...");
 
-  // TODO: load settings from settings.ini
   onLoadSettings();
 
   logger->log(DEBUG, "SettingsDialog: Loaded settings.");
@@ -61,7 +60,7 @@ void SettingsDialog::onLoadSettings() {
 // Security settings
 void SettingsDialog::on_SetMasterPwBtn_clicked() {
   /*
-   * TODO:
+   * TODO: Test func, Add pw length checks.
    */
   try {
     InputDialog i;
@@ -84,125 +83,186 @@ void SettingsDialog::on_SetMasterPwBtn_clicked() {
 
 void SettingsDialog::on_SetAutoLockTimoutBtn_clicked() {
   /*
-   * TODO:
+   * TODO: Test func
    */
-  // try {
-  //   int seconds = ui->AutoLockTimeoutInput->text().toInt();
-  //
-  //   settings->setAutoLockTimeout(seconds);
-  // } catch (std::exception e) {
-  //   QMessageBox::warning(this, "Input Error", e.what());
-  //   return;
-  // }
+  try {
+    InputDialog i;
+    if (i.exec() == QDialog::Accepted) {
+      QString AutoLockoutTime = i.getText();
+
+      logger->log(DEBUG, "SettingsDialog: Entered AutoLockTimeout: " +
+                             AutoLockoutTime.toStdString());
+      settings->setAutoLockTimeout(AutoLockoutTime.toInt());
+
+      logger->log(DEBUG, "SettingsDialog: Saving...");
+      settings->saveSettings();
+    } else {
+      logger->log(DEBUG, "SettingsDialog: Canceled.");
+    }
+  } catch (std::exception e) {
+    logger->log(ERROR, "Settingsdialog Error: " + std::string(e.what()));
+  }
 }
 
 void SettingsDialog::on_AttemptsBtn_clicked() {
-  // try {
-  //   int attempts = ui->AttemptsInput->text().toInt();
-  //
-  //   settings->setDefaultAttempts(attempts);
-  // } catch (std::exception e) {
-  //   QMessageBox::warning(this, "Input Error", e.what());
-  //   return;
-  // }
+  /*
+   * TODO: Test func
+   */
+  try {
+    InputDialog i;
+    if (i.exec() == QDialog::Accepted) {
+      QString Attempts = i.getText();
+
+      logger->log(DEBUG, "SettingsDialog: Entered AutoLockTimeout: " +
+                             Attempts.toStdString());
+      settings->setDefaultAttempts(Attempts.toInt());
+
+      logger->log(DEBUG, "SettingsDialog: Saving...");
+      settings->saveSettings();
+    } else {
+      logger->log(DEBUG, "SettingsDialog: Canceled.");
+    }
+  } catch (std::exception e) {
+    logger->log(ERROR, "Settingsdialog Error: " + std::string(e.what()));
+  }
 }
 
 void SettingsDialog::on_ToggleSelfDestruct_checkStateChanged(
     const Qt::CheckState &checkState) {
   /*
-   * TODO:
+   * TODO: Test func
    */
-  // switch (checkState) {
-  // case Qt::Unchecked:
-  //   qDebug() << "Checkbox is unchecked";
-  //   settings->setSelfDestructEnabled(false);
-  //   break;
-  // case Qt::PartiallyChecked:
-  //   qDebug() << "Checkbox is partially checked";
-  //   break;
-  // case Qt::Checked:
-  //   qDebug() << "Checkbox is checked";
-  //
-  //   settings->setSelfDestructEnabled(true);
-  //   break;
-  // }
+  switch (checkState) {
+  case Qt::Unchecked:
+    qDebug() << "Checkbox is unchecked";
+    settings->setSelfDestructEnabled(false);
+    settings->saveSettings();
+    break;
+  case Qt::PartiallyChecked:
+    qDebug() << "Checkbox is partially checked";
+    break;
+  case Qt::Checked:
+    qDebug() << "Checkbox is checked";
+    settings->setSelfDestructEnabled(true);
+    settings->saveSettings();
+    break;
+  }
 }
 
 // Password Management settings
 void SettingsDialog::on_PwLengthBtn_clicked() {
   /*
-   * TODO:
+   * TODO: Test func
    */
-  // if (ui->PwLengthInput->text().isEmpty()) {
-  //   QMessageBox::warning(
-  //       this, "Input Error",
-  //       "Master password must contain at least 12 characters.");
-  //   return;
-  // }
-  //
-  // settings->setPasswordLength(ui->PwLengthInput->text().toInt());
+  try {
+    InputDialog i;
+    if (i.exec() == QDialog::Accepted) {
+      QString PwLength = i.getText();
+
+      logger->log(DEBUG, "SettingsDialog: Entered Password length: " +
+                             PwLength.toStdString());
+      settings->setPasswordLength(PwLength.toInt());
+
+      logger->log(DEBUG, "SettingsDialog: Saving...");
+      settings->saveSettings();
+    } else {
+      logger->log(DEBUG, "SettingsDialog: Canceled.");
+    }
+  } catch (std::exception e) {
+    logger->log(ERROR, "Settingsdialog Error: " + std::string(e.what()));
+  }
 }
 
 void SettingsDialog::on_DefaultUsernameBtn_clicked() {
   /*
-   * TODO:
+   * TODO: Test func
    */
-  // if (ui->DefaultUsernameInput->text().isEmpty()) {
-  //   QMessageBox::warning(
-  //       this, "Input Error",
-  //       "Master password must contain at least 12 characters.");
-  //   return;
-  // }
-  //
-  // settings->setDefaultUsername(ui->DefaultUsernameInput->text());
+  try {
+    InputDialog i;
+    if (i.exec() == QDialog::Accepted) {
+      QString Username = i.getText();
+
+      logger->log(DEBUG, "SettingsDialog: Entered Default Password: " +
+                             Username.toStdString());
+      settings->setDefaultUsername(Username);
+
+      logger->log(DEBUG, "SettingsDialog: Saving...");
+      settings->saveSettings();
+    } else {
+      logger->log(DEBUG, "SettingsDialog: Canceled.");
+    }
+  } catch (std::exception e) {
+    logger->log(ERROR, "Settingsdialog Error: " + std::string(e.what()));
+  }
 }
 
 void SettingsDialog::on_PwExpDaysBtn_clicked() {
   /*
-   * TODO:
+   * TODO: Test func
    */
-  // if (ui->PwExpirationInput->text().isEmpty()) {
-  //   QMessageBox::warning(
-  //       this, "Input Error",
-  //       "Master password must contain at least 12 characters.");
-  //   return;
-  // }
-  //
-  // settings->setPasswordExpirationDays(ui->PwExpirationInput->text().toInt());
+  try {
+    InputDialog i;
+    if (i.exec() == QDialog::Accepted) {
+      QString PwExpiration = i.getText();
+
+      logger->log(DEBUG,
+                  "SettingsDialog: Entered Default Password Expiration: " +
+                      PwExpiration.toStdString());
+      settings->setPasswordExpirationDays(PwExpiration.toInt());
+
+      logger->log(DEBUG, "SettingsDialog: Saving...");
+      settings->saveSettings();
+    } else {
+      logger->log(DEBUG, "SettingsDialog: Canceled.");
+    }
+  } catch (std::exception e) {
+    logger->log(ERROR, "Settingsdialog Error: " + std::string(e.what()));
+  }
 }
 
 void SettingsDialog::on_ClipBoardTimeoutBtn_clicked() {
   /*
-   * TODO:
+   * TODO: Test func
    */
-  // if (ui->ClipBoardTimeoutSecInput->text().isEmpty()) {
-  //   QMessageBox::warning(
-  //       this, "Input Error",
-  //       "Master password must contain at least 12 characters.");
-  //   return;
-  // }
-  //
-  // settings->setClipboardTimeout(ui->ClipBoardTimeoutSecInput->text().toInt());
+  try {
+    InputDialog i;
+    if (i.exec() == QDialog::Accepted) {
+      QString ClipboardTimeout = i.getText();
+
+      logger->log(DEBUG, "SettingsDialog: Entered Default Clipboard Timeout: " +
+                             ClipboardTimeout.toStdString());
+      settings->setPasswordExpirationDays(ClipboardTimeout.toInt());
+
+      logger->log(DEBUG, "SettingsDialog: Saving...");
+      settings->saveSettings();
+    } else {
+      logger->log(DEBUG, "SettingsDialog: Canceled.");
+    }
+  } catch (std::exception e) {
+    logger->log(ERROR, "Settingsdialog Error: " + std::string(e.what()));
+  }
 }
 
 void SettingsDialog::on_ToggleReuseWarnings_checkStateChanged(
     /*
-     * TODO:
+     * TODO: Test func
      */
     const Qt::CheckState &checkState) {
-  // switch (checkState) {
-  // case Qt::Unchecked:
-  //   qDebug() << "Checkbox is unchecked";
-  //   settings->setIsPasswordReuseWarningEnabled(false);
-  //   break;
-  // case Qt::PartiallyChecked:
-  //   qDebug() << "Checkbox is partially checked";
-  //   break;
-  // case Qt::Checked:
-  //   qDebug() << "Checkbox is checked";
-  //   settings->setIsPasswordReuseWarningEnabled(true);
-  //   break;
-  // }
+  switch (checkState) {
+  case Qt::Unchecked:
+    qDebug() << "Checkbox is unchecked";
+    settings->setIsPasswordReuseWarningEnabled(false);
+    settings->saveSettings();
+    break;
+  case Qt::PartiallyChecked:
+    qDebug() << "Checkbox is partially checked";
+    break;
+  case Qt::Checked:
+    qDebug() << "Checkbox is checked";
+    settings->setIsPasswordReuseWarningEnabled(true);
+    settings->saveSettings();
+    break;
+  }
 }
 
 // Backup settings
@@ -218,57 +278,70 @@ void SettingsDialog::on_BrowseFilesBtn_clicked() {
 
 void SettingsDialog::on_AutoBackupHrsBtn_clicked() {
   /*
-   * TODO:
+   * TODO: Test func
    */
-  // if (ui->AutoBackupHrsInput->text().isEmpty()) {
-  //   QMessageBox::warning(
-  //       this, "Input Error",
-  //       "Master password must contain at least 12 characters.");
-  //   return;
-  // }
-  //
-  // settings->setBackupIntervalHrs(ui->AutoBackupHrsInput->text().toInt());
+  try {
+    InputDialog i;
+    if (i.exec() == QDialog::Accepted) {
+      QString AutoBackupInterval = i.getText();
+
+      logger->log(DEBUG, "SettingsDialog: Entered Auto Backup Interval: " +
+                             AutoBackupInterval.toStdString());
+      settings->setPasswordExpirationDays(AutoBackupInterval.toInt());
+
+      logger->log(DEBUG, "SettingsDialog: Saving...");
+      settings->saveSettings();
+    } else {
+      logger->log(DEBUG, "SettingsDialog: Canceled.");
+    }
+  } catch (std::exception e) {
+    logger->log(ERROR, "Settingsdialog Error: " + std::string(e.what()));
+  }
 }
 
 void SettingsDialog::on_ToggleAutomaticBackups_checkStateChanged(
     /*
-     * TODO:
+     * TODO: Test func
      */
     const Qt::CheckState &checkState) {
-  // switch (checkState) {
-  // case Qt::Unchecked:
-  //   qDebug() << "Checkbox is unchecked";
-  //   settings->setLocalBackupEnabled(false);
-  //   break;
-  // case Qt::PartiallyChecked:
-  //   qDebug() << "Checkbox is partially checked";
-  //   break;
-  // case Qt::Checked:
-  //   qDebug() << "Checkbox is checked";
-  //   settings->setLocalBackupEnabled(true);
-  //   break;
-  // }
+  switch (checkState) {
+  case Qt::Unchecked:
+    qDebug() << "Checkbox is unchecked";
+    settings->setLocalBackupEnabled(false);
+    settings->saveSettings();
+    break;
+  case Qt::PartiallyChecked:
+    qDebug() << "Checkbox is partially checked";
+    break;
+  case Qt::Checked:
+    qDebug() << "Checkbox is checked";
+    settings->setLocalBackupEnabled(true);
+    settings->saveSettings();
+    break;
+  }
 }
 
 // UI settings
 void SettingsDialog::on_ToggleDarkMode_checkStateChanged(
     /*
-     * TODO:
+     * TODO: Test func
      */
     const Qt::CheckState &checkState) {
-  // switch (checkState) {
-  // case Qt::Unchecked:
-  //   qDebug() << "Checkbox is unchecked";
-  //   settings->setDarkModeEnabled(false);
-  //   break;
-  // case Qt::PartiallyChecked:
-  //   qDebug() << "Checkbox is partially checked";
-  //   break;
-  // case Qt::Checked:
-  //   qDebug() << "Checkbox is checked";
-  //   settings->setDarkModeEnabled(true);
-  //   break;
-  // }
+  switch (checkState) {
+  case Qt::Unchecked:
+    qDebug() << "Checkbox is unchecked";
+    settings->setDarkModeEnabled(false);
+    settings->saveSettings();
+    break;
+  case Qt::PartiallyChecked:
+    qDebug() << "Checkbox is partially checked";
+    break;
+  case Qt::Checked:
+    qDebug() << "Checkbox is checked";
+    settings->setDarkModeEnabled(true);
+    settings->saveSettings();
+    break;
+  }
 }
 
 void SettingsDialog::on_ExitBtn_clicked() {
