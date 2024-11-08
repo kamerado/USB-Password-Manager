@@ -28,7 +28,7 @@ void parseRequest(const std::string &requestStr);
 class DatabaseManager {
 public:
   DatabaseManager();
-  DatabaseManager(std::shared_ptr<Logger *> &logM);
+  DatabaseManager(std::shared_ptr<Logger> &logM);
   ~DatabaseManager();
 
   DatabaseManager(const DatabaseManager &) = delete;
@@ -57,7 +57,7 @@ private:
   QSqlDatabase db;
   const QString dbPath = "../db/passwords.db";
   bool isOpen;
-  std::shared_ptr<Logger *> logger;
+  std::shared_ptr<Logger> logger;
 };
 
 #endif // DATABASEMANAGER_H

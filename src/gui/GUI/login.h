@@ -16,7 +16,7 @@ class Login : public QDialog {
 
 public:
   explicit Login(QWidget *parent = nullptr);
-  explicit Login(std::shared_ptr<Logger *> &logM, QWidget *parent = nullptr);
+  explicit Login(std::shared_ptr<Logger> &logM, QWidget *parent = nullptr);
   void setDB(std::unique_ptr<DatabaseManager> &database);
   void getEnc(void);
   ~Login();
@@ -31,7 +31,7 @@ private:
   Ui::Login *ui;
   std::unique_ptr<EncryptionUtil> encdec;
   std::unique_ptr<DatabaseManager> db;
-  std::shared_ptr<Logger *> logM;
+  std::shared_ptr<Logger> logM;
 };
 
 #endif // LOGIN_H

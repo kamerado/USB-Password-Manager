@@ -14,7 +14,7 @@ class SettingsDialog : public QDialog {
   Q_OBJECT
 
 public:
-  explicit SettingsDialog(std::shared_ptr<Logger *> &p_log,
+  explicit SettingsDialog(std::shared_ptr<Logger> &p_log,
                           QWidget *parent = nullptr);
   ~SettingsDialog();
 
@@ -55,7 +55,7 @@ private slots:
 private:
   Ui::SettingsDialog *ui;
   std::unique_ptr<Settings> settings;
-  std::shared_ptr<Logger *> logger;
+  std::shared_ptr<Logger> logger;
 };
 
 #endif // SETTINGSDIALOG_H

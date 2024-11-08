@@ -5,7 +5,6 @@
 #include <QFuture>
 #include <QObject>
 #include <QThread> // For QThread::msleep
-#include <cstdint>
 #include <memory>
 #include <qobject.h>
 #include <qtmetamacros.h>
@@ -18,7 +17,7 @@ class WebSocketServer : public QObject {
 
 public:
   /*using server_t = websocketpp::server<websocketpp::config::asio>;*/
-  explicit WebSocketServer(std::shared_ptr<Logger *> &logM);
+  explicit WebSocketServer(std::shared_ptr<Logger> &logM);
   void start(uint16_t port);
   void stop();
   bool isInitialized() const;
@@ -26,7 +25,10 @@ public:
   void toggleSocket();
   void sendEntry(std::string &message);
 
-public slots:
+private slots:
+  void onNewConnection();
+    void onTextMessageReceived(const QString &message);
+  void onDisconnected();
   // void initialize();
   // void doMessageLoop();
   // void shutdown();
@@ -37,10 +39,10 @@ signals:
   void sendToggleSignal();
 
 private:
-  std::shared_ptr<Logger *> logger;
+  std::shared_ptr<Logger> logger;
   std::shared_ptr<QFuture<void>> thread;
   void onMessage();
-  QWebSocketServer wsServer;
+  std::unique_ptr<QWebSocketServer> wsServer;
   bool SocketInitialized = false;
   Q_DISABLE_COPY(WebSocketServer);
 };

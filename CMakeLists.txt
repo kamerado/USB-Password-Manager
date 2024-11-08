@@ -23,8 +23,10 @@ include_directories(${EXTERNAL_DIR}/json/include)
 
 add_subdirectory(libs/cryptopp-cmake)
 
-find_package(QT NAMES Qt6 COMPONENTS Sql Widgets Qt6Concurrent WebSockets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql Widgets REQUIRED)
+find_package(QT NAMES Qt6 COMPONENTS
+  Sql Widgets Qt6Concurrent WebSockets REQUIRED
+)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql Widgets WebSockets REQUIRED)
 
 set(PROJECT_SOURCES
         src/main.cpp

@@ -24,7 +24,7 @@ class MainWindow : public QMainWindow {
 
 public:
   MainWindow(QWidget *parent = nullptr);
-  MainWindow(std::shared_ptr<Logger *> &logM, QWidget *parent = nullptr);
+  MainWindow(std::shared_ptr<Logger> &logM, QWidget *parent = nullptr);
   ~MainWindow();
   void closeEvent(QCloseEvent *event);
   void setEnc(std::unique_ptr<EncryptionUtil> &encddec);
@@ -32,7 +32,7 @@ public:
   void syncUIWithDB();
   void startServer();
   void stopServer();
-  void waitForServerStop();
+  // void waitForServerStop();
 
 private slots:
   void on_StartButton_toggled(bool checked);
@@ -43,21 +43,18 @@ private slots:
   void on_DeleteAll_clicked();
   void on_SettingsButton_clicked();
 public slots:
-  void parseMessage(
-      const QString &, websocketpp::connection_hdl hdl,
-      websocketpp::server<websocketpp::config::asio>::message_ptr msg);
+  void parseMessage(const QString &);
 
 private:
   Ui::MainWindow *ui;
-  std::unique_ptr<QThread> serverThread;
-  std::unique_ptr<QPushButton> startbtn;
+  // std::unique_ptr<QPushButton> startbtn;
   std::unique_ptr<WebSocketServer> server = nullptr;
   void receiveToggleSignal(bool &);
 
   int numRows = 0;
   std::unique_ptr<DatabaseManager> db;
   std::unique_ptr<EncryptionUtil> enc;
-  std::shared_ptr<Logger *> logger;
+  std::shared_ptr<Logger> logger;
 
   int getCurrRow();
   bool isValidDomain(const std::string &website);

@@ -15,7 +15,7 @@ class Setup : public QDialog {
 
 public:
   explicit Setup(QWidget *parent = nullptr); // Default constructor
-  explicit Setup(std::shared_ptr<Logger *> &logM,
+  explicit Setup(std::shared_ptr<Logger> &logM,
                  QWidget *parent = nullptr); // Default constructor
   void setDB(std::unique_ptr<DatabaseManager> &database);
   void getEnc(void);
@@ -31,7 +31,7 @@ private:
   Ui::Setup *ui;
   std::unique_ptr<EncryptionUtil> encdec;
   std::unique_ptr<DatabaseManager> db;
-  std::shared_ptr<Logger *> logM;
+  std::shared_ptr<Logger> logM;
 };
 
 #endif // SETUP_H

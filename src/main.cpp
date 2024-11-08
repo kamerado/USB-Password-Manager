@@ -16,7 +16,6 @@
 #include <qfuture.h>
 #include <qobject.h>
 #include <qthread.h>
-#define BOOST_USE_SHADOW_STACK 0
 namespace fs = std::filesystem;
 
 std::unique_ptr<EncryptionUtil> enc;
@@ -26,7 +25,7 @@ void handler(std::unique_ptr<EncryptionUtil> &encdec) {
 }
 
 template <typename T>
-void startGui(T &w, MainWindow &m, std::shared_ptr<Logger *> &p_logger,
+void startGui(T &w, MainWindow &m, std::shared_ptr<Logger> &p_logger,
               std::unique_ptr<DatabaseManager> &p_db) {
   QWidget::connect(&w, &T::sendEnc, handler);
   if (w.exec() == QDialog::Accepted) {
@@ -41,7 +40,7 @@ void startGui(T &w, MainWindow &m, std::shared_ptr<Logger *> &p_logger,
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
 
-  std::shared_ptr<Logger *> logM = std::make_shared<Logger *>(new Logger(true));
+  std::shared_ptr<Logger> logM = std::make_shared<Logger>(Logger(true));
   std::unique_ptr<DatabaseManager> db = std::make_unique<DatabaseManager>(logM);
 
   MainWindow m(logM);

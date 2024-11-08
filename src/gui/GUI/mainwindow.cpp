@@ -38,11 +38,10 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
 }
 
-MainWindow::MainWindow(std::shared_ptr<Logger *> &logM, QWidget *parent)
+MainWindow::MainWindow(std::shared_ptr<Logger> &logM, QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), logger(logM) {
-  (*logger)->log(DEBUG, "DEBUG: MainWindow constructor starting");
+  logger->log(DEBUG, "DEBUG: MainWindow constructor starting");
   ui->setupUi(this);
-  qRegisterMetaType<websocketpp::connection_hdl>("websocketpp::connection_hdl");
   // startbtn = dynamic_cast<QPushButton *>(ui->StartButton);
   ui->CTable->setColumnCount(3);
   QStringList headers;
@@ -53,18 +52,11 @@ MainWindow::MainWindow(std::shared_ptr<Logger *> &logM, QWidget *parent)
   ui->CTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
   if (server == nullptr) {
     server = std::make_unique<WebSocketServer>(logger);
-    serverThread = std::make_unique<QThread>(this);
-    server->moveToThread(&(*serverThread));
-    QObject::connect(&(*serverThread), &QThread::started, &(*server),
-                     [this]() { server->start(8080); });
-    QObject::connect(&(*serverThread), &QThread::finished, &(*server),
-                     &QObject::deleteLater);
     // Handle incoming messages on the main thread using queued connections
     QObject::connect(&(*server), &WebSocketServer::messageReceived, this,
                      &MainWindow::parseMessage, Qt::QueuedConnection);
 
-    serverThread->start();
-    (*logger)->log(DEBUG, "DEBUG: MainWindow constructor completed");
+    logger->log(DEBUG, "DEBUG: MainWindow constructor completed");
   }
 }
 MainWindow::~MainWindow() {
@@ -76,8 +68,6 @@ MainWindow::~MainWindow() {
 void MainWindow::startServer() {
   if (server == nullptr) {
     server = std::make_unique<WebSocketServer>(logger);
-    serverThread = std::make_unique<QThread>(this);
-    server->moveToThread(&(*serverThread));
 
     // QObject::connect(serverThread, &QThread::started, server,
     //                  [this]() { server->start(8080); });
@@ -85,7 +75,6 @@ void MainWindow::startServer() {
     //                  &MainWindow::parseMessage, Qt::QueuedConnection);
     // QObject::connect(serverThread, &QThread::finished, server,
     //                  &QObject::deleteLater);
-    serverThread->start();
   }
 }
 
@@ -93,19 +82,17 @@ void MainWindow::stopServer() {
   if (server) {
     server->stop();
   }
-  serverThread->quit();
-  serverThread->wait();
 }
 
-void MainWindow::waitForServerStop() {
-  if (!serverThread->isRunning()) {
-    serverThread->wait();
-  }
-  server = nullptr;
-}
+// void MainWindow::waitForServerStop() {
+//   if (!serverThread->isRunning()) {
+//     serverThread->wait();
+//   }
+//   server = nullptr;
+// }
 
 void MainWindow::on_StartButton_toggled(bool checked) {
-  (*logger)->log(DEBUG,
+  logger->log(DEBUG,
                  "MainWindow: on_StartButton_toggled called with checked = " +
                      std::string((checked) ? "true" : "false"));
   if (checked) {
@@ -116,16 +103,16 @@ void MainWindow::on_StartButton_toggled(bool checked) {
 }
 
 void MainWindow::receiveToggleSignal(bool &status) {
-  (*logger)->log(DEBUG, "MainWindow: receiveToggleSignal entry with status = " +
+  logger->log(DEBUG, "MainWindow: receiveToggleSignal entry with status = " +
                             std::string((status) ? "true" : "false"));
 
   if (!ui) {
-    (*logger)->log(ERROR, "MainWindow: 'ui' is not initialized.");
+    logger->log(ERROR, "MainWindow: 'ui' is not initialized.");
     return;
   }
 
   if (!ui->StartButton) {
-    (*logger)->log(ERROR,
+    logger->log(ERROR,
                    "MainWindow: 'StartButton' is not initialized in the UI.");
 
     return;
@@ -134,21 +121,20 @@ void MainWindow::receiveToggleSignal(bool &status) {
   if (ui->StartButton) {
     ui->StartButton->setChecked(tmp);
   } else {
-    (*logger)->log(ERROR, "MainWindow: startbtn is not a QPushButton.");
+    logger->log(ERROR, "MainWindow: startbtn is not a QPushButton.");
   }
 }
 
 void MainWindow::parseMessage(
-    const QString &message, websocketpp::connection_hdl hdl,
-    websocketpp::server<websocketpp::config::asio>::message_ptr msg) {
-  (*logger)->log(DEBUG,
+    const QString &message) {
+  logger->log(DEBUG,
                  "MainWindow: parseMessage received: " + message.toStdString());
   try {
     using json = nlohmann::json;
     json j = json::parse(message.toStdString());
 
     if (!j.contains("type") || !j["type"].is_string()) {
-      (*logger)->log(ERROR,
+      logger->log(ERROR,
                      "MainWindow: Missing or invalid 'type' field in message.");
       return;
     }
@@ -157,13 +143,13 @@ void MainWindow::parseMessage(
 
     if (typeStr == "status") {
       if (!j.contains("status") || !j["status"].is_boolean()) {
-        (*logger)->log(ERROR,
+        logger->log(ERROR,
                        "MainWindow: 'status' field missing or not a boolean.");
         return;
       }
 
       bool status = j["status"];
-      (*logger)->log(DEBUG, "MainWindow: Status value extracted: " +
+      logger->log(DEBUG, "MainWindow: Status value extracted: " +
                                 std::string((status) ? "true" : "false"));
 
       bool statusCopy = status;
@@ -171,7 +157,7 @@ void MainWindow::parseMessage(
     }
     if (typeStr == "check-entry") {
       if (!j.contains("website") || !j["website"].is_string()) {
-        (*logger)->log(ERROR,
+        logger->log(ERROR,
                        "MainWindow: 'website' field missing or not a string.");
         return;
       }
@@ -183,17 +169,17 @@ void MainWindow::parseMessage(
         json message = {{"action", "receive-entry"}, {"entry", entry}};
 
         std::string jsonString = message.dump();
-        (*logger)->log(DEBUG, jsonString);
-        server->sendEntry(hdl, msg, jsonString);
+        logger->log(DEBUG, jsonString);
+        server->sendEntry(jsonString);
         return;
       } else {
         json message = {{"action", "receive-null-entry"}};
 
         std::string jsonString = message.dump();
-        (*logger)->log(INFO, jsonString);
-        server->sendEntry(hdl, msg, jsonString);
+        logger->log(INFO, jsonString);
+        server->sendEntry(jsonString);
 
-        (*logger)->log(DEBUG, "MainWindow: Nothing in vector.");
+        logger->log(DEBUG, "MainWindow: Nothing in vector.");
         return;
       }
     }
@@ -201,9 +187,9 @@ void MainWindow::parseMessage(
       // TODO: Handle get-default-username request.
     }
   } catch (const nlohmann::json::parse_error &e) {
-    (*logger)->log(ERROR, "MainWindow parsing JSON: " + std::string(e.what()));
+    logger->log(ERROR, "MainWindow parsing JSON: " + std::string(e.what()));
   } catch (const std::exception &e) {
-    (*logger)->log(ERROR, "MainWindow: " + std::string(e.what()));
+    logger->log(ERROR, "MainWindow: " + std::string(e.what()));
   }
 }
 

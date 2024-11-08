@@ -10,18 +10,18 @@
 #include <qglobal.h>
 #include <string>
 
-SettingsDialog::SettingsDialog(std::shared_ptr<Logger *> &p_log,
+SettingsDialog::SettingsDialog(std::shared_ptr<Logger> &p_log,
                                QWidget *parent)
     : QDialog(parent), ui(new Ui::SettingsDialog), logger(p_log) {
   ui->setupUi(this);
   settings = std::make_unique<Settings>("settings/settings.ini");
 
-  (*logger)->log(DEBUG, "SettingsDialog: Loading settings...");
+  logger->log(DEBUG, "SettingsDialog: Loading settings...");
 
   // TODO: load settings from settings.ini
   onLoadSettings();
 
-  (*logger)->log(DEBUG, "SettingsDialog: Loaded settings.");
+  logger->log(DEBUG, "SettingsDialog: Loaded settings.");
 }
 
 SettingsDialog::~SettingsDialog() { delete ui; }
@@ -55,7 +55,7 @@ void SettingsDialog::onLoadSettings() {
     // UI Settings
     ui->ToggleDarkMode->setChecked(settings->isDarkModeEnabled());
   } catch (std::exception e) {
-    (*logger)->log(ERROR, "SettingsDialog Error: " + std::string(e.what()));
+    logger->log(ERROR, "SettingsDialog Error: " + std::string(e.what()));
   }
 }
 
@@ -69,17 +69,17 @@ void SettingsDialog::on_SetMasterPwBtn_clicked() {
     if (i.exec() == QDialog::Accepted) {
       QString password = i.getText();
 
-      (*logger)->log(DEBUG, "SettingsDialog: Entered password: " +
+      logger->log(DEBUG, "SettingsDialog: Entered password: " +
                                 password.toStdString());
       settings->setMasterPassword(password);
 
-      (*logger)->log(DEBUG, "SettingsDialog: Saving...");
+      logger->log(DEBUG, "SettingsDialog: Saving...");
       settings->saveSettings();
     } else {
-      (*logger)->log(DEBUG, "SettingsDialog: Canceled.");
+      logger->log(DEBUG, "SettingsDialog: Canceled.");
     }
   } catch (std::exception e) {
-    (*logger)->log(ERROR, "Settingsdialog Error: " + std::string(e.what()));
+    logger->log(ERROR, "Settingsdialog Error: " + std::string(e.what()));
   }
 }
 

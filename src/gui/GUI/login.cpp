@@ -10,7 +10,7 @@ Login::Login(QWidget *parent) : QDialog(parent), ui(new Ui::Login) {
   ui->setupUi(this);
 }
 
-Login::Login(std::shared_ptr<Logger *> &logM, QWidget *parent)
+Login::Login(std::shared_ptr<Logger> &logM, QWidget *parent)
     : QDialog(parent), ui(new Ui::Login) {
   ui->setupUi(this);
   this->logM = std::move(logM);
