@@ -1,14 +1,14 @@
 #ifndef WEBSOCKETSERVER_H
 #define WEBSOCKETSERVER_H
 #pragma once
-
 #include <QFuture>
 #include <QObject>
 #include <QThread> // For QThread::msleep
+#include <QtWebSockets>
 #include <memory>
 #include <qobject.h>
+#include <qt6/QtCore/QFuture>
 #include <qtmetamacros.h>
-#include <QtWebSockets>
 
 #include "src/core/Logger.h"
 
@@ -27,7 +27,7 @@ public:
 
 private slots:
   void onNewConnection();
-    void onTextMessageReceived(const QString &message);
+  void onTextMessageReceived(const QString &message);
   void onDisconnected();
   // void initialize();
   // void doMessageLoop();

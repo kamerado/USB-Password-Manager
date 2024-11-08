@@ -2,9 +2,12 @@
 #define SETUP_H
 
 #include <QDialog>
+#include <memory>
 #include <src/core/DatabaseManager.h>
 #include <src/core/EncryptionUtil.h>
 #include <src/core/Logger.h>
+
+#include "src/core/settings.h"
 
 namespace Ui {
 class Setup;
@@ -32,6 +35,7 @@ private:
   std::unique_ptr<EncryptionUtil> encdec;
   std::unique_ptr<DatabaseManager> db;
   std::shared_ptr<Logger> logM;
+  std::unique_ptr<Settings> settings;
 };
 
 #endif // SETUP_H

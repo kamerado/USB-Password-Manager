@@ -13,6 +13,7 @@ Setup::Setup(std::shared_ptr<Logger> &logM, QWidget *parent)
     : QDialog(parent), ui(new Ui::Setup) {
   ui->setupUi(this);
   this->logM = std::move(logM);
+  settings = std::make_unique<Settings>("../settings/settings.ini");
 }
 
 Setup::~Setup() {}

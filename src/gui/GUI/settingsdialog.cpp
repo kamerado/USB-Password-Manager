@@ -10,11 +10,10 @@
 #include <qglobal.h>
 #include <string>
 
-SettingsDialog::SettingsDialog(std::shared_ptr<Logger> &p_log,
-                               QWidget *parent)
+SettingsDialog::SettingsDialog(std::shared_ptr<Logger> &p_log, QWidget *parent)
     : QDialog(parent), ui(new Ui::SettingsDialog), logger(p_log) {
   ui->setupUi(this);
-  settings = std::make_unique<Settings>("settings/settings.ini");
+  settings = std::make_unique<Settings>("../settings/settings.ini");
 
   logger->log(DEBUG, "SettingsDialog: Loading settings...");
 
@@ -70,7 +69,7 @@ void SettingsDialog::on_SetMasterPwBtn_clicked() {
       QString password = i.getText();
 
       logger->log(DEBUG, "SettingsDialog: Entered password: " +
-                                password.toStdString());
+                             password.toStdString());
       settings->setMasterPassword(password);
 
       logger->log(DEBUG, "SettingsDialog: Saving...");

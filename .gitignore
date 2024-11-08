@@ -1,4 +1,5 @@
 build/**
+libs/**
 .vscode/**
 .cache/**
 main
@@ -8,3 +9,6 @@ LogFiles/**
 !libs/.gitkeep
 src/gui/build-GUI-Desktop-Debug
 CMakeLists.txt.user
+compile_commands.json
+settings/**
+!settings/.gitkeep

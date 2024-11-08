@@ -3,8 +3,8 @@
 
 #include <QMainWindow>
 
-#include "../../core/DatabaseManager.h"
-#include "../../core/EncryptionUtil.h"
+#include "src/core/DatabaseManager.h"
+#include "src/core/EncryptionUtil.h"
 #include "src/core/WebSocket.h"
 #include <memory>
 #include <qglobal.h>

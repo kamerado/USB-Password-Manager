@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30.1)
 
 project(nativegui VERSION 0.1 LANGUAGES CXX)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTOUIC ON)
@@ -20,13 +20,16 @@ add_subdirectory(${EXTERNAL_DIR}/spdlog)
 include_directories(${EXTERNAL_DIR}/spdlog/include)
 
 include_directories(${EXTERNAL_DIR}/json/include)
+include_directories("$ENV{HOME}/Qt/6.8.0/gcc_64/include/")
 
 add_subdirectory(libs/cryptopp-cmake)
 
 find_package(QT NAMES Qt6 COMPONENTS
-  Core Sql Widgets Qt6Concurrent WebSockets REQUIRED
+  Core Sql Widgets WebSockets REQUIRED
 )
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql Widgets WebSockets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS
+  Core Sql Widgets WebSockets REQUIRED
+)
 
 set(PROJECT_SOURCES
         src/main.cpp
@@ -55,6 +58,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
   )
   target_link_libraries(nativegui PRIVATE
+      Qt${QT_VERSION_MAJOR}::Core
       Qt${QT_VERSION_MAJOR}::Widgets
       cryptopp
       Qt${QT_VERSION_MAJOR}::Sql
@@ -73,6 +77,14 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
       RUNTIME_OUTPUT_DIRECTORY
           ${CMAKE_SOURCE_DIR}/build/
   )
+  if(PROJECT_IS_TOP_LEVEL AND UNIX)
+    # Create symlink to compile_commands.json for IDE to pick it up
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+            ${CMAKE_BINARY_DIR}/compile_commands.json
+            ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
+    )
+  endif()
 
 endif()
 if(QT_VERSION_MAJOR EQUAL 6)
