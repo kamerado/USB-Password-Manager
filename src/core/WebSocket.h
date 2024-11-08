@@ -7,7 +7,6 @@
 #include <QtWebSockets>
 #include <memory>
 #include <qobject.h>
-#include <qt6/QtCore/QFuture>
 #include <qtmetamacros.h>
 
 #include "src/core/Logger.h"
