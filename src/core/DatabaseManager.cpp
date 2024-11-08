@@ -16,6 +16,7 @@ DatabaseManager::DatabaseManager() {}
 DatabaseManager::DatabaseManager(std::shared_ptr<Logger> &logM) {
   this->logger = logM;
   this->db = QSqlDatabase::addDatabase("QSQLITE");
+
   this->db.setDatabaseName(this->dbPath);
 
   if (this->db.open()) {

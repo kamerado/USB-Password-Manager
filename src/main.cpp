@@ -40,6 +40,10 @@ void startGui(T &w, MainWindow &m, std::shared_ptr<Logger> &p_logger,
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
 
+    if (!fs::exists("../db")) {
+      fs::create_directories("../db/");
+    }
+
   std::shared_ptr<Logger> logM = std::make_shared<Logger>(Logger(true));
   std::unique_ptr<DatabaseManager> db = std::make_unique<DatabaseManager>(logM);
 

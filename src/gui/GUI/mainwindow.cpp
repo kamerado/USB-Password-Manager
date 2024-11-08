@@ -24,9 +24,6 @@
 #include <qpushbutton.h>
 #include <sys/socket.h>
 #include <vector>
-#include <websocketpp/common/connection_hdl.hpp>
-
-Q_DECLARE_METATYPE(websocketpp::connection_hdl)
 
 #include "src/core/WebSocket.h"
 

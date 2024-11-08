@@ -10,8 +10,6 @@
 #include <qglobal.h>
 #include <qpushbutton.h>
 #include <src/core/Logger.h>
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/roles/server_endpoint.hpp>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

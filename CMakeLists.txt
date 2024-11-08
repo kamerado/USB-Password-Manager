@@ -24,7 +24,7 @@ include_directories(${EXTERNAL_DIR}/json/include)
 add_subdirectory(libs/cryptopp-cmake)
 
 find_package(QT NAMES Qt6 COMPONENTS
-  Sql Widgets Qt6Concurrent WebSockets REQUIRED
+  Core Sql Widgets Qt6Concurrent WebSockets REQUIRED
 )
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql Widgets WebSockets REQUIRED)
 
@@ -71,7 +71,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
       MACOSX_BUNDLE TRUE
       WIN32_EXECUTABLE TRUE
       RUNTIME_OUTPUT_DIRECTORY
-          /home/meganuts/projects/USB-Password-Manager/build/
+          ${CMAKE_SOURCE_DIR}/build/
   )
 
 endif()
