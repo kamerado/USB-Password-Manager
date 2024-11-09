@@ -56,6 +56,8 @@ private:
   Ui::SettingsDialog *ui;
   std::unique_ptr<Settings> settings;
   std::shared_ptr<Logger> logger;
+
+  QString openFileBrowser();
 };
 
 #endif // SETTINGSDIALOG_H

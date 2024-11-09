@@ -3,10 +3,13 @@
 #include "src/core/Logger.h"
 #include "src/gui/GUI/inputdialog.h"
 #include "ui_settingsdialog.h"
+#include <QFileDialog>
+#include <QInputDialog>
 #include <QStandardPaths>
 #include <exception>
 #include <memory>
 #include <qdialog.h>
+#include <qfiledialog.h>
 #include <qglobal.h>
 #include <string>
 
@@ -29,13 +32,13 @@ void SettingsDialog::onLoadSettings() {
     // Security Settings
     ui->AutoLockTimeoutInput->setText(
         QString::fromStdString(std::to_string(settings->getAutoLockTimeout())));
+    ui->AttemptsInput->setText(
+        QString::fromStdString(std::to_string(settings->getDefaultAttempts())));
     ui->ToggleSelfDestruct->setChecked(settings->getSelfDestructEnabled());
 
     // Password Manager Settings
     ui->PwLengthInput->setText(
         QString::fromStdString(std::to_string(settings->getPasswordLength())));
-    ui->AttemptsInput->setText(
-        QString::fromStdString(std::to_string(settings->getDefaultAttempts())));
     ui->DefaultUsernameInput->setText(settings->getDefaultUsername());
     ui->ToggleReuseWarnings->setChecked(
         settings->getIsPasswordReuseWarningEnabled());
@@ -86,13 +89,16 @@ void SettingsDialog::on_SetAutoLockTimoutBtn_clicked() {
    * TODO: Test func
    */
   try {
-    InputDialog i;
-    if (i.exec() == QDialog::Accepted) {
-      QString AutoLockoutTime = i.getText();
+    bool ok;
+    QString AutoLockTimeout = QInputDialog::getText(
+        this, "Input Dialog", "Enter AutoLockTimeout hours", QLineEdit::Normal,
+        "", &ok);
+    if (ok && !AutoLockTimeout.isEmpty()) {
 
       logger->log(DEBUG, "SettingsDialog: Entered AutoLockTimeout: " +
-                             AutoLockoutTime.toStdString());
-      settings->setAutoLockTimeout(AutoLockoutTime.toInt());
+                             AutoLockTimeout.toStdString());
+      settings->setAutoLockTimeout(AutoLockTimeout.toInt());
+      ui->AutoLockTimeoutInput->setText(AutoLockTimeout);
 
       logger->log(DEBUG, "SettingsDialog: Saving...");
       settings->saveSettings();
@@ -109,13 +115,16 @@ void SettingsDialog::on_AttemptsBtn_clicked() {
    * TODO: Test func
    */
   try {
+    bool ok;
+    QString Attempts = QInputDialog::getText(this, "Input Dialog",
+                                             "Enter default Password Length",
+                                             QLineEdit::Normal, "", &ok);
     InputDialog i;
-    if (i.exec() == QDialog::Accepted) {
-      QString Attempts = i.getText();
-
+    if (ok && !Attempts.isEmpty()) {
       logger->log(DEBUG, "SettingsDialog: Entered AutoLockTimeout: " +
                              Attempts.toStdString());
       settings->setDefaultAttempts(Attempts.toInt());
+      ui->AttemptsInput->setText(Attempts);
 
       logger->log(DEBUG, "SettingsDialog: Saving...");
       settings->saveSettings();
@@ -155,13 +164,15 @@ void SettingsDialog::on_PwLengthBtn_clicked() {
    * TODO: Test func
    */
   try {
-    InputDialog i;
-    if (i.exec() == QDialog::Accepted) {
-      QString PwLength = i.getText();
-
+    bool ok;
+    QString PwLength = QInputDialog::getText(this, "Input Dialog",
+                                             "Enter default Password Length",
+                                             QLineEdit::Normal, "", &ok);
+    if (ok && !PwLength.isEmpty()) {
       logger->log(DEBUG, "SettingsDialog: Entered Password length: " +
                              PwLength.toStdString());
       settings->setPasswordLength(PwLength.toInt());
+      ui->DefaultUsernameInput->setText(PwLength);
 
       logger->log(DEBUG, "SettingsDialog: Saving...");
       settings->saveSettings();
@@ -178,13 +189,15 @@ void SettingsDialog::on_DefaultUsernameBtn_clicked() {
    * TODO: Test func
    */
   try {
-    InputDialog i;
-    if (i.exec() == QDialog::Accepted) {
-      QString Username = i.getText();
-
+    bool ok;
+    QString username =
+        QInputDialog::getText(this, "Input Dialog", "Enter default Username",
+                              QLineEdit::Normal, "", &ok);
+    if (ok && !username.isEmpty()) {
       logger->log(DEBUG, "SettingsDialog: Entered Default Password: " +
-                             Username.toStdString());
-      settings->setDefaultUsername(Username);
+                             username.toStdString());
+      settings->setDefaultUsername(username);
+      ui->DefaultUsernameInput->setText(username);
 
       logger->log(DEBUG, "SettingsDialog: Saving...");
       settings->saveSettings();
@@ -265,20 +278,39 @@ void SettingsDialog::on_ToggleReuseWarnings_checkStateChanged(
   }
 }
 
+QString SettingsDialog::openFileBrowser() {
+  return QFileDialog::getExistingDirectory(
+      this, tr("Select Directory"), "/home",
+      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+}
+
 // Backup settings
 void SettingsDialog::on_BrowseFilesBtn_clicked() {
-  // TODO: handle opening file selector.
-  // if (false) {
-  //   QMessageBox::warning(
-  //       this, "Input Error",
-  //       "Master password must contain at least 12 characters.");
-  //   return;
-  // }
+  /*
+   * TODO:
+   * handle opening file selector.
+   * test func
+   */
+  QString directory = openFileBrowser();
+  logger->log(
+      DEBUG,
+      "SettingsDialog on_BrowseFilesBtn_clicked | Retreived Directory: " +
+          directory.toStdString());
+  if (!directory.isEmpty()) {
+    settings->setBackupPath(directory);
+    settings->saveSettings();
+  } else {
+    QMessageBox::warning(this, "Invalid Input",
+                         "No settings have been affected.");
+    logger->log(DEBUG, "SettingsDialog on_BrowseFilesBtn_clicked | empty "
+                       "input. No settings have been affected.");
+  }
 }
 
 void SettingsDialog::on_AutoBackupHrsBtn_clicked() {
   /*
-   * TODO: Test func
+   * TODO:
+   * Test func
    */
   try {
     InputDialog i;

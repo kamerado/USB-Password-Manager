@@ -9,3 +9,9 @@ InputDialog::InputDialog(QWidget *parent)
 InputDialog::~InputDialog() { delete ui; }
 
 QString InputDialog::getText() const { return ui->inputLineEdit->text(); }
+
+void InputDialog::on_buttonBox_accepted()
+{
+
+}
+

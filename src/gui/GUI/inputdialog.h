@@ -16,7 +16,10 @@ public:
 
   QString getText() const;
 
-private:
+  private slots:
+  void on_buttonBox_accepted();
+
+  private:
   Ui::InputDialog *ui;
 };
 

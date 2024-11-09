@@ -5,11 +5,15 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 // Constructor: Opens the log file in append mode
 Logger::Logger(bool toStdOut) {
-  myLogger->set_level(spdlog::level::debug);
+  std::vector<spdlog::sink_ptr> sinks;
   if (toStdOut) {
-    myLogger->sinks().push_back(
-        std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+    sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
   }
+
+  myLogger =
+      std::make_shared<spdlog::logger>("myLogger", sinks.begin(), sinks.end());
+  myLogger->set_level(spdlog::level::debug);
+  myLogger->flush_on(spdlog::level::debug); // Force flush on every message
 }
 
 // Destructor: Closes the log file
@@ -32,4 +36,5 @@ template <typename T> void Logger::addSink(std::shared_ptr<T> sink) {
 // Logs a message with a given log level
 void Logger::log(LogLevel level, const std::string &message) {
   myLogger->log(static_cast<spdlog::level::level_enum>(level), message);
+  myLogger->flush();
 }

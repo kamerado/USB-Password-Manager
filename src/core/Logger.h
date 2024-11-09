@@ -20,7 +20,7 @@ typedef enum {
 
 class Logger {
 public:
-  Logger(bool toStdOut = false);
+  Logger(bool toStdOut = true);
 
   Logger(const Logger &) = delete;
   Logger &operator=(const Logger &) = delete;
@@ -37,8 +37,7 @@ public:
   void log(LogLevel level, const std::string &message);
 
 private:
-  std::shared_ptr<spdlog::logger> myLogger =
-      std::make_shared<spdlog::logger>("myLogger");
+  std::shared_ptr<spdlog::logger> myLogger;
 };
 
 #endif

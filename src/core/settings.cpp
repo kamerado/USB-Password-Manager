@@ -116,7 +116,7 @@ QString Settings::hashPassword(const QString &password) const {
 }
 
 void Settings::initCheck() {
-  if (!QFile::exists("settings/settings.inf")) {
+  if (!QFile::exists("../settings/settings.ini")) {
     // Security settings
     // TODO:
     // void Settings::setMasterPassword(const QString &password) {
