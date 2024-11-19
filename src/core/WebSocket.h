@@ -17,11 +17,12 @@ class WebSocketServer : public QObject {
 public:
   /*using server_t = websocketpp::server<websocketpp::config::asio>;*/
   explicit WebSocketServer(std::shared_ptr<Logger> &logM);
+  ~WebSocketServer();
+
   void start(uint16_t port);
   void stop();
   bool isInitialized() const;
-  ~WebSocketServer();
-  void toggleSocket();
+  // void toggleSocket();
   void sendEntry(std::string &message);
 
 private slots:
@@ -33,16 +34,17 @@ private slots:
   // void shutdown();
 
 signals:
-  void initialized(bool success);
+  // void initialized(bool success);
   void messageReceived(const QString &message);
-  void sendToggleSignal();
+  // void sendToggleSignal();
 
 private:
   std::shared_ptr<Logger> logger;
-  std::shared_ptr<QFuture<void>> thread;
-  void onMessage();
+  // std::shared_ptr<QFuture<void>> thread;
+  // void onMessage();
   std::unique_ptr<QWebSocketServer> wsServer;
   bool SocketInitialized = false;
+  std::vector<QWebSocket *> clients;
   Q_DISABLE_COPY(WebSocketServer);
 };
 

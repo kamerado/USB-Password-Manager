@@ -37,12 +37,15 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::MainWindow(std::shared_ptr<Logger> &logM, QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), logger(logM) {
-  logger->log(DEBUG, "DEBUG: MainWindow constructor starting");
+  // logger->log(DEBUG, "DEBUG: MainWindow constructor starting");
+  LOG_DEBUG(logM, "MainWindow constructor starting.");
   ui->setupUi(this);
   // startbtn = dynamic_cast<QPushButton *>(ui->StartButton);
   ui->CTable->setColumnCount(3);
   QStringList headers;
-  headers << "Website" << "Username" << "Password";
+  headers << "Website"
+          << "Username"
+          << "Password";
   ui->CTable->setHorizontalHeaderLabels(headers);
   ui->CTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
   ui->CTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -53,7 +56,7 @@ MainWindow::MainWindow(std::shared_ptr<Logger> &logM, QWidget *parent)
     QObject::connect(&(*server), &WebSocketServer::messageReceived, this,
                      &MainWindow::parseMessage, Qt::QueuedConnection);
 
-    logger->log(DEBUG, "DEBUG: MainWindow constructor completed");
+    LOG_DEBUG(logger, "DEBUG: MainWindow constructor completed");
   }
 }
 MainWindow::~MainWindow() {
@@ -89,9 +92,9 @@ void MainWindow::stopServer() {
 // }
 
 void MainWindow::on_StartButton_toggled(bool checked) {
-  logger->log(DEBUG,
-                 "MainWindow: on_StartButton_toggled called with checked = " +
-                     std::string((checked) ? "true" : "false"));
+  LOG_DEBUG(logger,
+            "MainWindow: on_StartButton_toggled called with checked = {}",
+            (checked) ? "true" : "false");
   if (checked) {
     // TODO: startService();
   } else {
@@ -100,39 +103,37 @@ void MainWindow::on_StartButton_toggled(bool checked) {
 }
 
 void MainWindow::receiveToggleSignal(bool &status) {
-  logger->log(DEBUG, "MainWindow: receiveToggleSignal entry with status = " +
-                            std::string((status) ? "true" : "false"));
+  LOG_DEBUG(logger, "MainWindow: receiveToggleSignal entry with status = {}",
+            (status) ? "true" : "false");
 
   if (!ui) {
-    logger->log(ERROR, "MainWindow: 'ui' is not initialized.");
+    LOG_ERROR(logger, "MainWindow: 'ui' is not initialized.");
     return;
   }
 
   if (!ui->StartButton) {
-    logger->log(ERROR,
-                   "MainWindow: 'StartButton' is not initialized in the UI.");
-
+    LOG_ERROR(logger,
+              "MainWindow: 'StartButton' is not initialized in the UI.");
     return;
   }
   bool tmp = status;
   if (ui->StartButton) {
     ui->StartButton->setChecked(tmp);
   } else {
-    logger->log(ERROR, "MainWindow: startbtn is not a QPushButton.");
+    LOG_ERROR(logger, "MainWindow: startbtn is not a QPushButton.");
   }
 }
 
-void MainWindow::parseMessage(
-    const QString &message) {
-  logger->log(DEBUG,
-                 "MainWindow: parseMessage received: " + message.toStdString());
+void MainWindow::parseMessage(const QString &message) {
+  LOG_DEBUG(logger, "MainWindow: parseMessage received: {}",
+            message.toStdString());
   try {
     using json = nlohmann::json;
     json j = json::parse(message.toStdString());
 
     if (!j.contains("type") || !j["type"].is_string()) {
-      logger->log(ERROR,
-                     "MainWindow: Missing or invalid 'type' field in message.");
+      LOG_ERROR(logger,
+                "MainWindow: Missing or invalid 'type' field in message.");
       return;
     }
 
@@ -140,22 +141,22 @@ void MainWindow::parseMessage(
 
     if (typeStr == "status") {
       if (!j.contains("status") || !j["status"].is_boolean()) {
-        logger->log(ERROR,
-                       "MainWindow: 'status' field missing or not a boolean.");
+        LOG_ERROR(logger,
+                  "MainWindow: 'status' field missing or not a boolean.");
         return;
       }
 
       bool status = j["status"];
-      logger->log(DEBUG, "MainWindow: Status value extracted: " +
-                                std::string((status) ? "true" : "false"));
+      LOG_DEBUG(logger, "MainWindow: Status value extracted: {}",
+                (status) ? "true" : "false");
 
       bool statusCopy = status;
       receiveToggleSignal(statusCopy);
     }
     if (typeStr == "check-entry") {
       if (!j.contains("website") || !j["website"].is_string()) {
-        logger->log(ERROR,
-                       "MainWindow: 'website' field missing or not a string.");
+        LOG_ERROR(logger,
+                  "MainWindow: 'website' field missing or not a string.");
         return;
       }
       QString tmp = QString::fromStdString(std::string(j["website"]));
@@ -166,17 +167,17 @@ void MainWindow::parseMessage(
         json message = {{"action", "receive-entry"}, {"entry", entry}};
 
         std::string jsonString = message.dump();
-        logger->log(DEBUG, jsonString);
+        LOG_DEBUG(logger, jsonString.c_str());
         server->sendEntry(jsonString);
         return;
       } else {
         json message = {{"action", "receive-null-entry"}};
 
         std::string jsonString = message.dump();
-        logger->log(INFO, jsonString);
+        LOG_INFO(logger, jsonString.c_str());
         server->sendEntry(jsonString);
 
-        logger->log(DEBUG, "MainWindow: Nothing in vector.");
+        LOG_DEBUG(logger, "MainWindow: Nothing in vector.");
         return;
       }
     }
@@ -184,9 +185,9 @@ void MainWindow::parseMessage(
       // TODO: Handle get-default-username request.
     }
   } catch (const nlohmann::json::parse_error &e) {
-    logger->log(ERROR, "MainWindow parsing JSON: " + std::string(e.what()));
+    LOG_ERROR(logger, "Parsing JSON Error: {}", e.what());
   } catch (const std::exception &e) {
-    logger->log(ERROR, "MainWindow: " + std::string(e.what()));
+    LOG_ERROR(logger, "Unknown Error: {}", e.what());
   }
 }
 
@@ -313,7 +314,6 @@ int MainWindow::getCurrRow() {
 // TODO: implement correct domain checking
 bool MainWindow::isValidDomain(const std::string &website) {
   std::string domain;
-
   auto idx = website.find(".");
   if (idx != std::string::npos) {
     domain = website.substr(idx, website.length());

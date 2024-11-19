@@ -20,7 +20,7 @@ function connectWebSocket() {
     if (data.action === "receive-null-entry") {
       console.log(
         "Received entry action",
-        data.entry ? "with entry" : "without entry"
+        data.entry ? "with entry" : "without entry",
       );
       if (!data.entry) {
         console.log("handler new credentials");
@@ -29,7 +29,7 @@ function connectWebSocket() {
           url: chrome.runtime.getURL("src/newEntry/newEntry.html"),
           type: "popup",
           height: 147,
-          width: 222
+          width: 222,
         });
       } else {
         console.log("handler loggin");
@@ -69,27 +69,33 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log("Sent stop status to WebSocket");
       }
     }
-    sendResponse({ status: "background function state changed", running: isRunning });
+    sendResponse({
+      status: "background function state changed",
+      running: isRunning,
+    });
   }
-  if (message.action === 'loginFormDetected') {
+  if (message.action === "loginFormDetected") {
     chrome.storage.local.get("isOn", (result) => {
       if (result) {
         console.log("Login form retected being processed");
         if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.send(JSON.stringify({
-            type: "check-entry",
-            website: message.request.website
-          }));
+          socket.send(
+            JSON.stringify({
+              type: "check-entry",
+              website: message.request.website,
+            }),
+          );
           console.log("Sent request to WebSocket:", message.request);
         } else {
           console.warn("WebSocket is not open. Cannot send message.");
         }
-        console.log("Sending check entry response.")
+        console.log("Sending check entry response.");
         sendResponse({
-          status: "Sent check entry", entry: JSON.stringify({
+          status: "Sent check entry",
+          entry: JSON.stringify({
             type: "check-entry",
-            website: message.request.website
-          })
+            website: message.request.website,
+          }),
         });
       } else {
         console.log("Stopping background function...");
@@ -98,10 +104,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           console.log("Sent stop status to WebSocket");
         }
         sendResponse({
-          status: "Sent check entry", entry: JSON.stringify({
+          status: "Sent check entry",
+          entry: JSON.stringify({
             type: "check-entry",
-            website: message.request.website
-          })
+            website: message.request.website,
+          }),
         });
       }
     });
@@ -110,7 +117,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   if (message.action === "get-default-username") {
     if (socket.readyState === WebS.OPEN) {
-      socket.send(JSON.stringify({}))
+      socket.send(JSON.stringify({}));
     }
   }
   return false;

@@ -19,19 +19,20 @@ WebSocketServer::WebSocketServer(std::shared_ptr<Logger> &logM) : logger(logM){
         if (wsServer && wsServer->listen(QHostAddress::Any, 8080)) {
             qDebug() << "Server listening on port 8080";
             connect(wsServer.get(), &QWebSocketServer::newConnection, this, &WebSocketServer::onNewConnection);
-            logger->log(INFO, "WebSocketServer: Initialized and listening on port 8080");
+            LOG_INFO(logger, "WebSocketServer: Initialized and listening on port 8080");
         } else {
             QString errorMsg = wsServer ? wsServer->errorString() : "Failed to create QWebSocketServer";
             qDebug() << "Error starting server:" << errorMsg;
-            logger->log(ERROR, "Error starting server: " + errorMsg.toStdString());
+            LOG_ERROR(logger, "Error starting server: {}", errorMsg.toStdString());
         }
     } catch (const std::exception &e) {
-        logger->log(ERROR, "WebSocketServer initialization error: " + std::string(e.what()));
+        LOG_ERROR(logger, "WebSocketServer initialization error: {}", e.what());
     }
 }
 
 void WebSocketServer::onNewConnection() {
     QWebSocket *socket = wsServer->nextPendingConnection();
+    clients.push_back(socket);
 
     connect(socket, &QWebSocket::textMessageReceived, this, &WebSocketServer::onTextMessageReceived);
     connect(socket, &QWebSocket::disconnected, this, &WebSocketServer::onDisconnected);
@@ -51,7 +52,9 @@ void WebSocketServer::onTextMessageReceived(const QString &message) {
 
 void WebSocketServer::onDisconnected() {
     QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
+    clients.erase(std::remove(clients.begin(), clients.end(), socket), clients.end());
     qDebug() << "Client disconnected";
+    // TODO: stop background service if no clients are connected.
     socket->deleteLater();
 }
 
@@ -89,16 +92,22 @@ void WebSocketServer::stop() {
 }
 
 void WebSocketServer::sendEntry(std::string &message) {
-  // wsServer.send();
+    QString qMessage = QString::fromStdString(message);
+    for (QWebSocket *client : clients) {
+        if (client->isValid()) {
+            client->sendTextMessage(qMessage);
+        }
+    }
+    LOG_DEBUG(logger, "WebSocketServer: Sent message to all clients: {}", message);
 }
 
 WebSocketServer::~WebSocketServer() {}
 
 bool WebSocketServer::isInitialized() const { return this->SocketInitialized; }
 
-void WebSocketServer::onMessage() {
-  // QString message = QString::fromStdString();
-  // (*logger)->log(DEBUG, "DEBUG: WebSocketServer message sent: " +
-                            // message.toStdString());
-  // emit messageReceived(message);
-}
+// void WebSocketServer::onMessage() {
+//   // QString message = QString::fromStdString();
+//   // (*logger)->log(DEBUG, "DEBUG: WebSocketServer message sent: " +
+//                             // message.toStdString());
+//   // emit messageReceived(message);
+// }

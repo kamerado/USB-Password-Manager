@@ -1,4 +1,5 @@
 #include "Logger.h"
+#include "spdlog/spdlog.h"
 #include <iostream>
 #include <memory>
 #include <spdlog/common.h>
@@ -12,8 +13,18 @@ Logger::Logger(bool toStdOut) {
 
   myLogger =
       std::make_shared<spdlog::logger>("myLogger", sinks.begin(), sinks.end());
-  myLogger->set_level(spdlog::level::debug);
-  myLogger->flush_on(spdlog::level::debug); // Force flush on every message
+  myLogger->set_level(spdlog::level::trace);
+  myLogger->flush_on(spdlog::level::trace); // Force flush on every message
+
+
+  // Set the log pattern to include line numbers
+  myLogger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] [%s:%#] %v");
+  // Example pattern explanation:
+  // [%Y-%m-%d %H:%M:%S.%e] - Timestamp
+  // [%^%l%$] - Log level with color
+  // [%s:%#] - Source file name and line number
+  // %v - The actual log message
+  spdlog::set_default_logger(myLogger); // Set the default logger to use myLogger
 }
 
 // Destructor: Closes the log file
