@@ -1,5 +1,6 @@
 #ifndef WEBSOCKETSERVER_H
 #define WEBSOCKETSERVER_H
+#include <qwebsocket.h>
 #pragma once
 #include <QFuture>
 #include <QObject>
@@ -23,7 +24,7 @@ public:
   void stop();
   bool isInitialized() const;
   // void toggleSocket();
-  void sendEntry(std::string &message);
+  void sendMessage(const QWebSocket *client, std::string &data);
 
 private slots:
   void onNewConnection();
@@ -35,7 +36,7 @@ private slots:
 
 signals:
   // void initialized(bool success);
-  void messageReceived(const QString &message);
+  void messageReceived(const QString &message, const QWebSocket *client);
   // void sendToggleSignal();
 
 private:

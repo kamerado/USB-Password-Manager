@@ -22,6 +22,7 @@
 #include <qobject.h>
 #include <qobjectdefs.h>
 #include <qpushbutton.h>
+#include <qwebsocket.h>
 #include <sys/socket.h>
 #include <vector>
 
@@ -56,7 +57,7 @@ MainWindow::MainWindow(std::shared_ptr<Logger> &logM, QWidget *parent)
     QObject::connect(&(*server), &WebSocketServer::messageReceived, this,
                      &MainWindow::parseMessage, Qt::QueuedConnection);
 
-    LOG_DEBUG(logger, "DEBUG: MainWindow constructor completed");
+    LOG_DEBUG(logger, "MainWindow constructor completed");
   }
 }
 MainWindow::~MainWindow() {
@@ -79,7 +80,7 @@ void MainWindow::startServer() {
 }
 
 void MainWindow::stopServer() {
-  if (server) {
+  if (server != nullptr) {
     server->stop();
   }
 }
@@ -92,8 +93,7 @@ void MainWindow::stopServer() {
 // }
 
 void MainWindow::on_StartButton_toggled(bool checked) {
-  LOG_DEBUG(logger,
-            "MainWindow: on_StartButton_toggled called with checked = {}",
+  LOG_DEBUG(logger, "on_StartButton_toggled called with checked = {}",
             (checked) ? "true" : "false");
   if (checked) {
     // TODO: startService();
@@ -103,37 +103,35 @@ void MainWindow::on_StartButton_toggled(bool checked) {
 }
 
 void MainWindow::receiveToggleSignal(bool &status) {
-  LOG_DEBUG(logger, "MainWindow: receiveToggleSignal entry with status = {}",
+  LOG_DEBUG(logger, "receiveToggleSignal entry with status = {}",
             (status) ? "true" : "false");
 
   if (!ui) {
-    LOG_ERROR(logger, "MainWindow: 'ui' is not initialized.");
+    LOG_ERROR(logger, "'ui' is not initialized.");
     return;
   }
 
   if (!ui->StartButton) {
-    LOG_ERROR(logger,
-              "MainWindow: 'StartButton' is not initialized in the UI.");
+    LOG_ERROR(logger, "'StartButton' is not initialized in the UI.");
     return;
   }
   bool tmp = status;
   if (ui->StartButton) {
     ui->StartButton->setChecked(tmp);
   } else {
-    LOG_ERROR(logger, "MainWindow: startbtn is not a QPushButton.");
+    LOG_ERROR(logger, "startbtn is not a QPushButton.");
   }
 }
 
-void MainWindow::parseMessage(const QString &message) {
-  LOG_DEBUG(logger, "MainWindow: parseMessage received: {}",
-            message.toStdString());
+void MainWindow::parseMessage(const QString &message,
+                              const QWebSocket *client) {
+  LOG_DEBUG(logger, "parseMessage received: {}", message.toStdString());
   try {
     using json = nlohmann::json;
     json j = json::parse(message.toStdString());
 
     if (!j.contains("type") || !j["type"].is_string()) {
-      LOG_ERROR(logger,
-                "MainWindow: Missing or invalid 'type' field in message.");
+      LOG_ERROR(logger, "Missing or invalid 'type' field in message.");
       return;
     }
 
@@ -141,13 +139,12 @@ void MainWindow::parseMessage(const QString &message) {
 
     if (typeStr == "status") {
       if (!j.contains("status") || !j["status"].is_boolean()) {
-        LOG_ERROR(logger,
-                  "MainWindow: 'status' field missing or not a boolean.");
+        LOG_ERROR(logger, "'status' field missing or not a boolean.");
         return;
       }
 
       bool status = j["status"];
-      LOG_DEBUG(logger, "MainWindow: Status value extracted: {}",
+      LOG_DEBUG(logger, "Status value extracted: {}",
                 (status) ? "true" : "false");
 
       bool statusCopy = status;
@@ -155,8 +152,7 @@ void MainWindow::parseMessage(const QString &message) {
     }
     if (typeStr == "check-entry") {
       if (!j.contains("website") || !j["website"].is_string()) {
-        LOG_ERROR(logger,
-                  "MainWindow: 'website' field missing or not a string.");
+        LOG_ERROR(logger, "'website' field missing or not a string.");
         return;
       }
       QString tmp = QString::fromStdString(std::string(j["website"]));
@@ -168,16 +164,16 @@ void MainWindow::parseMessage(const QString &message) {
 
         std::string jsonString = message.dump();
         LOG_DEBUG(logger, jsonString.c_str());
-        server->sendEntry(jsonString);
+        server->sendMessage(client, jsonString);
         return;
       } else {
         json message = {{"action", "receive-null-entry"}};
 
         std::string jsonString = message.dump();
         LOG_INFO(logger, jsonString.c_str());
-        server->sendEntry(jsonString);
+        server->sendMessage(client, jsonString);
 
-        LOG_DEBUG(logger, "MainWindow: Nothing in vector.");
+        LOG_DEBUG(logger, "Nothing in vector.");
         return;
       }
     }

@@ -59,6 +59,5 @@ int main(int argc, char *argv[]) {
     startGui<Login>(l, m, logM, db);
     ret = a.exec();
   }
-  std::cout << "exiting" << std::endl;
   return ret;
 }

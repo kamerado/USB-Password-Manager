@@ -9,6 +9,7 @@
 #include <memory>
 #include <qglobal.h>
 #include <qpushbutton.h>
+#include <qwebsocket.h>
 #include <src/core/Logger.h>
 
 QT_BEGIN_NAMESPACE
@@ -41,7 +42,7 @@ private slots:
   void on_DeleteAll_clicked();
   void on_SettingsButton_clicked();
 public slots:
-  void parseMessage(const QString &);
+  void parseMessage(const QString &, const QWebSocket *client);
 
 private:
   Ui::MainWindow *ui;
