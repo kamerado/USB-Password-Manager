@@ -6,6 +6,7 @@ main
 db/**
 LogFiles/**
 !build/.gitkeep
+!build/build.sh
 !libs/.gitkeep
 src/gui/build-GUI-Desktop-Debug
 CMakeLists.txt.user

@@ -13,49 +13,53 @@
 #include <qtimer.h>
 #include <string>
 
-WebSocketServer::WebSocketServer(std::shared_ptr<Logger> &logM) : logger(logM){
-    try {
-        wsServer = std::make_unique<QWebSocketServer>("WSServer", QWebSocketServer::NonSecureMode);
-        if (wsServer && wsServer->listen(QHostAddress::Any, 8080)) {
-            qDebug() << "Server listening on port 8080";
-            connect(wsServer.get(), &QWebSocketServer::newConnection, this, &WebSocketServer::onNewConnection);
-            LOG_INFO(logger, "WebSocketServer: Initialized and listening on port 8080");
-        } else {
-            QString errorMsg = wsServer ? wsServer->errorString() : "Failed to create QWebSocketServer";
-            qDebug() << "Error starting server:" << errorMsg;
-            LOG_ERROR(logger, "Error starting server: {}", errorMsg.toStdString());
-        }
-    } catch (const std::exception &e) {
-        LOG_ERROR(logger, "WebSocketServer initialization error: {}", e.what());
+WebSocketServer::WebSocketServer(std::shared_ptr<Logger> &logM) : logger(logM) {
+  try {
+    wsServer = std::make_unique<QWebSocketServer>(
+        "WSServer", QWebSocketServer::NonSecureMode);
+    if (wsServer && wsServer->listen(QHostAddress::Any, 8080)) {
+      connect(wsServer.get(), &QWebSocketServer::newConnection, this,
+              &WebSocketServer::onNewConnection);
+      LOG_INFO(logger, "Initialized and listening on port 8080");
+    } else {
+      QString errorMsg = wsServer ? wsServer->errorString()
+                                  : "Failed to create QWebSocketServer";
+      LOG_ERROR(logger, "Error starting server: {}", errorMsg.toStdString());
     }
+  } catch (const std::exception &e) {
+    LOG_ERROR(logger, "WebSocketServer initialization error: {}", e.what());
+  }
 }
 
 void WebSocketServer::onNewConnection() {
-    QWebSocket *socket = wsServer->nextPendingConnection();
-    clients.push_back(socket);
+  QWebSocket *socket = wsServer->nextPendingConnection();
+  clients.push_back(socket);
 
-    connect(socket, &QWebSocket::textMessageReceived, this, &WebSocketServer::onTextMessageReceived);
-    connect(socket, &QWebSocket::disconnected, this, &WebSocketServer::onDisconnected);
+  connect(socket, &QWebSocket::textMessageReceived, this,
+          &WebSocketServer::onTextMessageReceived);
+  connect(socket, &QWebSocket::disconnected, this,
+          &WebSocketServer::onDisconnected);
 
-    qDebug() << "New connection established";
+  qDebug() << "New connection established";
 }
 
 void WebSocketServer::onTextMessageReceived(const QString &message) {
-    QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
+  QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
 
-    qDebug() << "Message received:" << message;
-    emit messageReceived(message);
+  qDebug() << "Message received:" << message;
+  emit messageReceived(message);
 
-    // TODO: Process the message and send a response if needed
-    // socket->sendTextMessage("Echo: " + message);
+  // TODO: Process the message and send a response if needed
+  // socket->sendTextMessage("Echo: " + message);
 }
 
 void WebSocketServer::onDisconnected() {
-    QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
-    clients.erase(std::remove(clients.begin(), clients.end(), socket), clients.end());
-    qDebug() << "Client disconnected";
-    // TODO: stop background service if no clients are connected.
-    socket->deleteLater();
+  QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
+  clients.erase(std::remove(clients.begin(), clients.end(), socket),
+                clients.end());
+  qDebug() << "Client disconnected";
+  // TODO: stop background service if no clients are connected.
+  socket->deleteLater();
 }
 
 void WebSocketServer::start(uint16_t port) {
@@ -72,7 +76,8 @@ void WebSocketServer::start(uint16_t port) {
   //     SocketInitialized = true;
   //   } catch (std::exception &e) {
   //     (*logger)->log(ERROR,
-  //                    "WebSocketServer start error: " + std::string(e.what()));
+  //                    "WebSocketServer start error: " +
+  //                    std::string(e.what()));
   //   }
   // }
 }
@@ -92,13 +97,14 @@ void WebSocketServer::stop() {
 }
 
 void WebSocketServer::sendEntry(std::string &message) {
-    QString qMessage = QString::fromStdString(message);
-    for (QWebSocket *client : clients) {
-        if (client->isValid()) {
-            client->sendTextMessage(qMessage);
-        }
+  QString qMessage = QString::fromStdString(message);
+  for (QWebSocket *client : clients) {
+    if (client->isValid()) {
+      client->sendTextMessage(qMessage);
     }
-    LOG_DEBUG(logger, "WebSocketServer: Sent message to all clients: {}", message);
+  }
+  LOG_DEBUG(logger, "WebSocketServer: Sent message to all clients: {}",
+            message);
 }
 
 WebSocketServer::~WebSocketServer() {}
