@@ -1,5 +1,15 @@
 const form = document.getElementById("loginForm");
+console.log("Login form detected. opening new entry form...");
+var website;
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "init") {
+    // Process the data
+    console.log("Received arguments:", message.data);
+    website = message.data.website;
+    sendResponse({ status: "success" });
+  }
+});
 function genPass(length = 16) {
   const chars = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{};':\"\\|,.<>/?";
   let password = "";
@@ -15,32 +25,55 @@ function genPass(length = 16) {
   return password;
 }
 
-form.addeventlistener("submit", (event) => {
-  event.preventdefault(); // prevent default form submission
+// Function to get query parameters from the URL
+function getQueryParams() {
+  const params = {};
+  const queryString = window.location.search.substring(1);
+  const queryArray = queryString.split("&");
+  queryArray.forEach((param) => {
+    const [key, value] = param.split("=");
+    params[decodeURIComponent(key)] = decodeURIComponent(value);
+  });
+  return params;
+}
 
+// Get the query parameters
+// const queryParams = getQueryParams();
+// const website = queryParams.website || "";
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault(); // prevent default form submission
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
-  // Do something with the username and password (e.g., send to server for validation)
   console.log("Username:", username);
   console.log("Password:", password);
-  chrome.runtime.sendMessage({ action: "new-entry-data", username: toString(username), password: toString(password) })
+  chrome.runtime.sendMessage({ action: "new-entry-data", website: website, username: username, password: password });
 });
 
-form.addEventListener("generate", (event) => {
-  event.preventDefault(); // Prevent default form submission
-  const username = chrome.runtime.sendMessage({ action: "get-default-username" }, (response) => {
-    if (response.username) {
-      return response.username;
-    }
-  })
+document.getElementById("generate").addEventListener("click", async (event) => {
+  event.preventDefault(); // prevent default form submission
+  console.log("Generating new username and password...");
+
+  // chrome.runtime.sendMessage({ action: "get-default-username" }, (response) => {
+  //   if (response.username) {
+  //     document.getElementById("username").value = response.username;
+  //   }
+  // })
 
   const password = genPass();
-  document.getElementById("username").value = username;
   document.getElementById("password").value = password;
+  console.log("Generated password:", password);
+
+  const username = "";
 
   // Do something with the username and password (e.g., send to server for validation)
   console.log("Generated username:", username);
   console.log("Generated password:", password);
-  chrome.runtime.sendMessage({ action: "new-entry-data", username: toString(username), password: toString(password) })
+  chrome.runtime.sendMessage({
+    action: "new-entry-data",
+    website: website,
+    username: document.getElementById("username").value,
+    password: password
+  })
 });

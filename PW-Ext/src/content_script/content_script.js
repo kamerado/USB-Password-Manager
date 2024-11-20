@@ -2,8 +2,8 @@ console.log("Content script initialization started");
 (function () {
   "use strict";
 
-  let socket;
-  let isRunning = false;
+  // let socket;
+  // let isRunning = false;
 
   console.log("Content script IIFE started");
 
@@ -68,28 +68,47 @@ console.log("Content script initialization started");
     if (loginFields.length > 0) {
       console.log("Login form fields detected!");
 
-      return new Promise((resolve, reject) => {
-        console.log("Sending loginFormDetected message to background");
-        chrome.runtime.sendMessage(
-          {
-            action: "loginFormDetected",
-            type: "request",
-            request: {
-              type: "check-entry",
-              website: window.location.host
+      try {
+        let response = await new Promise((resolve, reject) => {
+          console.log("Sending loginFormDetected message to background");
+          chrome.runtime.sendMessage(
+            {
+              action: "loginFormDetected",
+              type: "request",
+              request: {
+                type: "check-entry",
+                website: window.location.host
+              }
+            },
+            (response) => {
+              if (chrome.runtime.lastError) {
+                console.error("Error in chrome.runtime.sendMessage:", chrome.runtime.lastError.message);
+                reject(new Error(chrome.runtime.lastError.message));
+              } else {
+                console.log("Response received from background:", response);
+                resolve(response);
+              }
             }
-          },
-          (response) => {
-            if (chrome.runtime.lastError) {
-              console.error("Error in chrome.runtime.sendMessage:", chrome.runtime.lastError.message);
-              reject(new Error(chrome.runtime.lastError.message));
-            } else {
-              console.log("Response received from background:", response);
-              resolve(response);
-            }
+          );
+        });
+
+        // Handle the response
+        if (response.status === "success") {
+          if (response.entry) {
+            console.log("Entry found for website:", response.website);
+            // Handle existing entry (e.g., fill form)
+            fillForm(response.entry.username, response.entry.password);
+          } else {
+            console.log("No entry found for website:", response.website);
+            // Handle no entry case
           }
-        );
-      });
+        } else {
+          console.error("Error checking for entry:", response.error);
+        }
+        console.log("Responce2:", response);
+      } catch (error) {
+        console.error("Error in checkForLoginForm:", error);
+      }
     } else {
       console.log("No login fields found yet.");
     }

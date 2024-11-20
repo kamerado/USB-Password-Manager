@@ -28,5 +28,18 @@
       ],
       "run_at": "document_end"
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/newEntry/newEntry.html",
+        "src/newEntry/newEntry.js",
+        "src/overlay.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ],
+      "use_dynamic_url": true
+    }
   ]
 }

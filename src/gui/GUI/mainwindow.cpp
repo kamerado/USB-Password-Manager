@@ -167,7 +167,8 @@ void MainWindow::parseMessage(const QString &message,
         server->sendMessage(client, jsonString);
         return;
       } else {
-        json message = {{"action", "receive-null-entry"}};
+        json message = {{"action", "receive-entry"},
+                        {"website", std::string(j["website"])}};
 
         std::string jsonString = message.dump();
         LOG_INFO(logger, jsonString.c_str());
