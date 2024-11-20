@@ -104,52 +104,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             JSON.stringify(requestPayload)
           );
           console.log("Sent request to WebSocket:", message.request);
-          const waitForWebSocketResponse = new Promise((resolve, reject) => {
-            const handleMessage = (event) => {
-              const data = JSON.parse(event.data);
-              // if (data.type === "" && data.website === message.request.website) {
-              //   socket.removeEventListener("message", handleMessage);
-              //   resolve(data);
-              // }
-              if (data.action === "receive-entry") {
-                console.log(
-                  "Received entry action for website: ", data.website,
-                  "\nEntry: ", data.entry
-                );
-                if (!data.entry) {
-                  console.log("handler new credentials");
-                  // TODO: handle creating new login credentials.
-                  chrome.windows.create({
-                    url: chrome.runtime.getURL("src/newEntry/newEntry.html"),
-                    type: "popup",
-                    height: 147,
-                    width: 222,
-                  }, (newWindow) => {
-                    newWindowId = newWindow.id;
-                    // Assuming you have the tab ID of the new window's tab
-                    // chrome.tabs.sendMessage(newWindowTabId, {
-                    //   type: "init",
-                    //   data: { website: data.website }
-                    // });
-                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                      if (tabs.length > 0) {
-                        overlayTabId = tabs[0].id;
-                        // Inject the overlay content script
-                        if (tabs[0].url?.startsWith("chrome://")) return undefined;
-                        chrome.scripting.executeScript({
-                          target: { tabId: overlayTabId },
-                          files: ["src/overlay.js"]
-                        });
-                      };
-                    });
-                  });
-                } else {
-                  console.log("handler loggin");
-                  // TODO: handle logging into website.
-                }
-              }
-            };
-          });
           sendResponse({
             status: "success",
             website: message.request.website,
