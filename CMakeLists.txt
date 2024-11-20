@@ -8,8 +8,8 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_C_COMPILER gcc)
-set(CMAKE_CXX_COMPILER /usr/bin/g++)
+# set(CMAKE_C_COMPILER gcc)
+# set(CMAKE_CXX_COMPILER /usr/bin/g++)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,7 +22,7 @@ include_directories(${EXTERNAL_DIR}/spdlog/include)
 include_directories(${EXTERNAL_DIR}/json/include)
 include_directories("$ENV{HOME}/Qt/6.8.0/gcc_64/include/")
 
-add_subdirectory(libs/cryptopp-cmake)
+add_subdirectory(${EXTERNAL_DIR}/cryptopp-cmake)
 
 find_package(QT NAMES Qt6 COMPONENTS
   Core Sql Widgets WebSockets REQUIRED
@@ -60,7 +60,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
   target_link_libraries(nativegui PRIVATE
       Qt${QT_VERSION_MAJOR}::Core
       Qt${QT_VERSION_MAJOR}::Widgets
-      cryptopp
+      cryptopp::cryptopp
       Qt${QT_VERSION_MAJOR}::Sql
       Qt${QT_VERSION_MAJOR}::WebSockets
       stdc++

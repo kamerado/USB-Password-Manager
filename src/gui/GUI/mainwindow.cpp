@@ -23,7 +23,7 @@
 #include <qobjectdefs.h>
 #include <qpushbutton.h>
 #include <qwebsocket.h>
-#include <sys/socket.h>
+// #include <sys/socket.h>
 #include <vector>
 
 #include "src/core/WebSocket.h"
