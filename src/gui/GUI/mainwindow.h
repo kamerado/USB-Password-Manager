@@ -25,7 +25,7 @@ public:
   MainWindow(QWidget *parent = nullptr);
   MainWindow(std::shared_ptr<Logger> &logM, QWidget *parent = nullptr);
   ~MainWindow();
-  void closeEvent(QCloseEvent *event);
+  void closeEvent(QCloseEvent *event) override;
   void setEnc(std::unique_ptr<EncryptionUtil> &encddec);
   void setDB(std::unique_ptr<DatabaseManager> &database);
   void syncUIWithDB();
@@ -57,5 +57,6 @@ private:
 
   int getCurrRow();
   bool isValidDomain(const std::string &website);
+  bool isOpen;
 };
 #endif // MAINWINDOW_H

@@ -29,6 +29,8 @@ DatabaseManager::DatabaseManager(std::shared_ptr<Logger> &logM) {
   }
 }
 
+bool DatabaseManager::getIsOpen() { return this->isOpen; }
+
 // Move constructor and assignment.
 DatabaseManager::DatabaseManager(DatabaseManager &&other) noexcept {
   if (this != &other) {
@@ -58,6 +60,15 @@ void DatabaseManager::setupDB() {
     return;
   }
 }
+
+
+void DatabaseManager::close() {
+    if (db.isOpen()) {
+        db.close();
+    }
+    isOpen = false;
+}
+
 
 bool DatabaseManager::addEntry(int id, const QString &website,
                                const QString &username,

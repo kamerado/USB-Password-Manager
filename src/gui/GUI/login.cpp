@@ -29,6 +29,8 @@ void Login::on_LoginButton_clicked() {
                      ui->PasswordInput->text().toStdString();
   this->encdec = std::make_unique<EncryptionUtil>(pass);
   this->accept();
+      // Give time for handles to be released
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Decrypt db.
   this->encdec->DecryptFile();

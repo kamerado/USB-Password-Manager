@@ -62,6 +62,9 @@ MainWindow::MainWindow(std::shared_ptr<Logger> &logM, QWidget *parent)
 }
 MainWindow::~MainWindow() {
   stopServer();
+  if (db) {
+    db->close();
+  }
   // waitForServerStop();
   delete ui;
 }
@@ -189,8 +192,25 @@ void MainWindow::parseMessage(const QString &message,
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-  this->enc->EncryptFile();
-  event->accept();
+    // First stop the server if running
+    if (server != nullptr) {
+        stopServer();
+    }
+    
+    // Close database connection
+    if (db != nullptr) {
+        db->close(); // Make sure DatabaseManager has a close() method
+    }
+
+    // Give time for handles to be released
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    // Now encrypt the file
+    if (enc != nullptr) {
+        this->enc->EncryptFile();
+    }
+    
+    event->accept();
 }
 
 void MainWindow::setEnc(std::unique_ptr<EncryptionUtil> &encdec) {

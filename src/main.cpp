@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
   MainWindow m(logM);
 
   int ret;
+
   if (!fs::exists("../db/passwords.dbe")) {
     Setup s(logM);
     startGui<Setup>(s, m, logM, db);
@@ -59,5 +60,6 @@ int main(int argc, char *argv[]) {
     startGui<Login>(l, m, logM, db);
     ret = a.exec();
   }
+
   return ret;
 }

@@ -33,6 +33,7 @@ public:
 
   DatabaseManager(const DatabaseManager &) = delete;
   DatabaseManager &operator=(const DatabaseManager &) = delete;
+  void close();
 
   DatabaseManager(DatabaseManager &&) noexcept;
   DatabaseManager &operator=(DatabaseManager &&) noexcept;
@@ -52,6 +53,7 @@ public:
   QList<rowEntry>
   queryAll(); // Executes a SQL query for all entrys and returns the results
   std::vector<QString> parseRequest(const std::string &requestStr);
+  bool getIsOpen();
 
 private:
   QSqlDatabase db;
