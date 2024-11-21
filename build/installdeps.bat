@@ -1,0 +1,1 @@
+"qt-online-installer-windows-x64-4.8.1.exe" --root C:\Users\user\Qt --accept-licenses --default-answer --confirm-command install qt6-full-dev qt.qt6.680.win64_mingw qt.qt6.680.addons.qtwebsockets

@@ -7,3 +7,6 @@
 [submodule "libs/cryptopp-cmake"]
 	path = libs/cryptopp-cmake
 	url = https://github.com/abdes/cryptopp-cmake.git
+[submodule "libs/qt5"]
+	path = libs/qt5
+	url = https://code.qt.io/qt/qt5.git

@@ -6,10 +6,11 @@ main
 db/**
 LogFiles/**
 !build/.gitkeep
-!build/build.sh
+!build/build.*
+!build/installdeps.bat
 !libs/.gitkeep
 src/gui/build-GUI-Desktop-Debug
 CMakeLists.txt.user
 compile_commands.json
 settings/**
-!settings/.gitkeep
+!settings/.gitkeepsdsdfsdfsdfsdfsddddlg

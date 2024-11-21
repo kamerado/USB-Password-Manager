@@ -1,4 +1,4 @@
-#include "login.h"
+#include "src/gui/GUI/login.h"
 #include "ui_login.h"
 
 #include <QString>
