@@ -42,7 +42,7 @@ private slots:
   void on_DeleteAll_clicked();
   void on_SettingsButton_clicked();
 public slots:
-  void parseMessage(const QString &, const QWebSocket *client);
+  void parseMessage(const QString &);
 
 private:
   Ui::MainWindow *ui;

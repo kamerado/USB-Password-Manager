@@ -44,9 +44,7 @@ MainWindow::MainWindow(std::shared_ptr<Logger> &logM, QWidget *parent)
   // startbtn = dynamic_cast<QPushButton *>(ui->StartButton);
   ui->CTable->setColumnCount(3);
   QStringList headers;
-  headers << "Website"
-          << "Username"
-          << "Password";
+  headers << "Website" << "Username" << "Password";
   ui->CTable->setHorizontalHeaderLabels(headers);
   ui->CTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
   ui->CTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -60,6 +58,7 @@ MainWindow::MainWindow(std::shared_ptr<Logger> &logM, QWidget *parent)
     LOG_DEBUG(logger, "MainWindow constructor completed");
   }
 }
+
 MainWindow::~MainWindow() {
   stopServer();
   if (db) {
@@ -69,18 +68,18 @@ MainWindow::~MainWindow() {
   delete ui;
 }
 
-void MainWindow::startServer() {
-  if (server == nullptr) {
-    server = std::make_unique<WebSocketServer>(logger);
-
-    // QObject::connect(serverThread, &QThread::started, server,
-    //                  [this]() { server->start(8080); });
-    // QObject::connect(server, &WebSocketServer::messageReceived, this,
-    //                  &MainWindow::parseMessage, Qt::QueuedConnection);
-    // QObject::connect(serverThread, &QThread::finished, server,
-    //                  &QObject::deleteLater);
-  }
-}
+// void MainWindow::startServer() {
+//   if (server == nullptr) {
+//     server = std::make_unique<WebSocketServer>(logger);
+//
+//     // QObject::connect(serverThread, &QThread::started, server,
+//     //                  [this]() { server->start(8080); });
+//     // QObject::connect(server, &WebSocketServer::messageReceived, this,
+//     //                  &MainWindow::parseMessage, Qt::QueuedConnection);
+//     // QObject::connect(serverThread, &QThread::finished, server,
+//     //                  &QObject::deleteLater);
+//   }
+// }
 
 void MainWindow::stopServer() {
   if (server != nullptr) {
@@ -98,11 +97,10 @@ void MainWindow::stopServer() {
 void MainWindow::on_StartButton_toggled(bool checked) {
   LOG_DEBUG(logger, "on_StartButton_toggled called with checked = {}",
             (checked) ? "true" : "false");
-  if (checked) {
-    // TODO: startService();
-  } else {
-    // TODO: stopService();
-  }
+  nlohmann::json message = {{"action", "toggle-background"}, {"isOn", checked}};
+
+  std::string jsonString = message.dump();
+  server->sendMessage(jsonString);
 }
 
 void MainWindow::receiveToggleSignal(bool &status) {
@@ -126,8 +124,7 @@ void MainWindow::receiveToggleSignal(bool &status) {
   }
 }
 
-void MainWindow::parseMessage(const QString &message,
-                              const QWebSocket *client) {
+void MainWindow::parseMessage(const QString &message) {
   LOG_DEBUG(logger, "parseMessage received: {}", message.toStdString());
   try {
     using json = nlohmann::json;
@@ -167,7 +164,7 @@ void MainWindow::parseMessage(const QString &message,
 
         std::string jsonString = message.dump();
         LOG_DEBUG(logger, jsonString.c_str());
-        server->sendMessage(client, jsonString);
+        server->sendMessage(jsonString);
         return;
       } else {
         json message = {{"action", "receive-entry"},
@@ -175,14 +172,19 @@ void MainWindow::parseMessage(const QString &message,
 
         std::string jsonString = message.dump();
         LOG_INFO(logger, jsonString.c_str());
-        server->sendMessage(client, jsonString);
+        server->sendMessage(jsonString);
 
         LOG_DEBUG(logger, "Nothing in vector.");
         return;
       }
     }
-    if (typeStr == "get-default-username") {
-      // TODO: Handle get-default-username request.
+    if (typeStr == "init") {
+      LOG_DEBUG(logger, "Received init request.");
+      json message = {{"isOn", ui->StartButton->isChecked()},
+                      {"action", "init-response"}};
+      std::string jsonstring = message.dump();
+      server->sendMessage(jsonstring);
+      LOG_DEBUG(logger, "Sent init message.");
     }
   } catch (const nlohmann::json::parse_error &e) {
     LOG_ERROR(logger, "Parsing JSON Error: {}", e.what());

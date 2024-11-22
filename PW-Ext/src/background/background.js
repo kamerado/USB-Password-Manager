@@ -1,5 +1,3 @@
-"use strict";
-
 console.log("Background script initialized");
 
 let newWindowId = null;
@@ -7,6 +5,15 @@ let overlayTabId = null;
 let socket;
 let isRunning = false;
 
+function isPopupOpen() {
+  const contexts = chrome.runtime.getContexts({ contextTypes: ['POPUP'] });
+  if (contexts.length > 0) {
+    console.log("Popup is open");
+  } else {
+    console.log("Popup is not open");
+  }
+  return contexts.length > 0;
+}
 function connectWebSocket() {
   console.log("Attempting WebSocket connection...");
   socket = new WebSocket("ws://localhost:8080");
@@ -54,6 +61,18 @@ function connectWebSocket() {
         // TODO: handle logging into website.
       }
     }
+    if (data.action === "init-response") {
+      console.log("Received init response:", data);
+      chrome.runtime.sendMessage({ action: "init", isOn: data.isOn });
+      isRunning = data.isOn;
+    } if (data.action === "toggle-background") {
+      console.log("Received toggle background:", data);
+      if (isPopupOpen()) {
+        chrome.runtime.sendMessage({ action: "init", isOn: data.isOn });
+      }
+      isRunning = data.isOn;
+    }
+
   });
 
   socket.addEventListener("close", () => {
@@ -64,7 +83,53 @@ function connectWebSocket() {
   socket.addEventListener("error", (event) => {
     console.log("WebSocket error:", event);
   });
+
 }
+async function waitForSocketConnection() {
+  try {
+    return new Promise((resolve, reject) => {
+      if (socket.readyState === WebSocket.OPEN) {
+        resolve();
+      } else {
+        socket.addEventListener("open", resolve);
+        socket.addEventListener("error", reject);
+      }
+    });
+  } catch (error) {
+    console.error('WebSocket error:', error);
+  }
+}
+function sendMessage(message) {
+  try {
+    return waitForSocketConnection().then(() => {
+      return new Promise((resolve, reject) => {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(message);
+        } else {
+          reject(new Error("WebSocket is not open"));
+        }
+
+        socket.addEventListener("message", function handler(event) {
+          socket.removeEventListener("message", handler);
+          resolve(event.data);
+        });
+
+        socket.addEventListener("error", (event) => {
+          reject(event);
+        });
+      });
+    });
+  } catch (error) {
+    console.error('WebSocket error:', error);
+  }
+}
+
+try {
+  connectWebSocket();
+} catch (error) {
+  console.error('WebSocket error:', error);
+}
+
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Background received message:", message);
@@ -136,43 +201,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (socket.readyState === WebSocket.OPEN) {
       // TODO: Send message to server to get default username.
       socket.send(JSON.stringify({}));
-      socket.addEventListener("message", (event) => {
-        const data = JSON.parse(event.data);
-        if (data.action === "default-username") {
-          sendResponse({ username: data.username });
-        }
-      });
     }
-    return true;
   }
-  if (message.action === "new-entry-data") {
-    const username = message.username;
-    const password = message.password;
-    const website = message.website;
-    console.log("Received new entry data:", username, password);
-
-    // Handle the new entry data (e.g., send to server, save to storage, etc.)
-    // Example: Send to WebSocket server
-    socket.send(JSON.stringify({ type: "new-entry-data", website, username, password }));
-
-    // Close the popup window and remove the overlay
-    if (newWindowId !== null) {
-      chrome.windows.remove(newWindowId);
-      newWindowId = null;
-    }
-    if (overlayTabId !== null) {
-      chrome.tabs.get(overlayTabId, (tab) => {
-        if (chrome.runtime.lastError || !tab) {
-          console.warn("Tab no longer exists:", overlayTabId);
-          overlayTabId = null;
-        } else {
-          chrome.scripting.executeScript({
-            target: { tabId: overlayTabId },
-            func: () => document.getElementById('overlay').remove()
-          });
-        }
-      });
-    }
+  if (message.action === "init") {
+    console.log("Init request from popup script", message.data);
+    socket.send(JSON.stringify({ type: "init" }));
   }
   return false;
 });

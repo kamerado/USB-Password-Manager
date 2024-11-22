@@ -47,7 +47,7 @@ void WebSocketServer::onNewConnection() {
 void WebSocketServer::onTextMessageReceived(const QString &message) {
   QWebSocket *client = qobject_cast<QWebSocket *>(sender());
   LOG_INFO(logger, "Message received: {}", message.toStdString());
-  emit messageReceived(message, client);
+  emit messageReceived(message);
 
   // TODO: Process the message and send a response if needed
   // socket->sendTextMessage("Echo: " + message);
@@ -69,11 +69,12 @@ void WebSocketServer::start(uint16_t port) {}
 
 void WebSocketServer::stop() {}
 
-void WebSocketServer::sendMessage(const QWebSocket *client, std::string &data) {
+void WebSocketServer::sendMessage(std::string &data) {
   QString qMessage = QString::fromStdString(data);
-  QWebSocket *nonConstClient = const_cast<QWebSocket *>(client);
-  if (client->isValid()) {
-    nonConstClient->sendTextMessage(qMessage);
+  for (QWebSocket *client : clients) {
+    if (client->isValid()) {
+      client->sendTextMessage(qMessage);
+    }
   }
   LOG_DEBUG(logger, "WebSocketServer: Sent message to all clients: {}", data);
 }

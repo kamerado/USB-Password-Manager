@@ -4,6 +4,10 @@ const _start = document.getElementById("_start");
 function updateStartButton(isOn) {
   // Apply the correct class based on the new state
   if (isOn) {
+    // chrome.storage.local.set({ isOn }, () => { // Save new state
+    //   console.log("New state saved:", request.isOn);
+    //   updateStartButton(request.isOn);
+    // });
     console.log("Switching to ON state");
     _start.classList.add("toggle_on");
     _start.classList.remove("toggle_off");
@@ -18,8 +22,27 @@ function updateStartButton(isOn) {
 
 function initButton() {
   console.log("initButton...");
-  checkState(updateStartButton);
+  // TODO: setup message handler for background script.
+  // Listen for messages from the background script
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "toggle") {
+      console.log("Toggle request from background script", request);
+      updateStartButton(request.data.isOn);
+    }
+    if (request.action === "init") {
+      console.log("Init request from background script", request);
+      var isOn = request.isOn || false;
+      chrome.storage.local.set({ isOn }, () => { // Save new state
+        console.log("New state saved:", request.isOn);
+        updateStartButton(request.isOn);
+      });
+    }
+  });
+
+  // TODO: handle initial check state.
+  chrome.runtime.sendMessage({ action: "init" });
 };
+
 
 // Function to toggle button state on click
 function toggle_start() {
@@ -56,3 +79,5 @@ if (_start != null) {
 };
 
 initButton();
+
+

@@ -24,7 +24,7 @@ public:
   void stop();
   bool isInitialized() const;
   // void toggleSocket();
-  void sendMessage(const QWebSocket *client, std::string &data);
+  void sendMessage(std::string &data);
 
 private slots:
   void onNewConnection();
@@ -36,7 +36,7 @@ private slots:
 
 signals:
   // void initialized(bool success);
-  void messageReceived(const QString &message, const QWebSocket *client);
+  void messageReceived(const QString &message);
   // void sendToggleSignal();
 
 private:
