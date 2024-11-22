@@ -1,6 +1,9 @@
 @echo off
 setlocal
 
+echo Installing dependencies...
+call "%~dp0installdeps.bat"
+
 REM Verify required directories exist
 if not exist "C:\Users\user\Qt\6.8.0\mingw_64" (
     echo Error: Qt directory not found
@@ -23,8 +26,7 @@ IF NOT EXIST "%BUILD_DIR%" (
     mkdir "%BUILD_DIR%"
 )
 
-echo Installing dependencies...
-call "%PROJECT_DIR%\build\installdeps.bat"
+
 
 REM Set working directory to build output
 cd /d "%~dp0"
