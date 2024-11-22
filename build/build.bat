@@ -23,6 +23,9 @@ IF NOT EXIST "%BUILD_DIR%" (
     mkdir "%BUILD_DIR%"
 )
 
+echo Installing dependencies...
+call "%PROJECT_DIR%\build\installdeps.bat"
+
 REM Set working directory to build output
 cd /d "%~dp0"
 
