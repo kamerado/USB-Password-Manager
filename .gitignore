@@ -7,7 +7,7 @@ db/**
 LogFiles/**
 !build/.gitkeep
 !build/build.*
-!build/installdeps.bat
+!build/installdeps.*
 !libs/.gitkeep
 src/gui/build-GUI-Desktop-Debug
 CMakeLists.txt.user
