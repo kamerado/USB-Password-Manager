@@ -72,8 +72,4 @@ echo "Build and deployment completed successfully"
 
 # Run the application
 echo "Starting application..."
-$PROJECT_DIR/build/nativegui &
-if [ $? -ne 0 ]; then
-  echo "Failed to start application"
-  exit 1
-fi
+$PROJECT_DIR/build/nativegui
