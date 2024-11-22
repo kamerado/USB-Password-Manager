@@ -43,7 +43,8 @@ cd "$(dirname "$0")"
 # Build project
 echo Building project...
 cmake --build "$HOME/projects/USB-Password-Manager/build/Desktop_Qt_6_8_0-Debug" --target all
-if [ ! -f "$PROJECT_DIR/nativegui" ]; then
+
+if [ ! -f "$PROJECT_DIR/build/nativegui" ]; then
   echo "Build failed - Check CMake output for details"
   exit 1
 fi
@@ -71,7 +72,7 @@ echo "Build and deployment completed successfully"
 
 # Run the application
 echo "Starting application..."
-./nativegui &
+$PROJECT_DIR/build/nativegui &
 if [ $? -ne 0 ]; then
   echo "Failed to start application"
   exit 1
