@@ -18,6 +18,10 @@ set PATH=%PATH%;%QT_DIR%\bin;%MINGW_DIR%\bin
 set PROJECT_DIR=C:\Users\user\Projects\USB-Password-Manager
 set BUILD_DIR=%PROJECT_DIR%\build\Desktop_Qt_6_8_0_MinGW_64_bit-Debug
 
+REM Create build directory if it doesn't exist
+IF NOT EXIST "%BUILD_DIR%" (
+    mkdir "%BUILD_DIR%"
+)
 
 REM Set working directory to build output
 cd /d "%~dp0"
@@ -48,8 +52,8 @@ if not exist "nativegui.exe" (
 )
 
 REM Verify critical DLLs
-if not exist "libspdlogd.dll" (
-    echo Error: libspdlogd.dll missing after deployment
+if not exist "libspdlogd.a" (
+    echo Error: libspdlogd.a missing after deployment
     exit /b 1
 )
 
