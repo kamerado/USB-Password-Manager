@@ -5,6 +5,7 @@
 #include "src/core/settings.h"
 #include <QDialog>
 #include <QMessageBox>
+#include <shared_mutex>
 
 namespace Ui {
 class SettingsDialog;
@@ -15,6 +16,7 @@ class SettingsDialog : public QDialog {
 
 public:
   explicit SettingsDialog(std::shared_ptr<Logger> &p_log,
+                          std::shared_ptr<Settings> &p_set,
                           QWidget *parent = nullptr);
   ~SettingsDialog();
 
@@ -54,7 +56,7 @@ private slots:
 
 private:
   Ui::SettingsDialog *ui;
-  std::unique_ptr<Settings> settings;
+  std::shared_ptr<Settings> settings;
   std::shared_ptr<Logger> logger;
 
   QString openFileBrowser();

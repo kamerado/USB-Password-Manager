@@ -13,10 +13,12 @@
 #include <qglobal.h>
 #include <string>
 
-SettingsDialog::SettingsDialog(std::shared_ptr<Logger> &p_log, QWidget *parent)
-    : QDialog(parent), ui(new Ui::SettingsDialog), logger(p_log) {
+SettingsDialog::SettingsDialog(std::shared_ptr<Logger> &p_log,
+                               std::shared_ptr<Settings> &p_set,
+                               QWidget *parent)
+    : QDialog(parent), ui(new Ui::SettingsDialog), logger(p_log),
+      settings(p_set) {
   ui->setupUi(this);
-  settings = std::make_unique<Settings>("../settings/settings.ini");
 
   logger->log(DEBUG, "SettingsDialog: Loading settings...");
 

@@ -24,7 +24,17 @@ function genPass(length = 16) {
 
   return password;
 }
+// When submit or generate button is clicked
+function handleSubmitOrGenerate() {
+  // Your existing submit/generate logic here
 
+  // After successful submission/generation, send message to close window
+  chrome.runtime.sendMessage({
+    action: "closeNewEntryWindow"
+  }, (response) => {
+    console.log("Window close request sent");
+  });
+}
 // Function to get query parameters from the URL
 function getQueryParams() {
   const params = {};
@@ -49,6 +59,7 @@ form.addEventListener("submit", (event) => {
   console.log("Username:", username);
   console.log("Password:", password);
   chrome.runtime.sendMessage({ action: "new-entry-data", website: website, username: username, password: password });
+  handleSubmitOrGenerate();
 });
 
 document.getElementById("generate").addEventListener("click", async (event) => {
@@ -76,4 +87,5 @@ document.getElementById("generate").addEventListener("click", async (event) => {
     username: document.getElementById("username").value,
     password: password
   })
+  handleSubmitOrGenerate()
 });

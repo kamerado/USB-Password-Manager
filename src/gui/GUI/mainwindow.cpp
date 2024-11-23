@@ -1,5 +1,6 @@
 #include "src/gui/GUI/mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "src/core/Logger.h"
 #include "src/gui/GUI/settingsdialog.h"
 #include <QCloseEvent>
 #include <QFuture>
@@ -24,13 +25,98 @@
 #include <qpushbutton.h>
 #include <qwebsocket.h>
 // #include <sys/socket.h>
+#include <regex>
 #include <vector>
 
 #include "src/core/WebSocket.h"
 
 #include "../../core/DatabaseManager.h"
 #include "../../core/EncryptionUtil.h"
+class DomainValidator {
+private:
+  // Common generic TLDs
+  const std::vector<std::string> genericTLDs = {
+      ".com",  ".org",  ".net",  ".edu", ".gov", ".mil",  ".info",
+      ".biz",  ".name", ".mobi", ".pro", ".int", ".coop", ".jobs",
+      ".tech", ".app",  ".io",   ".co",  ".ai",  ".dev",  ".cloud"};
 
+  std::vector<std::string> split(const std::string &str, char delimiter) const {
+    std::vector<std::string> tokens;
+    std::string token;
+    std::istringstream tokenStream(str);
+
+    while (std::getline(tokenStream, token, delimiter)) {
+      if (!token.empty()) {
+        tokens.push_back(token);
+      }
+    }
+    return tokens;
+  }
+
+  bool isValidLabel(const std::string &label) const {
+    // RFC 1035 compliance:
+    // - Labels must be 1-63 characters long
+    // - Can contain letters, numbers, and hyphens
+    // - Must start and end with letter or number
+    // - Cannot have consecutive hyphens
+
+    if (label.empty() || label.length() > 63)
+      return false;
+
+    // Check first and last characters
+    if (!std::isalnum(label.front()) || !std::isalnum(label.back()))
+      return false;
+
+    // Check for valid characters and no consecutive hyphens
+    for (size_t i = 0; i < label.length(); ++i) {
+      if (!std::isalnum(label[i]) && label[i] != '-')
+        return false;
+      if (label[i] == '-' && i + 1 < label.length() && label[i + 1] == '-')
+        return false;
+    }
+
+    return true;
+  }
+
+  std::string toLower(std::string str) const {
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    return str;
+  }
+
+public:
+  bool isValidDomain(std::string domain) const {
+    try {
+      // Convert to lowercase
+      domain = toLower(domain);
+
+      // Split into labels
+      auto labels = split(domain, '.');
+
+      // Domain must have at least 2 parts
+      if (labels.size() < 2)
+        return false;
+
+      // Validate each label
+      for (const auto &label : labels) {
+        if (!isValidLabel(label))
+          return false;
+      }
+
+      // Check TLD
+      std::string tld = "." + labels.back();
+      for (const auto &validTLD : genericTLDs) {
+        if (tld == validTLD)
+          return true;
+      }
+
+      return false;
+
+    } catch (const std::exception &e) {
+      std::cerr << "Validation error: " << e.what() << std::endl;
+      return false;
+    }
+  }
+};
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
@@ -43,8 +129,11 @@ MainWindow::MainWindow(std::shared_ptr<Logger> &logM, QWidget *parent)
   ui->setupUi(this);
   // startbtn = dynamic_cast<QPushButton *>(ui->StartButton);
   ui->CTable->setColumnCount(3);
+  settings = std::make_shared<Settings>("../settings/settings.ini");
   QStringList headers;
-  headers << "Website" << "Username" << "Password";
+  headers << "Website"
+          << "Username"
+          << "Password";
   ui->CTable->setHorizontalHeaderLabels(headers);
   ui->CTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
   ui->CTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -186,6 +275,25 @@ void MainWindow::parseMessage(const QString &message) {
       server->sendMessage(jsonstring);
       LOG_DEBUG(logger, "Sent init message.");
     }
+    if (typeStr == "new-entry") {
+      if (!j.contains("website") || !j["website"].is_string()) {
+        LOG_ERROR(logger, "'website' field missing or not a string.");
+        return;
+      }
+      if (!j.contains("username") || !j["username"].is_string()) {
+        LOG_ERROR(logger, "'username' field missing or not a string.");
+        return;
+      }
+      if (!j.contains("password") || !j["password"].is_string()) {
+        LOG_ERROR(logger, "'password' field missing or not a string.");
+        return;
+      }
+      QString website = QString::fromStdString(j["website"]);
+      QString username = QString::fromStdString(j["username"]);
+      QString password = QString::fromStdString(j["password"]);
+      addNewEntry(website, username, password);
+      LOG_DEBUG(logger, "Inserted new entry.");
+    }
   } catch (const nlohmann::json::parse_error &e) {
     LOG_ERROR(logger, "Parsing JSON Error: {}", e.what());
   } catch (const std::exception &e) {
@@ -194,25 +302,25 @@ void MainWindow::parseMessage(const QString &message) {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-    // First stop the server if running
-    if (server != nullptr) {
-        stopServer();
-    }
-    
-    // Close database connection
-    if (db != nullptr) {
-        db->close(); // Make sure DatabaseManager has a close() method
-    }
+  // First stop the server if running
+  if (server != nullptr) {
+    stopServer();
+  }
 
-    // Give time for handles to be released
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    
-    // Now encrypt the file
-    if (enc != nullptr) {
-        this->enc->EncryptFile();
-    }
-    
-    event->accept();
+  // Close database connection
+  if (db != nullptr) {
+    db->close(); // Make sure DatabaseManager has a close() method
+  }
+
+  // Give time for handles to be released
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+  // Now encrypt the file
+  if (enc != nullptr) {
+    this->enc->EncryptFile();
+  }
+
+  event->accept();
 }
 
 void MainWindow::setEnc(std::unique_ptr<EncryptionUtil> &encdec) {
@@ -225,17 +333,16 @@ void MainWindow::setDB(std::unique_ptr<DatabaseManager> &database) {
 
 void MainWindow::on_exitButton_clicked() { this->close(); }
 
-void MainWindow::on_Add_clicked() {
-  QString website = ui->webiteInput->text();
-  QString username = ui->usernameInput->text();
-  QString password = ui->passwordInput->text();
-
+void MainWindow::addNewEntry(QString website, QString username,
+                             QString password) {
   if (!isValidDomain(website.toStdString())) {
     QMessageBox::warning(this, "Invalid Website",
                          "The website must end with a valid domain name.");
     return;
   }
-
+  if (username == "") {
+    username = settings->getDefaultUsername();
+  }
   this->numRows++;
   if (this->db->addEntry(numRows, website, username, password)) {
     ui->CTable->setRowCount(numRows);
@@ -243,6 +350,27 @@ void MainWindow::on_Add_clicked() {
     ui->CTable->setItem(numRows - 1, 1, new QTableWidgetItem(username));
     ui->CTable->setItem(numRows - 1, 2, new QTableWidgetItem(password));
   }
+}
+
+void MainWindow::on_Add_clicked() {
+  QString website = ui->webiteInput->text();
+  QString username = ui->usernameInput->text();
+  QString password = ui->passwordInput->text();
+
+  // if (!isValidDomain(website.toStdString())) {
+  //   QMessageBox::warning(this, "Invalid Website",
+  //                        "The website must end with a valid domain name.");
+  //   return;
+  // }
+
+  // this->numRows++;
+  // if (this->db->addEntry(numRows, website, username, password)) {
+  //   ui->CTable->setRowCount(numRows);
+  //   ui->CTable->setItem(numRows - 1, 0, new QTableWidgetItem(website));
+  //   ui->CTable->setItem(numRows - 1, 1, new QTableWidgetItem(username));
+  //   ui->CTable->setItem(numRows - 1, 2, new QTableWidgetItem(password));
+  // }
+  addNewEntry(website, username, password);
 }
 
 void MainWindow::on_Edit_clicked() {
@@ -279,8 +407,10 @@ void MainWindow::on_Edit_clicked() {
 void MainWindow::on_Delete_clicked() {
   int row = getCurrRow();
 
+  int id = row + 1;
+
+  LOG_DEBUG(logger, "Row:{}", row);
   if (row >= 0) {
-    int id = ui->CTable->item(row, 0)->text().toInt();
     if (this->db->deleteEntry(id)) {
       ui->CTable->removeRow(row);
       this->numRows--;
@@ -317,7 +447,7 @@ void MainWindow::on_DeleteAll_clicked() {
 }
 
 void MainWindow::on_SettingsButton_clicked() {
-  SettingsDialog settingsDialog(logger, this);
+  SettingsDialog settingsDialog(logger, settings, this);
   settingsDialog.exec();
 }
 
@@ -337,12 +467,8 @@ bool MainWindow::isValidDomain(const std::string &website) {
   if (idx != std::string::npos) {
     domain = website.substr(idx, website.length());
   }
-
-  if (domain == ".com" || domain == ".org" || domain == ".net") {
-    return true;
-  } else {
-    return false;
-  }
+  DomainValidator validator;
+  return validator.isValidDomain(domain);
 }
 
 void MainWindow::syncUIWithDB() {

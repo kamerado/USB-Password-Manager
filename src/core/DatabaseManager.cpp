@@ -61,14 +61,12 @@ void DatabaseManager::setupDB() {
   }
 }
 
-
 void DatabaseManager::close() {
-    if (db.isOpen()) {
-        db.close();
-    }
-    isOpen = false;
+  if (db.isOpen()) {
+    db.close();
+  }
+  isOpen = false;
 }
-
 
 bool DatabaseManager::addEntry(int id, const QString &website,
                                const QString &username,
@@ -118,21 +116,32 @@ bool DatabaseManager::updateEntry(int id, const QString &new_website,
 }
 
 bool DatabaseManager::deleteEntry(int id) {
+  if (!db.transaction()) {
+    LOG_ERROR(logger, "DatabaseManager: Could not start transaction.",
+              db.lastError().text().toStdString());
+    return false;
+  }
+
   QSqlQuery query;
   query.prepare("DELETE FROM credentials WHERE id = ?;");
-
-  // Bind the ID value to the placeholder
   query.addBindValue(id);
 
-  // Execute the delete query
   if (!query.exec()) {
     LOG_ERROR(logger, "DatabaseManager: Could not delete data from table.",
               query.lastError().text().toStdString());
+    db.rollback();
     return false;
-  } else {
-    LOG_INFO(logger, "DatabaseManager: Data deleted successfully!");
-    return true;
   }
+
+  if (!db.commit()) {
+    LOG_ERROR(logger, "DatabaseManager: Could not commit transaction.",
+              db.lastError().text().toStdString());
+    db.rollback();
+    return false;
+  }
+
+  LOG_INFO(logger, "DatabaseManager: Data deleted successfully!");
+  return true;
 }
 
 bool DatabaseManager::deleteAllEntries() {

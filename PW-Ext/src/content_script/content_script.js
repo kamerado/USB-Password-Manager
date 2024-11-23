@@ -16,8 +16,94 @@ console.log("Content script initialization started");
   //     console.log("Observer disconnected after detecting changes");
   //   }
   // });
+  // content.js
+  function detectAuthPage() {
+    try {
+      // Common login/signup form selectors
+      const authSelectors = [
+        'form[action*="login"]',
+        'form[action*="signin"]',
+        'form[action*="signup"]',
+        'form[action*="register"]',
+        '#login',
+        '#signup',
+        '#signin',
+        '#register'
+      ];
 
-  function getLoginFields() {
+      // Common input field types
+      const authInputTypes = [
+        'input[type="password"]',
+        'input[name*="password"]',
+        'input[name*="email"]',
+        'input[name*="username"]'
+      ];
+
+      // Common auth-related text in buttons or headings
+      const authKeywords = [
+        'login',
+        'sign in',
+        'signup',
+        'sign up',
+        'register',
+        'create account'
+      ];
+
+      // Check for auth form selectors
+      const hasAuthForm = authSelectors.some(selector =>
+        document.querySelector(selector) !== null
+      );
+
+      // Check for auth input types
+      const hasAuthInputs = authInputTypes.some(selector =>
+        document.querySelector(selector) !== null
+      );
+
+      // Check page content for auth keywords
+      const pageText = document.body ? document.body.innerText.toLowerCase() : '';
+      const hasAuthKeywords = authKeywords.some(keyword =>
+        pageText.includes(keyword.toLowerCase())
+      );
+
+      // Additional checks for common auth patterns
+      const hasPasswordField = document.querySelector('input[type="password"]') !== null;
+      const hasEmailField = document.querySelector('input[type="email"]') !== null;
+
+      // Calculate confidence score
+      let confidence = 0;
+      if (hasAuthForm) confidence += 0.4;
+      if (hasAuthInputs) confidence += 0.3;
+      if (hasAuthKeywords) confidence += 0.2;
+      if (hasPasswordField) confidence += 0.3;
+      if (hasEmailField) confidence += 0.2;
+
+      // Determine page type
+      let pageType = 'unknown';
+      if (confidence > 0.5) {
+        if (pageText.includes('sign up') || pageText.includes('register') ||
+          pageText.includes('create account')) {
+          pageType = 'signup';
+        } else {
+          pageType = 'login';
+        }
+      }
+
+      return {
+        isAuthPage: confidence > 0.5,
+        confidence: Math.min(confidence, 1.0),
+        pageType: pageType,
+        error: null
+      };
+    } catch (error) {
+      console.error('Error in detectAuthPage:', error);
+      return {
+        isAuthPage: false,
+        confidence: 0,
+        pageType: 'unknown',
+        error: error.message
+      };
+    }
+  } function getLoginFields() {
     console.log("Starting login field detection");
     var fieldPairs = [],
       pswd = (function () {
@@ -60,9 +146,26 @@ console.log("Content script initialization started");
     console.log("Total field pairs found:", fieldPairs.length);
     return fieldPairs;
   }
+  // // More targeted MutationObserver
+  // const observer = new MutationObserver((mutations) => {
+  //   for (const mutation of mutations) {
+  //     if (mutation.addedNodes.length) {
+  //       // Only check if new nodes were added
+  //       detectAuthPage();
+  //       break;
+  //     }
+  //   }
+  // });
 
+  // observer.observe(document.documentElement, {
+  //   childList: true,
+  //   subtree: true
+  // });
+
+  // document.addEventListener('DOMContentLoaded', detectAuthPage)
   async function checkForLoginForm() {
     console.log("Checking for login form...");
+
     const loginFields = getLoginFields();
 
     if (loginFields.length > 0) {
@@ -144,6 +247,10 @@ console.log("Content script initialization started");
   }
 
   console.log("Initial runTask execution");
-  runTask();
-
+  const results = detectAuthPage();
+  console.log("Results:", results);
+  if (results.isAuthPage === true) {
+    console.log("Auth page detected with confidence:", results.confidence);
+    runTask();
+  }
 })();

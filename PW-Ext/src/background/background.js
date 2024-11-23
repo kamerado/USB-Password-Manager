@@ -4,6 +4,7 @@ let newWindowId = null;
 let overlayTabId = null;
 let socket;
 let isRunning = false;
+let isNewEntryWindowOpen = false;  // Add this flag
 
 function connectWebSocket() {
   console.log("Attempting WebSocket connection...");
@@ -22,7 +23,8 @@ function connectWebSocket() {
         "Received entry action for website: ", data.website,
         "\nEntry: ", data.entry
       );
-      if (!data.entry) {
+      if (!data.entry && !isNewEntryWindowOpen) {
+        isNewEntryWindowOpen = true;  // Set flag before creating window
         console.log("handler new credentials");
         // TODO: handle creating new login credentials.
         chrome.windows.create({
@@ -31,7 +33,22 @@ function connectWebSocket() {
           height: 147,
           width: 222,
         }, (newWindow) => {
-          newWindowId = newWindow.id;
+          newWindowId = newWindow.id;        // Add window close listener
+          chrome.windows.onRemoved.addListener(function windowClosedListener(windowId) {
+            if (windowId === newWindowId) {
+              isNewEntryWindowOpen = false;  // Reset flag when window is closed
+              newWindowId = null;
+              chrome.windows.onRemoved.removeListener(windowClosedListener);
+            }
+          });
+          // Add window close listener
+          chrome.windows.onRemoved.addListener(function windowClosedListener(windowId) {
+            if (windowId === newWindowId) {
+              isNewEntryWindowOpen = false;  // Reset flag when window is closed
+              newWindowId = null;
+              chrome.windows.onRemoved.removeListener(windowClosedListener);
+            }
+          });
           // Polling mechanism to check if the content script is ready
           const checkContentScriptReady = setInterval(() => {
             chrome.tabs.query({ windowId: newWindowId }, (tabs) => {
@@ -164,8 +181,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
   }
   if (message.action === "loginFormDetected") {
+    // Prevent processing if a window is already open
+    if (isNewEntryWindowOpen) {
+      sendResponse({ status: "window-already-open" });
+      return true;
+    }
     chrome.storage.local.get("isOn", (result) => {
-      if (result) {
+      if (result.isOn) {
         console.log("Login form detected being processed");
         if (socket && socket.readyState === WebSocket.OPEN) {
           const requestPayload = {
@@ -214,6 +236,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "init") {
     console.log("Init request from popup script", message.data);
     socket.send(JSON.stringify({ type: "init" }));
+  }
+  if (message.action === "new-entry-data") {
+    console.log("New entry data received:", message);
+    socket.send(JSON.stringify({ type: "new-entry", website: message.website, username: message.username, password: message.password }));
+  }
+  if (message.action === "closeNewEntryWindow") {
+    console.log("Close new entry window request received");
+    if (newWindowId) {
+      chrome.windows.remove(newWindowId, () => {
+        isNewEntryWindowOpen = false;
+        newWindowId = null;
+        console.log("NewEntry window closed");
+      });
+    }
+    sendResponse({ status: "success" });
+    return true;
   }
   return false;
 });

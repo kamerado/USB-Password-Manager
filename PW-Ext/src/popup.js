@@ -77,7 +77,23 @@ if (_start != null) {
     toggle_start
   );
 };
-
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "getStatus") {
+    try {
+      const results = detectAuthPage();
+      sendResponse(results);
+    } catch (error) {
+      sendResponse({
+        isAuthPage: false,
+        confidence: 0,
+        pageType: 'unknown',
+        error: error.message
+      });
+    }
+  }
+  return true; // Keep message channel open for async response
+});
 initButton();
 
 

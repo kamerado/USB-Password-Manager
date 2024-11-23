@@ -6,6 +6,7 @@
 #include "src/core/DatabaseManager.h"
 #include "src/core/EncryptionUtil.h"
 #include "src/core/WebSocket.h"
+#include "src/core/settings.h"
 #include <memory>
 #include <qglobal.h>
 #include <qpushbutton.h>
@@ -45,6 +46,7 @@ public slots:
   void parseMessage(const QString &);
 
 private:
+  void addNewEntry(QString website, QString username, QString password);
   Ui::MainWindow *ui;
   // std::unique_ptr<QPushButton> startbtn;
   std::unique_ptr<WebSocketServer> server = nullptr;
@@ -54,6 +56,7 @@ private:
   std::unique_ptr<DatabaseManager> db;
   std::unique_ptr<EncryptionUtil> enc;
   std::shared_ptr<Logger> logger;
+  std::shared_ptr<Settings> settings;
 
   int getCurrRow();
   bool isValidDomain(const std::string &website);
