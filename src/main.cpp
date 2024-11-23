@@ -9,7 +9,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
-#include <iostream>
 #include <memory>
 
 #include <QApplication>
@@ -25,8 +24,9 @@ void handler(std::unique_ptr<EncryptionUtil> &encdec) {
 }
 
 template <typename T>
-void startGui(T &w, MainWindow &m, std::shared_ptr<Logger> &p_logger,
+void startGui(MainWindow &m, std::shared_ptr<Logger> &p_logger,
               std::unique_ptr<DatabaseManager> &p_db) {
+  T w(p_logger);
   QWidget::connect(&w, &T::sendEnc, handler);
   if (w.exec() == QDialog::Accepted) {
     w.getEnc();
@@ -52,12 +52,10 @@ int main(int argc, char *argv[]) {
   int ret;
 
   if (!fs::exists("../db/passwords.dbe")) {
-    Setup s(logM);
-    startGui<Setup>(s, m, logM, db);
+    startGui<Setup>(m, logM, db);
     ret = a.exec();
   } else {
-    Login l(logM);
-    startGui<Login>(l, m, logM, db);
+    startGui<Login>(m, logM, db);
     ret = a.exec();
   }
 
