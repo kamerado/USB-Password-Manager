@@ -16,7 +16,7 @@ if errorlevel 1 (
 
 REM Run the installer with parameters
 echo Running Qt installer...
-"%TARGET_PATH%" --root C:\Users\user\Qt --accept-licenses --default-answer --confirm-command install qt.qt6.680 qt.qt6.680.win64_mingw qt.qt6.680.addons.qtwebsockets
+"%TARGET_PATH%" --root %userprofile%\Qt --accept-licenses --default-answer --confirm-command install qt.qt6.680.win64_mingw qt.qt6.680.addons.qtwebsockets
 
 if errorlevel 1 (
     echo Installation failed

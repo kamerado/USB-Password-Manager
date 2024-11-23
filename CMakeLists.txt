@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30.1)
+cmake_minimum_required(VERSION 3.29.3)
 
 project(nativegui VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -32,6 +32,7 @@ include_directories(${EXTERNAL_DIR}/json/include)
 include_directories("$ENV{HOME}/Qt/6.8.0/gcc_64/include/")
 
 add_subdirectory(${EXTERNAL_DIR}/cryptopp-cmake)
+option(CRYPTOPP_BUILD_TESTING "Build library tests" OFF)
 
 find_package(QT NAMES Qt6 COMPONENTS
   Core Sql Widgets WebSockets REQUIRED
