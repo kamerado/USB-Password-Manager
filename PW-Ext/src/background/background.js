@@ -5,15 +5,6 @@ let overlayTabId = null;
 let socket;
 let isRunning = false;
 
-function isPopupOpen() {
-  const contexts = chrome.runtime.getContexts({ contextTypes: ['POPUP'] });
-  if (contexts.length > 0) {
-    console.log("Popup is open");
-  } else {
-    console.log("Popup is not open");
-  }
-  return contexts.length > 0;
-}
 function connectWebSocket() {
   console.log("Attempting WebSocket connection...");
   socket = new WebSocket("ws://localhost:8080");
@@ -63,16 +54,33 @@ function connectWebSocket() {
     }
     if (data.action === "init-response") {
       console.log("Received init response:", data);
-      chrome.runtime.sendMessage({ action: "init", isOn: data.isOn });
-      isRunning = data.isOn;
-    } if (data.action === "toggle-background") {
-      console.log("Received toggle background:", data);
-      if (isPopupOpen()) {
-        chrome.runtime.sendMessage({ action: "init", isOn: data.isOn });
+      try {
+        chrome.runtime.sendMessage({ action: "init", isOn: data.isOn }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.log("Popup not loaded:", chrome.runtime.lastError.message);
+          } else {
+            console.log("Message sent successfully:", response);
+          }
+        });
+      } catch (error) {
+        console.error("Caught error:", error);
       }
       isRunning = data.isOn;
+    } if (data.action === "toggle-background") {
+      console.log("Received toggle request:", data);
+      try {
+        chrome.runtime.sendMessage({ action: "init", isOn: data.isOn }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.log("Popup not loaded:", chrome.runtime.lastError.message);
+          } else {
+            console.log("Message sent successfully:", response);
+          }
+        });
+      } catch (error) {
+        console.error("Caught error:", error);
+      }
     }
-
+    isRunning = data.isOn;
   });
 
   socket.addEventListener("close", () => {
