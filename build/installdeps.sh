@@ -4,7 +4,7 @@
 wget https://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run
 
 # Make installer executable
-chmod +x qt-unified-linux-x64-online.run
+chmod +x qt-unified-linux-x64-online.Run
 
 # Run installer with parameters
 ./qt-unified-linux-x64-online.run \
@@ -19,15 +19,15 @@ chmod +x qt-unified-linux-x64-online.run
 
 # Navigate to libs directory and initialize git submodules
 echo "Initializing git submodules..."
-cd "$(dirname "$0")/../libs"
+cd $(pwd)/../libs
 git submodule update --init --recursive
 
 if [ $? -ne 0 ]; then
-    echo "Git submodule initialization failed"
-    exit 1
+  echo "Git submodule initialization failed"
+  exit 1
 fi
 
 echo "Installation and submodule initialization completed successfully"
-
+cd $(pwd)/../build
 # Cleanup
 rm qt-unified-linux-x64-online.run

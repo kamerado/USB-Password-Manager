@@ -15,14 +15,19 @@ fi
 # Set Qt and MinGW paths
 export PATH="$PATH:$QT_DIR/bin"
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$QT_DIR/lib"
-PROJECT_DIR="$HOME/projects/USB-Password-Manager"
-BUILD_DIR="$PROJECT_DIR/build/Desktop_Qt_6_8_0-Debug"
+
+cd ..
+
+PROJECT_DIR=$(pwd)
+
+cd build
+QT_BUILD_DIR="$PROJECT_DIR/build/Desktop_Qt_6_8_0-Debug"
 
 # Create build directory if it doesn't exist
-mkdir -p "$BUILD_DIR"
+mkdir -p "$QT_BUILD_DIR"
 
 # Configure CMake with Qt settings
-cd "$BUILD_DIR"
+cd "$QT_BUILD_DIR"
 cmake -G "Unix Makefiles" \
   -DCMAKE_PREFIX_PATH="$QT_DIR" \
   -DCMAKE_C_COMPILER="/usr/bin/gcc" \
@@ -36,13 +41,13 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Build directory setup complete at:"
-echo "$BUILD_DIR"
+echo "$QT_BUILD_DIR"
 # Set working directory to build output
-cd "$(dirname "$0")"
+cd $PROJECT_DIR/build
 
 # Build project
 echo Building project...
-cmake --build "$HOME/projects/USB-Password-Manager/build/Desktop_Qt_6_8_0-Debug" --target all
+cmake --build "$QT_BUILD_DIR" --target all
 
 if [ ! -f "$PROJECT_DIR/build/nativegui" ]; then
   echo "Build failed - Check CMake output for details"
