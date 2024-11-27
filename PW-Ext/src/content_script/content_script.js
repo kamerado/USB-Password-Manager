@@ -2,21 +2,8 @@ console.log("Content script initialization started");
 (function () {
   "use strict";
 
-  // let socket;
-  // let isRunning = false;
-
   console.log("Content script IIFE started");
 
-  // const observer = new MutationObserver((mutations) => {
-  //   console.log("Mutation observed:", mutations.length, "changes");
-  //   if (mutations.some(mutation => mutation.type === "childList" || mutation.attributeName === "class")) {
-  //     console.log("Relevant mutation detected, checking for login form...");
-  //     runTask();
-  //     observer.disconnect();
-  //     console.log("Observer disconnected after detecting changes");
-  //   }
-  // });
-  // content.js
   function detectAuthPage() {
     try {
       // Common login/signup form selectors
@@ -146,23 +133,7 @@ console.log("Content script initialization started");
     console.log("Total field pairs found:", fieldPairs.length);
     return fieldPairs;
   }
-  // // More targeted MutationObserver
-  // const observer = new MutationObserver((mutations) => {
-  //   for (const mutation of mutations) {
-  //     if (mutation.addedNodes.length) {
-  //       // Only check if new nodes were added
-  //       detectAuthPage();
-  //       break;
-  //     }
-  //   }
-  // });
 
-  // observer.observe(document.documentElement, {
-  //   childList: true,
-  //   subtree: true
-  // });
-
-  // document.addEventListener('DOMContentLoaded', detectAuthPage)
   async function checkForLoginForm() {
     console.log("Checking for login form...");
 
@@ -200,7 +171,7 @@ console.log("Content script initialization started");
           if (response.entry) {
             console.log("Entry found for website:", response.website);
             // Handle existing entry (e.g., fill form)
-            fillForm(response.entry.username, response.entry.password);
+            // fillForm(response.entry.username, response.entry.password);
           } else {
             console.log("No entry found for website:", response.website);
             // Handle no entry case
@@ -245,6 +216,14 @@ console.log("Content script initialization started");
       console.error("Error in runTask:", error.message);
     }
   }
+
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log("Message received in content script:", request);
+    if (request.action === "fill-form") {
+      console.log("Filling form with provided credentials");
+      fillForm(request.data.username, request.data.password);
+    }
+  });
 
   console.log("Initial runTask execution");
   const results = detectAuthPage();

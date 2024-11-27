@@ -74,7 +74,8 @@ echo Build and deployment completed successfully
 
 REM Run the application
 echo Starting application...
-start /b "" "%PROJECT_DIR%\build\nativegui.exe"
+cd "%PROJECT_DIR%\build\"
+.\nativegui.exe
 if not errorlevel 0 (
     echo Failed to start application: Error %errorlevel%
     exit /b 1

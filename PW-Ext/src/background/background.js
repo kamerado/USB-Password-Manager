@@ -67,6 +67,10 @@ function connectWebSocket() {
       } else {
         console.log("handler loggin");
         // TODO: handle logging into website.
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const activeTab = tabs[0];
+          chrome.tabs.sendMessage(activeTab.id, { action: "fill-form", data: data.entry });
+        });
       }
     }
     if (data.action === "init-response") {
