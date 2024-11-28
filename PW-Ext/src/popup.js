@@ -54,23 +54,25 @@ function toggle_start() {
       updateStartButton(isOn);
 
       // Send message to background to toggle service.
+      console.log("Sending message to background script to toggle service...");
       chrome.runtime.sendMessage({ action: "toggleBackground", status: isOn }, (responce) => {
         if (responce && responce.status) {
           console.log(responce.status, "background function running: ", responce.status);
         }
       });
+      console.log("Message sent to background script.");
     });
   });
 }
 
 // Check the stored state and pass it to a callback function
-function checkState(callback) {
-  chrome.storage.local.get("isOn", (result) => {
-    const isOn = result.isOn || false; // Default to false if "isOn" is not set
-    console.log("Current state:", isOn);
-    callback(isOn); // Call the callback with the retrieved state
-  });
-}
+// function checkState(callback) {
+//   chrome.storage.local.get("isOn", (result) => {
+//     const isOn = result.isOn || false; // Default to false if "isOn" is not set
+//     console.log("Current state:", isOn);
+//     callback(isOn); // Call the callback with the retrieved state
+//   });
+// }
 
 if (_start != null) {
   _start.addEventListener("click",
@@ -79,6 +81,7 @@ if (_start != null) {
 };
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  try {
   if (request.action === "getStatus") {
     try {
       const results = detectAuthPage();
@@ -92,7 +95,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     }
   }
-  return true; // Keep message channel open for async response
+  } catch (error) {
+    console.error("Error in chrome.runtime.onMessage.addListener:", error);
+  }
+  // return true; // Keep message channel open for async response
 });
 initButton();
 

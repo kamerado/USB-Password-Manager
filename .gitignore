@@ -6,7 +6,8 @@ main
 db/**
 LogFiles/**
 !build/.gitkeep
-!build/build.*
+!build/build.bat
+!build/build.sh
 !build/installdeps.*
 !libs/.gitkeep
 src/gui/build-GUI-Desktop-Debug

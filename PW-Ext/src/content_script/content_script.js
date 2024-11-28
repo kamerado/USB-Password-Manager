@@ -143,43 +143,28 @@ console.log("Content script initialization started");
       console.log("Login form fields detected!");
 
       try {
-        let response = await new Promise((resolve, reject) => {
-          console.log("Sending loginFormDetected message to background");
-          chrome.runtime.sendMessage(
-            {
-              action: "loginFormDetected",
-              type: "request",
-              request: {
-                type: "check-entry",
-                website: window.location.host
-              }
-            },
-            (response) => {
-              if (chrome.runtime.lastError) {
-                console.error("Error in chrome.runtime.sendMessage:", chrome.runtime.lastError.message);
-                reject(new Error(chrome.runtime.lastError.message));
-              } else {
-                console.log("Response received from background:", response);
-                resolve(response);
-              }
+        console.log("Sending loginFormDetected message to background");
+        chrome.runtime.sendMessage(
+          {
+            action: "loginFormDetected",
+            type: "request",
+            request: {
+              type: "check-entry",
+              website: window.location.host
             }
-          );
-        });
-
-        // Handle the response
-        if (response.status === "success") {
-          if (response.entry) {
-            console.log("Entry found for website:", response.website);
-            // Handle existing entry (e.g., fill form)
-            // fillForm(response.entry.username, response.entry.password);
-          } else {
-            console.log("No entry found for website:", response.website);
-            // Handle no entry case
           }
-        } else {
-          console.error("Error checking for entry:", response.error);
-        }
-        console.log("Responce2:", response);
+          // ,
+          // (response) => {
+          //   if (chrome.runtime.lastError) {
+          //     console.error("Error in chrome.runtime.sendMessage:", chrome.runtime.lastError.message);
+          //     reject(new Error(chrome.runtime.lastError.message));
+          //   } else {
+          //     console.log("Response received from background:", response);
+          //     resolve(response);
+          //   }
+          // }
+        );
+        console.log("Message sent to background script");
       } catch (error) {
         console.error("Error in checkForLoginForm:", error);
       }
@@ -207,11 +192,7 @@ console.log("Content script initialization started");
   async function runTask() {
     try {
       console.log("Starting runTask");
-      const response = await checkForLoginForm();
-      if (response) {
-
-        // fillForm(response.username, response.password);
-      }
+      checkForLoginForm();
     } catch (error) {
       console.error("Error in runTask:", error.message);
     }
@@ -222,6 +203,7 @@ console.log("Content script initialization started");
     if (request.action === "fill-form") {
       console.log("Filling form with provided credentials");
       fillForm(request.data.username, request.data.password);
+      sendResponse({ status: "success" });
     }
   });
 

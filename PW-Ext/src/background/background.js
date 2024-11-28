@@ -17,44 +17,86 @@ function connectWebSocket() {
   socket.addEventListener("message", (event) => {
     console.log("Message from server:", event.data);
     const data = JSON.parse(event.data);
+    try {
+      if (data.action === "receive-entry") {
+        console.log(
+          "Received entry action for website: ", data.website,
+          "\nEntry: ", data.entry
+        );
+        if (!data.entry && !isNewEntryWindowOpen) {
+          isNewEntryWindowOpen = true;  // Set flag before creating window
+          console.log("handler new credentials");
+          // TODO: handle creating new login credentials.
+          chrome.windows.create({
+            url: chrome.runtime.getURL("src/newEntry/newEntry.html"),
+            type: "popup",
+            height: 147,
+            width: 222,
+          }, (newWindow) => {
+            console.log("New entry window created:", newWindow);
+            newWindowId = newWindow.id;        // Add window close listener
+            // chrome.windows.onRemoved.addListener(function windowClosedListener(windowId) {
+            //   if (windowId === newWindowId) {
+            //     isNewEntryWindowOpen = false;  // Reset flag when window is closed
+            //     newWindowId = null;
+            //     chrome.windows.onRemoved.removeListener(windowClosedListener);
+            //   }
+            // });
+            // Add window close listener
+            chrome.windows.onRemoved.addListener(function windowClosedListener(windowId) {
+              if (windowId === newWindowId) {
+                console.log("On remove listener");
+                isNewEntryWindowOpen = false;  // Reset flag when window is closed
+                newWindowId = null;
+                chrome.windows.onRemoved.removeListener(windowClosedListener);
+              }
+            });
+            console.log("On remove added");
+            // Polling mechanism to check if the content script is ready
+            console.log("Checking if content script is ready at", new Date().toISOString());
+            const checkContentScriptReady = setInterval(() => {
+              chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                console.log("Checking content script ready");
+                if (tabs.length > 0) {
+                  const newWindowTabId = tabs[0];
+                  try {
+                    console.log("Sending message to content script");
+                    chrome.tabs.sendMessage(newWindowTabId.id, { type: "init", data: { website: data.website } }, (response) => {
+                      if (chrome.runtime.lastError) {
+                        console.log("Checking if content script is ready at", new Date().toISOString());
+                        console.error("Error in chrome.tabs.sendMessage:", chrome.runtime.lastError.message);
+                      }
+                      if (response && response.status === "success") {
+                        clearInterval(checkContentScriptReady);
+                        console.log("Content script is ready and received the message");
+                      }
+                    });
+                    // catch error
+                    if (chrome.runtime.lastError) {
+                      console.error("Error in chrome.tabs.sendMessage:", chrome.runtime.lastError.message);
+                    }
+                  } catch (error) {
+                    console.error("Error in chrome.tabs.sendMessage:", error);
+                  }
+                }
+              });
+            }, 100); // Check every 100ms
+            console.log("Checked if content script is ready");
+          });
+        } else {
+          console.log("Checking if content script is ready at", new Date().toISOString());
 
-    if (data.action === "receive-entry") {
-      console.log(
-        "Received entry action for website: ", data.website,
-        "\nEntry: ", data.entry
-      );
-      if (!data.entry && !isNewEntryWindowOpen) {
-        isNewEntryWindowOpen = true;  // Set flag before creating window
-        console.log("handler new credentials");
-        // TODO: handle creating new login credentials.
-        chrome.windows.create({
-          url: chrome.runtime.getURL("src/newEntry/newEntry.html"),
-          type: "popup",
-          height: 147,
-          width: 222,
-        }, (newWindow) => {
-          newWindowId = newWindow.id;        // Add window close listener
-          chrome.windows.onRemoved.addListener(function windowClosedListener(windowId) {
-            if (windowId === newWindowId) {
-              isNewEntryWindowOpen = false;  // Reset flag when window is closed
-              newWindowId = null;
-              chrome.windows.onRemoved.removeListener(windowClosedListener);
-            }
-          });
-          // Add window close listener
-          chrome.windows.onRemoved.addListener(function windowClosedListener(windowId) {
-            if (windowId === newWindowId) {
-              isNewEntryWindowOpen = false;  // Reset flag when window is closed
-              newWindowId = null;
-              chrome.windows.onRemoved.removeListener(windowClosedListener);
-            }
-          });
-          // Polling mechanism to check if the content script is ready
+          console.log("handler loggin");
+          // TODO: handle logging into website.
           const checkContentScriptReady = setInterval(() => {
-            chrome.tabs.query({ windowId: newWindowId }, (tabs) => {
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
               if (tabs.length > 0) {
-                const newWindowTabId = tabs[0].id;
-                chrome.tabs.sendMessage(newWindowTabId, { type: "init", data: { website: data.website } }, (response) => {
+                const activeTab = tabs[0];
+                chrome.tabs.sendMessage(activeTab.id, { action: "fill-form", data: data.entry }, (response) => {
+                  // console.log("Checking if content script is ready at", new Date().toISOString());
+                  if (chrome.runtime.lastError) {
+                    console.error("Error in chrome.tabs.sendMessage:", chrome.runtime.lastError.message);
+                  }
                   if (response && response.status === "success") {
                     clearInterval(checkContentScriptReady);
                     console.log("Content script is ready and received the message");
@@ -63,26 +105,16 @@ function connectWebSocket() {
               }
             });
           }, 100); // Check every 100ms
-        });
-      } else {
-        console.log("handler loggin");
-        // TODO: handle logging into website.
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          const activeTab = tabs[0];
-          chrome.tabs.sendMessage(activeTab.id, { action: "fill-form", data: data.entry });
-        });
+        }
       }
+    } catch (error) {
+      console.error('WebSocket error:', error);
     }
     if (data.action === "init-response") {
       console.log("Received init response:", data);
       try {
-        chrome.runtime.sendMessage({ action: "init", isOn: data.isOn }, (response) => {
-          if (chrome.runtime.lastError) {
-            console.log("Popup not loaded:", chrome.runtime.lastError.message);
-          } else {
-            console.log("Message sent successfully:", response);
-          }
-        });
+        chrome.runtime.sendMessage({ action: "init", isOn: data.isOn });
+        console.log("Sent init response to popup script:", data.isOn);
       } catch (error) {
         console.error("Caught error:", error);
       }
@@ -90,13 +122,8 @@ function connectWebSocket() {
     } if (data.action === "toggle-background") {
       console.log("Received toggle request:", data);
       try {
-        chrome.runtime.sendMessage({ action: "init", isOn: data.isOn }, (response) => {
-          if (chrome.runtime.lastError) {
-            console.log("Popup not loaded:", chrome.runtime.lastError.message);
-          } else {
-            console.log("Message sent successfully:", response);
-          }
-        });
+        chrome.runtime.sendMessage({ action: "init", isOn: data.isOn });
+        console.log("Sent toggle request to popup script:", data.isOn);
       } catch (error) {
         console.error("Caught error:", error);
       }
@@ -120,8 +147,7 @@ async function waitForSocketConnection() {
       if (socket.readyState === WebSocket.OPEN) {
         resolve();
       } else {
-        socket.addEventListener("open", resolve);
-        socket.addEventListener("error", reject);
+        resolve(waitForSocketConnection());
       }
     });
   } catch (error) {
@@ -130,23 +156,24 @@ async function waitForSocketConnection() {
 }
 function sendMessage(message) {
   try {
-    return waitForSocketConnection().then(() => {
-      return new Promise((resolve, reject) => {
+    waitForSocketConnection().then(() => {
+
         if (socket.readyState === WebSocket.OPEN) {
           socket.send(message);
+
         } else {
-          reject(new Error("WebSocket is not open"));
+          console.log(" Error WebSocket is not open");
         }
 
-        socket.addEventListener("message", function handler(event) {
-          socket.removeEventListener("message", handler);
-          resolve(event.data);
-        });
+        // socket.addEventListener("message", function handler(event) {
+        //   socket.removeEventListener("message", handler);
+        //   resolve(event.data);
+        // });
 
-        socket.addEventListener("error", (event) => {
-          reject(event);
-        });
-      });
+        // socket.addEventListener("error", (event) => {
+        //   reject(event);
+        // });
+
     });
   } catch (error) {
     console.error('WebSocket error:', error);
@@ -154,12 +181,6 @@ function sendMessage(message) {
 }
 
 try {
-  connectWebSocket();
-} catch (error) {
-  console.error('WebSocket error:', error);
-}
-
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Background received message:", message);
   if (message.action === "toggleBackground") {
@@ -228,8 +249,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
       }
     });
-
-    return true;
   }
   if (message.action === "get-default-username") {
     if (socket.readyState === WebSocket.OPEN) {
@@ -259,8 +278,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   return false;
 });
-
+} catch (error) {
+  console.error('WebSocket error:', error);
+}
 connectWebSocket();
+// check for last error
+if (chrome.runtime.lastError) {
+  console.error("Error in chrome.runtime.sendMessage:", chrome.runtime.lastError.message);
+}
 
 function getHostname(callback) {
   chrome.tabs.query({ currentWindow: true, active: true }, (tabs) => {
