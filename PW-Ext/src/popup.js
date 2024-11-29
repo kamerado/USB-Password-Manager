@@ -1,6 +1,16 @@
 var h1 = document.getElementById("h1");
 const _start = document.getElementById("_start");
 
+// Send a message to the background script or content script indicating the popup is opened
+chrome.runtime.sendMessage({ action: 'popupOpened' });
+
+
+window.onbeforeunload = function() {
+  // Send a message to the background script or content script indicating the popup is closing
+  chrome.runtime.sendMessage({ action: 'popupClosed' });
+  console.log("Popup closed");
+};
+
 function updateStartButton(isOn) {
   // Apply the correct class based on the new state
   if (isOn) {
@@ -36,6 +46,7 @@ function initButton() {
         console.log("New state saved:", request.isOn);
         updateStartButton(request.isOn);
       });
+      sendResponse({ status: "success" });
     }
   });
 

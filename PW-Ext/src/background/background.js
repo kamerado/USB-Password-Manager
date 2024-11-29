@@ -5,6 +5,19 @@ let overlayTabId = null;
 let socket;
 let isRunning = false;
 let isNewEntryWindowOpen = false;  // Add this flag
+let popupIsOpened = false;
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if (request.action === 'popupOpened') {
+    popupIsOpened = true;
+  } else if (request.action === 'popupClosed') {
+    popupIsOpened = false;
+  }
+});
+
+function isPopupOpened() {
+  return popupIsOpened;
+}
 
 function connectWebSocket() {
   console.log("Attempting WebSocket connection...");
@@ -17,83 +30,36 @@ function connectWebSocket() {
   socket.addEventListener("message", (event) => {
     console.log("Message from server:", event.data);
     const data = JSON.parse(event.data);
-    try {
-      if (data.action === "receive-entry") {
-        console.log(
-          "Received entry action for website: ", data.website,
-          "\nEntry: ", data.entry
-        );
-        if (!data.entry && !isNewEntryWindowOpen) {
-          isNewEntryWindowOpen = true;  // Set flag before creating window
-          console.log("handler new credentials");
-          // TODO: handle creating new login credentials.
-          chrome.windows.create({
-            url: chrome.runtime.getURL("src/newEntry/newEntry.html"),
-            type: "popup",
-            height: 147,
-            width: 222,
-          }, (newWindow) => {
-            console.log("New entry window created:", newWindow);
-            newWindowId = newWindow.id;        // Add window close listener
-            // chrome.windows.onRemoved.addListener(function windowClosedListener(windowId) {
-            //   if (windowId === newWindowId) {
-            //     isNewEntryWindowOpen = false;  // Reset flag when window is closed
-            //     newWindowId = null;
-            //     chrome.windows.onRemoved.removeListener(windowClosedListener);
-            //   }
-            // });
-            // Add window close listener
-            chrome.windows.onRemoved.addListener(function windowClosedListener(windowId) {
-              if (windowId === newWindowId) {
-                console.log("On remove listener");
-                isNewEntryWindowOpen = false;  // Reset flag when window is closed
-                newWindowId = null;
-                chrome.windows.onRemoved.removeListener(windowClosedListener);
-              }
-            });
-            console.log("On remove added");
-            // Polling mechanism to check if the content script is ready
-            console.log("Checking if content script is ready at", new Date().toISOString());
-            const checkContentScriptReady = setInterval(() => {
-              chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                console.log("Checking content script ready");
-                if (tabs.length > 0) {
-                  const newWindowTabId = tabs[0];
-                  try {
-                    console.log("Sending message to content script");
-                    chrome.tabs.sendMessage(newWindowTabId.id, { type: "init", data: { website: data.website } }, (response) => {
-                      if (chrome.runtime.lastError) {
-                        console.log("Checking if content script is ready at", new Date().toISOString());
-                        console.error("Error in chrome.tabs.sendMessage:", chrome.runtime.lastError.message);
-                      }
-                      if (response && response.status === "success") {
-                        clearInterval(checkContentScriptReady);
-                        console.log("Content script is ready and received the message");
-                      }
-                    });
-                    // catch error
-                    if (chrome.runtime.lastError) {
-                      console.error("Error in chrome.tabs.sendMessage:", chrome.runtime.lastError.message);
-                    }
-                  } catch (error) {
-                    console.error("Error in chrome.tabs.sendMessage:", error);
-                  }
-                }
-              });
-            }, 100); // Check every 100ms
-            console.log("Checked if content script is ready");
-          });
-        } else {
-          console.log("Checking if content script is ready at", new Date().toISOString());
 
-          console.log("handler loggin");
-          // TODO: handle logging into website.
+    if (data.action === "receive-entry") {
+      console.log(
+        "Received entry action for website: ", data.website,
+        "\nEntry: ", data.entry
+      );
+      if (!data.entry && !isNewEntryWindowOpen) {
+        isNewEntryWindowOpen = true;  // Set flag before creating window
+        chrome.windows.create({
+          url: chrome.runtime.getURL("src/newEntry/newEntry.html"),
+          type: "popup",
+          height: 147,
+          width: 222,
+        }, (newWindow) => {
+          console.log("New entry window created:", newWindow);
+          newWindowId = newWindow.id;
+          chrome.windows.onRemoved.addListener(function windowClosedListener(windowId) {
+            if (windowId === newWindowId) {
+              isNewEntryWindowOpen = false;
+              newWindowId = null;
+              chrome.windows.onRemoved.removeListener(windowClosedListener);
+            }
+          });
+          console.log("Checking if content script is ready at", new Date().toISOString());
           const checkContentScriptReady = setInterval(() => {
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
               if (tabs.length > 0) {
-                const activeTab = tabs[0];
-                chrome.tabs.sendMessage(activeTab.id, { action: "fill-form", data: data.entry }, (response) => {
-                  // console.log("Checking if content script is ready at", new Date().toISOString());
+                const newWindowTabId = tabs[0];
+                console.log("Sending message to content script");
+                chrome.tabs.sendMessage(newWindowTabId.id, { type: "init", data: { website: data.website } }, (response) => {
                   if (chrome.runtime.lastError) {
                     console.error("Error in chrome.tabs.sendMessage:", chrome.runtime.lastError.message);
                   }
@@ -105,11 +71,29 @@ function connectWebSocket() {
               }
             });
           }, 100); // Check every 100ms
-        }
+        });
+      } else {
+        console.log("handling loggin");
+        // TODO: fix handle logging into website.
+        const checkContentScriptReady = setInterval(() => {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs.length > 0) {
+              const activeTab = tabs[0];
+              chrome.tabs.sendMessage(activeTab.id, { action: "fill-form", data: data.entry }, (response) => {
+                if (chrome.runtime.lastError) {
+                  console.error("Error in chrome.tabs.sendMessage:", chrome.runtime.lastError.message);
+                }
+                if (response && response.status === "success") {
+                  clearInterval(checkContentScriptReady);
+                  console.log("Content script is ready and received the message");
+                }
+              });
+            }
+          });
+        }, 100); // Check every 100ms
       }
-    } catch (error) {
-      console.error('WebSocket error:', error);
     }
+
     if (data.action === "init-response") {
       console.log("Received init response:", data);
       try {
@@ -119,16 +103,29 @@ function connectWebSocket() {
         console.error("Caught error:", error);
       }
       isRunning = data.isOn;
-    } if (data.action === "toggle-background") {
+    } 
+    
+    if (data.action === "toggle-background") {
       console.log("Received toggle request:", data);
       try {
-        chrome.runtime.sendMessage({ action: "init", isOn: data.isOn });
-        console.log("Sent toggle request to popup script:", data.isOn);
+        if (isPopupOpened()) {
+          chrome.runtime.sendMessage({ action: "init", isOn: data.isOn }, (response) => {
+            if (chrome.runtime.lastError) {
+            console.log("Error in chrome.runtime.sendMessage:", chrome.runtime.lastError.message);
+            console.log("this is because the popup is not open, this can be ignored.");
+            } else if (response && response.status === "success") {
+            console.log("Sent toggle request to popup script:", data.isOn);
+            }
+          });
+        } else {
+          // The popup is not open
+          console.log("Popup is not open. Not sending message but saving state changes.");
+        }
       } catch (error) {
-        console.error("Caught error:", error);
+      console.error("Caught error:", error);
       }
+      isRunning = data.isOn;
     }
-    isRunning = data.isOn;
   });
 
   socket.addEventListener("close", () => {
