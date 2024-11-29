@@ -32,6 +32,7 @@
 
 #include "../../core/DatabaseManager.h"
 #include "../../core/EncryptionUtil.h"
+
 class DomainValidator {
 private:
   // Common generic TLDs
@@ -54,12 +55,6 @@ private:
   }
 
   bool isValidLabel(const std::string &label) const {
-    // RFC 1035 compliance:
-    // - Labels must be 1-63 characters long
-    // - Can contain letters, numbers, and hyphens
-    // - Must start and end with letter or number
-    // - Cannot have consecutive hyphens
-
     if (label.empty() || label.length() > 63)
       return false;
 
@@ -117,6 +112,7 @@ public:
     }
   }
 };
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);

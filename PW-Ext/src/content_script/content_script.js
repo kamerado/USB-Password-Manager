@@ -144,13 +144,20 @@ console.log("Content script initialization started");
 
       try {
         console.log("Sending loginFormDetected message to background");
+        
+        // check for www. in window.location.host, if not present, add it.
+        let domain = window.location.host;
+        if (domain.indexOf("www.") === -1) {
+          console.log("www. not found in host, adding it");
+          domain = "www." + window.location.host;
+        }
         chrome.runtime.sendMessage(
           {
             action: "loginFormDetected",
             type: "request",
             request: {
               type: "check-entry",
-              website: window.location.host
+              website: domain
             }
           }
           // ,
