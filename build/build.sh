@@ -6,6 +6,7 @@ QT_DIR="$HOME/Qt/6.8.0/gcc_64"
 if [ ! -d "$QT_DIR" ]; then
   echo "Error: Qt directory not found"
   ./installdeps.sh
+  QT_DIR="$HOME/Qt/6.8.0/gcc_64"
 fi
 
 # Set Qt and MinGW paths

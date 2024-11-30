@@ -4,7 +4,7 @@
 wget https://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run
 
 # Make installer executable
-chmod +x qt-unified-linux-x64-online.Run
+chmod +x qt-unified-linux-x64-online.run
 
 # Run installer with parameters
 ./qt-unified-linux-x64-online.run \
