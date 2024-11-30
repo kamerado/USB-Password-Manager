@@ -75,22 +75,24 @@ function connectWebSocket() {
       } else {
         console.log("handling loggin");
         // TODO: fix handle logging into website.
-        const checkContentScriptReady = setInterval(() => {
-          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (tabs.length > 0) {
-              const activeTab = tabs[0];
-              chrome.tabs.sendMessage(activeTab.id, { action: "fill-form", data: data.entry }, (response) => {
-                if (chrome.runtime.lastError) {
-                  console.error("Error in chrome.tabs.sendMessage:", chrome.runtime.lastError.message);
-                }
-                if (response && response.status === "success") {
-                  clearInterval(checkContentScriptReady);
-                  console.log("Content script is ready and received the message");
-                }
-              });
-            }
-          });
-        }, 100); // Check every 100ms
+        if (isRunning){
+          const checkContentScriptReady = setInterval(() => {
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              if (tabs.length > 0) {
+                const activeTab = tabs[0];
+                chrome.tabs.sendMessage(activeTab.id, { action: "fill-form", data: data.entry }, (response) => {
+                  if (chrome.runtime.lastError) {
+                    console.error("Error in chrome.tabs.sendMessage:", chrome.runtime.lastError.message);
+                  }
+                  if (response && response.status === "success") {
+                    clearInterval(checkContentScriptReady);
+                    console.log("Content script is ready and received the message");
+                  }
+                });
+              }
+            });
+          }, 100); // Check every 100ms
+        }
       }
     }
 
@@ -208,8 +210,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ status: "window-already-open" });
       return true;
     }
-    chrome.storage.local.get("isOn", (result) => {
-      if (result.isOn) {
+      if (isRunning) {
         console.log("Login form detected being processed");
         if (socket && socket.readyState === WebSocket.OPEN) {
           const requestPayload = {
@@ -245,7 +246,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           website: message.request.website,
         });
       }
-    });
   }
   if (message.action === "get-default-username") {
     if (socket.readyState === WebSocket.OPEN) {

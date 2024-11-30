@@ -345,7 +345,7 @@ void MainWindow::addNewEntry(QString website, QString email, QString username,
     ui->CTable->setItem(numRows - 1, 0, new QTableWidgetItem(website));
     ui->CTable->setItem(numRows - 1, 1, new QTableWidgetItem(email));
     ui->CTable->setItem(numRows - 1, 2, new QTableWidgetItem(username));
-    ui->CTable->setItem(numRows - 1, 3, new QTableWidgetItem(password));
+    ui->CTable->setItem(numRows - 1, 3, hidePassword(new QTableWidgetItem(password)));
   }
 }
 
@@ -380,7 +380,7 @@ void MainWindow::on_Edit_clicked() {
       ui->CTable->setItem(row, 0, new QTableWidgetItem(website));
       ui->CTable->setItem(row, 1, new QTableWidgetItem(email));
       ui->CTable->setItem(row, 2, new QTableWidgetItem(username));
-      ui->CTable->setItem(row, 3, new QTableWidgetItem(password));
+      ui->CTable->setItem(row, 3, hidePassword(new QTableWidgetItem(password)));
     } else {
       QMessageBox::warning(this, "Update Failed",
                            "Failed to update the entry in the database.");
