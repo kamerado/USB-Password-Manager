@@ -4,6 +4,9 @@
 // #include "crypto++/files.h"
 #include <cryptopp/default.h>
 #include <cryptopp/files.h>
+#include <Cryptopp/chachapoly.h>
+#include <Cryptopp/CryptLib.h>
+#include <cryptopp/randpool.h>
 // #include "crypto++/hex.h"
 // #include "crypto++/modes.h"
 // #include "crypto++/osrng.h"
@@ -21,6 +24,15 @@ EncryptionUtil::EncryptionUtil(std::string &pw) {
 }
 
 EncryptionUtil::~EncryptionUtil() {}
+
+void EncryptionUtil::generatekey(const char* passPhrase, unsigned char* aes_key, unsigned char* hmac_key) {
+  // Generate AES key
+  HKDF<SHA256> hkdf;
+  hkdf.DeriveKey(aes_key, 32, (const byte *)passPhrase, strlen(passPhrase), NULL, 0, (const byte *)"AES", 3);
+
+  // Generate HMAC key
+  hkdf.DeriveKey(hmac_key, 32, (const byte *)passPhrase, strlen(passPhrase), NULL, 0, (const byte *)"HMAC", 4);
+}
 
 // In EncryptionUtil.cpp
 void EncryptionUtil::EncryptFile() {
@@ -63,3 +75,32 @@ void EncryptionUtil::DecryptFile() {
     exit(1);
   }
 }
+
+  void EncryptionUtil::EncryptFileChaCha(const std::string &pw) {
+    byte nonce[24];
+    AutoSeededRandomPool rng;
+
+    rng.GenerateBlock(nonce, sizeof(nonce));
+
+    unsigned char aes_key[32];
+    unsigned char hmac_key[32];
+    generatekey(pw.c_str(), aes_key, hmac_key);
+    ChaCha20Poly1305::Encryption cipher;
+    cipher.SetKeyWithIV(aes_key, sizeof(aes_key), nonce, sizeof(nonce));
+    cipher.Resynchronize(nonce, sizeof(nonce));
+    // to decrypt
+    // FileSource fs(this->dbPath.c_str(), true, new AuthenticatedEncryptionFilter(cipher, new FileSink(this->dbePath.c_str())));
+
+    AES_Cypher aesCypher(aes_key);
+    std::ofstream file(this->datPath, std::ios::binary);
+
+    byte encryptedNonce[24+32];
+    aesCypher.encrypt(nonce, 24, encryptedNonce);
+    file.write((char*)encryptedNonce, 24+32);
+
+    byte encryptedTag;
+
+    
+  }
+
+  void EncryptionUtil::DecryptFileChaCha(const std::string &pw) {}
