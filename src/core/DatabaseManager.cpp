@@ -11,6 +11,7 @@
 #include <qsqlquery.h>
 #include <string>
 #include <vector>
+
 DatabaseManager::DatabaseManager() {}
 
 DatabaseManager::DatabaseManager(std::shared_ptr<Logger> &logM) {
@@ -29,9 +30,8 @@ DatabaseManager::DatabaseManager(std::shared_ptr<Logger> &logM) {
   }
 }
 
-bool DatabaseManager::getIsOpen() { return this->isOpen; }
 
-// Move constructor and assignment.
+
 DatabaseManager::DatabaseManager(DatabaseManager &&other) noexcept {
   if (this != &other) {
     this->db = std::move(other.db);
@@ -39,6 +39,7 @@ DatabaseManager::DatabaseManager(DatabaseManager &&other) noexcept {
     this->logger = std::move(other.logger);
   }
 }
+
 DatabaseManager &DatabaseManager::operator=(DatabaseManager &&other) noexcept {
   if (this != &other) {
     this->db = std::move(other.db);
@@ -50,12 +51,14 @@ DatabaseManager &DatabaseManager::operator=(DatabaseManager &&other) noexcept {
 
 DatabaseManager::~DatabaseManager() { closeDatabase(); }
 
+bool DatabaseManager::getIsOpen() { return this->isOpen; }
+void DatabaseManager::setIsOpen(bool value) { this->isOpen = value; }
+
 void DatabaseManager::setupDB() {
   QSqlQuery dbquery;
   dbquery.prepare("CREATE TABLE IF NOT EXISTS credentials (id int not null "
-                  "primary key, website text, username text, password text);");
+                  "primary key, website text, email text, username text, password text);");
   if (!dbquery.exec()) {
-    // qWarning("%s", dbquery.lastError().text().toLocal8Bit().data());
     LOG_ERROR(logger, "DatabaseManager: Fail DB Setup");
     return;
   }
@@ -68,15 +71,16 @@ void DatabaseManager::close() {
   isOpen = false;
 }
 
-bool DatabaseManager::addEntry(int id, const QString &website,
+bool DatabaseManager::addEntry(int id, const QString &website, const QString &email,
                                const QString &username,
                                const QString &password) {
   QSqlQuery query;
-  query.prepare("INSERT INTO credentials (id, website, username, password) "
-                "VALUES (?, ?, ?, ?);");
+  query.prepare("INSERT INTO credentials (id, website, email, username, password) "
+                "VALUES (?, ?, ?, ?, ?);");
 
   query.addBindValue(id);
   query.addBindValue(website);
+  query.addBindValue(email);
   query.addBindValue(username);
   query.addBindValue(password);
 
@@ -90,15 +94,16 @@ bool DatabaseManager::addEntry(int id, const QString &website,
   }
 }
 
-bool DatabaseManager::updateEntry(int id, const QString &new_website,
+bool DatabaseManager::updateEntry(int id, const QString &new_website, const QString &new_email,
                                   const QString &new_username,
                                   const QString &new_password) {
   QSqlQuery query;
   query.prepare("UPDATE credentials SET website = ?, username = ?, password = "
-                "? WHERE id = ?;");
+                "?, email = ? WHERE id = ?;");
 
   // Bind the new values to the placeholders
   query.addBindValue(new_website);
+  query.addBindValue(new_email);
   query.addBindValue(new_username);
   query.addBindValue(new_password);
   query.addBindValue(id); // Bind the id to identify which record to update
@@ -171,13 +176,15 @@ QList<rowEntry> DatabaseManager::queryAll() {
   while (query.next()) {
     int id = query.value(0).toInt();
     QString website = query.value(1).toString();
-    QString username = query.value(2).toString();
-    QString password = query.value(3).toString();
+    QString email = query.value(2).toString();
+    QString username = query.value(3).toString();
+    QString password = query.value(4).toString();
 
     // Store each row as a QList<QString>
     rowEntry row;
     row.id = id;
     row.website = website;
+    row.email = email;
     row.username = username;
     row.password = password;
     results.append(row);

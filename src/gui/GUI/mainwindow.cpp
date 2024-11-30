@@ -24,8 +24,6 @@
 #include <qobjectdefs.h>
 #include <qpushbutton.h>
 #include <qwebsocket.h>
-// #include <sys/socket.h>
-#include <regex>
 #include <vector>
 
 #include "src/core/WebSocket.h"
@@ -124,16 +122,18 @@ MainWindow::MainWindow(std::shared_ptr<Logger> &logM, QWidget *parent)
   LOG_DEBUG(logM, "MainWindow constructor starting.");
   ui->setupUi(this);
   // startbtn = dynamic_cast<QPushButton *>(ui->StartButton);
-  ui->CTable->setColumnCount(3);
+  ui->CTable->setColumnCount(4);
   settings = std::make_shared<Settings>("../settings/settings.ini");
   QStringList headers;
   headers << "Website"
+          << "Email"
           << "Username"
           << "Password";
   ui->CTable->setHorizontalHeaderLabels(headers);
   ui->CTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
   ui->CTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
   ui->CTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+  ui->CTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
   if (server == nullptr) {
     server = std::make_unique<WebSocketServer>(logger);
     // Handle incoming messages on the main thread using queued connections
@@ -287,7 +287,7 @@ void MainWindow::parseMessage(const QString &message) {
       QString website = QString::fromStdString(j["website"]);
       QString username = QString::fromStdString(j["username"]);
       QString password = QString::fromStdString(j["password"]);
-      addNewEntry(website, username, password);
+      addNewEntry(website, settings->getMasterEmail(), username, password);
       LOG_DEBUG(logger, "Inserted new entry.");
     }
   } catch (const nlohmann::json::parse_error &e) {
@@ -329,7 +329,7 @@ void MainWindow::setDB(std::unique_ptr<DatabaseManager> &database) {
 
 void MainWindow::on_exitButton_clicked() { this->close(); }
 
-void MainWindow::addNewEntry(QString website, QString username,
+void MainWindow::addNewEntry(QString website, QString email, QString username,
                              QString password) {
   if (!isValidDomain(website.toStdString())) {
     QMessageBox::warning(this, "Invalid Website",
@@ -340,37 +340,27 @@ void MainWindow::addNewEntry(QString website, QString username,
     username = settings->getDefaultUsername();
   }
   this->numRows++;
-  if (this->db->addEntry(numRows, website, username, password)) {
+  if (this->db->addEntry(numRows, website, email, username, password)) {
     ui->CTable->setRowCount(numRows);
     ui->CTable->setItem(numRows - 1, 0, new QTableWidgetItem(website));
-    ui->CTable->setItem(numRows - 1, 1, new QTableWidgetItem(username));
-    ui->CTable->setItem(numRows - 1, 2, new QTableWidgetItem(password));
+    ui->CTable->setItem(numRows - 1, 1, new QTableWidgetItem(email));
+    ui->CTable->setItem(numRows - 1, 2, new QTableWidgetItem(username));
+    ui->CTable->setItem(numRows - 1, 3, new QTableWidgetItem(password));
   }
 }
 
 void MainWindow::on_Add_clicked() {
   QString website = ui->webiteInput->text();
+  QString email = settings->getMasterEmail();
   QString username = ui->usernameInput->text();
   QString password = ui->passwordInput->text();
 
-  // if (!isValidDomain(website.toStdString())) {
-  //   QMessageBox::warning(this, "Invalid Website",
-  //                        "The website must end with a valid domain name.");
-  //   return;
-  // }
-
-  // this->numRows++;
-  // if (this->db->addEntry(numRows, website, username, password)) {
-  //   ui->CTable->setRowCount(numRows);
-  //   ui->CTable->setItem(numRows - 1, 0, new QTableWidgetItem(website));
-  //   ui->CTable->setItem(numRows - 1, 1, new QTableWidgetItem(username));
-  //   ui->CTable->setItem(numRows - 1, 2, new QTableWidgetItem(password));
-  // }
-  addNewEntry(website, username, password);
+  addNewEntry(website, email, username, password);
 }
 
 void MainWindow::on_Edit_clicked() {
   QString website = ui->webiteInput->text();
+  QString email = settings->getMasterEmail();
   QString username = ui->usernameInput->text();
   QString password = ui->passwordInput->text();
 
@@ -386,10 +376,11 @@ void MainWindow::on_Edit_clicked() {
 
     int id = row + 1;
     std::cout << "Editing row ID: " << id << std::endl;
-    if (this->db->updateEntry(id, website, username, password)) {
+    if (this->db->updateEntry(id, website, email, username, password)) {
       ui->CTable->setItem(row, 0, new QTableWidgetItem(website));
-      ui->CTable->setItem(row, 1, new QTableWidgetItem(username));
-      ui->CTable->setItem(row, 2, new QTableWidgetItem(password));
+      ui->CTable->setItem(row, 1, new QTableWidgetItem(email));
+      ui->CTable->setItem(row, 2, new QTableWidgetItem(username));
+      ui->CTable->setItem(row, 3, new QTableWidgetItem(password));
     } else {
       QMessageBox::warning(this, "Update Failed",
                            "Failed to update the entry in the database.");
@@ -467,10 +458,25 @@ bool MainWindow::isValidDomain(const std::string &website) {
   return validator.isValidDomain(domain);
 }
 
+QTableWidgetItem* MainWindow::hidePassword(QTableWidgetItem *itm) {
+  itm->setText("********");
+  itm->setData(Qt::AccessibleTextRole, false);
+
+  return itm;
+}
+
+QTableWidgetItem* MainWindow::showPassword(QTableWidgetItem *itm) {
+  itm->setText(itm->data(Qt::AccessibleTextRole).toString());
+  itm->setData(Qt::AccessibleTextRole, true);
+
+  return itm;
+}
+
 void MainWindow::syncUIWithDB() {
   QList<rowEntry> results = this->db->queryAll();
   for (const rowEntry &row : results) {
     QString website = row.website;
+    QString email = row.email;
     QString username = row.username;
     QString password = row.password;
 
@@ -478,7 +484,9 @@ void MainWindow::syncUIWithDB() {
 
     ui->CTable->setRowCount(numRows);
     ui->CTable->setItem(numRows - 1, 0, new QTableWidgetItem(website));
-    ui->CTable->setItem(numRows - 1, 1, new QTableWidgetItem(username));
-    ui->CTable->setItem(numRows - 1, 2, new QTableWidgetItem(password));
+    ui->CTable->setItem(numRows - 1, 1, new QTableWidgetItem(email));
+    ui->CTable->setItem(numRows - 1, 2, new QTableWidgetItem(username));
+    ui->CTable->setItem(numRows - 1, 3, hidePassword(new QTableWidgetItem(password)));
+
   }
 }

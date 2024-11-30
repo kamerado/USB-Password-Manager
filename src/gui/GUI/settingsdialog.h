@@ -5,7 +5,6 @@
 #include "src/core/settings.h"
 #include <QDialog>
 #include <QMessageBox>
-#include <shared_mutex>
 
 namespace Ui {
 class SettingsDialog;
@@ -54,7 +53,9 @@ private slots:
 
   void on_ExitBtn_clicked();
 
-private:
+  void on_EmailBtn_clicked();
+
+  private:
   Ui::SettingsDialog *ui;
   std::shared_ptr<Settings> settings;
   std::shared_ptr<Logger> logger;

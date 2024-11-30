@@ -13,6 +13,7 @@
 struct rowEntry {
   int id;
   QString website;
+  QString email;
   QString username;
   QString password;
 };
@@ -40,9 +41,9 @@ public:
 
   // Public Interface
   void setupDB();
-  bool addEntry(int id, const QString &website, const QString &username,
+  bool addEntry(int id, const QString &website, const QString &email, const QString &username,
                 const QString &password);
-  bool updateEntry(int id, const QString &new_website,
+  bool updateEntry(int id, const QString &new_website, const QString &new_email,
                    const QString &new_username, const QString &new_password);
   bool deleteEntry(int id);
   bool deleteAllEntries();
@@ -54,6 +55,7 @@ public:
   queryAll(); // Executes a SQL query for all entrys and returns the results
   std::vector<QString> parseRequest(const std::string &requestStr);
   bool getIsOpen();
+  void setIsOpen(bool value);
 
 private:
   QSqlDatabase db;

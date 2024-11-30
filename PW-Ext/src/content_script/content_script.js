@@ -144,7 +144,7 @@ console.log("Content script initialization started");
 
       try {
         console.log("Sending loginFormDetected message to background");
-        
+
         // check for www. in window.location.host, if not present, add it.
         let domain = window.location.host;
         if (domain.indexOf("www.") === -1) {
@@ -160,16 +160,6 @@ console.log("Content script initialization started");
               website: domain
             }
           }
-          // ,
-          // (response) => {
-          //   if (chrome.runtime.lastError) {
-          //     console.error("Error in chrome.runtime.sendMessage:", chrome.runtime.lastError.message);
-          //     reject(new Error(chrome.runtime.lastError.message));
-          //   } else {
-          //     console.log("Response received from background:", response);
-          //     resolve(response);
-          //   }
-          // }
         );
         console.log("Message sent to background script");
       } catch (error) {

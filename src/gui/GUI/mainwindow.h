@@ -12,6 +12,7 @@
 #include <qpushbutton.h>
 #include <qwebsocket.h>
 #include <src/core/Logger.h>
+#include <QTableWidgetItem>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -46,7 +47,7 @@ public slots:
   void parseMessage(const QString &);
 
 private:
-  void addNewEntry(QString website, QString username, QString password);
+  void addNewEntry(QString website, QString email, QString username, QString password);
   Ui::MainWindow *ui;
   // std::unique_ptr<QPushButton> startbtn;
   std::unique_ptr<WebSocketServer> server = nullptr;
@@ -57,6 +58,10 @@ private:
   std::unique_ptr<EncryptionUtil> enc;
   std::shared_ptr<Logger> logger;
   std::shared_ptr<Settings> settings;
+
+  QTableWidgetItem* hidePassword(QTableWidgetItem *itm);
+
+  QTableWidgetItem* showPassword(QTableWidgetItem *itm);
 
   int getCurrRow();
   bool isValidDomain(const std::string &website);

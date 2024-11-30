@@ -13,44 +13,46 @@ public:
   // Security settings
   QString getMasterPasswordHash() const;
   void setMasterPassword(const QString &password);
-  int getAutoLockTimeout() const;
+  QString getMasterEmail(void) const;
+  void setMasterEmail(const QString &email);
+  int getAutoLockTimeout(void) const;
   void setAutoLockTimeout(int timeSeconds);
-  bool getSelfDestructEnabled() const;
+  bool getSelfDestructEnabled(void) const;
   void setSelfDestructEnabled(bool enabled);
 
   // Password manager settings
-  int getPasswordLength() const;
+  int getPasswordLength(void) const;
   void setPasswordLength(int length);
-  int getDefaultAttempts() const;
+  int getDefaultAttempts(void) const;
   void setDefaultAttempts(int attempts);
-  QString getDefaultUsername() const;
+  QString getDefaultUsername(void) const;
   void setDefaultUsername(const QString &username);
-  bool getIsPasswordReuseWarningEnabled() const;
+  bool getIsPasswordReuseWarningEnabled(void) const;
   void setIsPasswordReuseWarningEnabled(bool enabled);
-  int getPasswordExpirationDays() const;
+  int getPasswordExpirationDays(void) const;
   void setPasswordExpirationDays(int days);
 
   // Backup and portability
-  bool isLocalBackupEnabled() const;
+  bool isLocalBackupEnabled(void) const;
   void setLocalBackupEnabled(bool enabled);
-  QString getBackupPath() const;
+  QString getBackupPath(void) const;
   void setBackupPath(const QString &path);
-  int getBackupIntervalHrs() const;
+  int getBackupIntervalHrs(void) const;
   void setBackupIntervalHrs(int intervalHrs);
 
   // ClipBoard settings
-  int getClipboardTimeout() const;
+  int getClipboardTimeout(void) const;
   void setClipboardTimeout(int timeSeconds);
 
   // UI and customization
-  bool isDarkModeEnabled() const;
+  bool isDarkModeEnabled(void) const;
   void setDarkModeEnabled(bool enabled);
 
   // Save and Load settings
-  void saveSettings();
-  void loadSettings();
+  void saveSettings(void);
+  void loadSettings(void);
 
-  void initCheck();
+  void initCheck(void);
 
 private:
   QSettings settings;

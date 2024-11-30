@@ -37,6 +37,7 @@ void SettingsDialog::onLoadSettings() {
     ui->AttemptsInput->setText(
         QString::fromStdString(std::to_string(settings->getDefaultAttempts())));
     ui->ToggleSelfDestruct->setChecked(settings->getSelfDestructEnabled());
+    ui->EmailView->setText(settings->getMasterEmail());
 
     // Password Manager Settings
     ui->PwLengthInput->setText(
@@ -224,6 +225,7 @@ void SettingsDialog::on_PwExpDaysBtn_clicked() {
                   "SettingsDialog: Entered Default Password Expiration: " +
                       PwExpiration.toStdString());
       settings->setPasswordExpirationDays(PwExpiration.toInt());
+      ui->PwExpirationInput->setText(PwExpiration);
 
       logger->log(DEBUG, "SettingsDialog: Saving...");
       settings->saveSettings();
@@ -247,6 +249,7 @@ void SettingsDialog::on_ClipBoardTimeoutBtn_clicked() {
       logger->log(DEBUG, "SettingsDialog: Entered Default Clipboard Timeout: " +
                              ClipboardTimeout.toStdString());
       settings->setPasswordExpirationDays(ClipboardTimeout.toInt());
+      ui->ClipBoardTimeoutSecInput->setText(ClipboardTimeout);
 
       logger->log(DEBUG, "SettingsDialog: Saving...");
       settings->saveSettings();
@@ -300,6 +303,7 @@ void SettingsDialog::on_BrowseFilesBtn_clicked() {
           directory.toStdString());
   if (!directory.isEmpty()) {
     settings->setBackupPath(directory);
+    ui->BackupFilePathInput->setText(directory);
     settings->saveSettings();
   } else {
     QMessageBox::warning(this, "Invalid Input",
@@ -322,6 +326,7 @@ void SettingsDialog::on_AutoBackupHrsBtn_clicked() {
       logger->log(DEBUG, "SettingsDialog: Entered Auto Backup Interval: " +
                              AutoBackupInterval.toStdString());
       settings->setPasswordExpirationDays(AutoBackupInterval.toInt());
+      ui->AutoBackupHrsInput->setText(AutoBackupInterval);
 
       logger->log(DEBUG, "SettingsDialog: Saving...");
       settings->saveSettings();
@@ -382,3 +387,29 @@ void SettingsDialog::on_ExitBtn_clicked() {
   // TODO: ensure settings saved before closing.
   this->close();
 }
+
+void SettingsDialog::on_EmailBtn_clicked()
+{
+    /*
+   * TODO: Test func, Add pw length checks.
+   */
+    try {
+        InputDialog i;
+        if (i.exec() == QDialog::Accepted) {
+            QString email = i.getText();
+
+            logger->log(DEBUG, "SettingsDialog: Entered email: " +
+                                   email.toStdString());
+            settings->setMasterEmail(email);
+            ui->EmailView->setText(email);
+
+            logger->log(DEBUG, "SettingsDialog: Saving...");
+            settings->saveSettings();
+        } else {
+            logger->log(DEBUG, "SettingsDialog: Canceled.");
+        }
+    } catch (std::exception e) {
+        logger->log(ERROR, "Settingsdialog Error: " + std::string(e.what()));
+    }
+}
+

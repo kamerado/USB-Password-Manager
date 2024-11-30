@@ -8,7 +8,7 @@ Settings::Settings(const QString &settingsFilePath)
 }
 
 // Security settings
-QString Settings::getMasterPasswordHash() const {
+QString Settings::getMasterPasswordHash(void) const {
   return settings.value("Security/MasterPasswordHash").toString();
 }
 void Settings::setMasterPassword(const QString &password) {
@@ -16,14 +16,21 @@ void Settings::setMasterPassword(const QString &password) {
   settings.setValue("Security/MasterPasswordHash", hashedPassword);
 }
 
-int Settings::getAutoLockTimeout() const {
+QString Settings::getMasterEmail(void) const { 
+  return settings.value("Security/MasterEmail").toString();
+}
+void Settings::setMasterEmail(const QString &email) {
+  settings.setValue("Security/MasterEmail", email); 
+}
+
+int Settings::getAutoLockTimeout(void) const {
   return settings.value("Security/AutoLockTimeout").toInt();
 }
 void Settings::setAutoLockTimeout(int timeSeconds) {
   settings.setValue("Security/AutoLockTimeout", timeSeconds);
 }
 
-bool Settings::getSelfDestructEnabled() const {
+bool Settings::getSelfDestructEnabled(void) const {
   return settings.value("Security/SelfDestructEnabled").toBool();
 }
 void Settings::setSelfDestructEnabled(bool enabled) {
@@ -31,35 +38,35 @@ void Settings::setSelfDestructEnabled(bool enabled) {
 }
 
 // Password manager settings
-int Settings::getPasswordLength() const {
+int Settings::getPasswordLength(void) const {
   return settings.value("PasswordManagement/PasswordLength").toInt();
 }
 void Settings::setPasswordLength(int length) {
   settings.setValue("PasswordManagement/PasswordLength", length);
 }
 
-int Settings::getDefaultAttempts() const {
+int Settings::getDefaultAttempts(void) const {
   return settings.value("PasswordManagement/DefaultAttempts").toInt();
 }
 void Settings::setDefaultAttempts(int attempts) {
   settings.setValue("PasswordManagemnt/DefaultAttempts", attempts);
 }
 
-QString Settings::getDefaultUsername() const {
+QString Settings::getDefaultUsername(void) const {
   return settings.value("PasswordManagement/DefaultUsername").toString();
 }
 void Settings::setDefaultUsername(const QString &username) {
   settings.setValue("PasswordManagement/DefaultUsername", username);
 }
 
-bool Settings::getIsPasswordReuseWarningEnabled() const {
+bool Settings::getIsPasswordReuseWarningEnabled(void) const {
   return settings.value("PasswordManagement/IsPasswordReuseEnabled").toBool();
 }
 void Settings::setIsPasswordReuseWarningEnabled(bool enabled) {
   settings.setValue("PasswordManagement/IsPasswordReuseEnabled", enabled);
 }
 
-int Settings::getPasswordExpirationDays() const {
+int Settings::getPasswordExpirationDays(void) const {
   return settings.value("PasswordManagement/PasswordExpirationDays").toInt();
 }
 void Settings::setPasswordExpirationDays(int days) {
@@ -67,21 +74,21 @@ void Settings::setPasswordExpirationDays(int days) {
 }
 
 // Backup and portability
-bool Settings::isLocalBackupEnabled() const {
+bool Settings::isLocalBackupEnabled(void) const {
   return settings.value("Backup/LocalBackupEnabled").toBool();
 }
 void Settings::setLocalBackupEnabled(bool enabled) {
   settings.setValue("Backup/LocalBackupEnabled", enabled);
 }
 
-QString Settings::getBackupPath() const {
+QString Settings::getBackupPath(void) const {
   return settings.value("Backup/BackupPath").toString();
 }
 void Settings::setBackupPath(const QString &path) {
   settings.setValue("Backup/BackupPath", path);
 }
 
-int Settings::getBackupIntervalHrs() const {
+int Settings::getBackupIntervalHrs(void) const {
   return settings.value("Backup/BackupInterval").toInt();
 }
 void Settings::setBackupIntervalHrs(int intervalHrs) {
@@ -89,7 +96,7 @@ void Settings::setBackupIntervalHrs(int intervalHrs) {
 }
 
 // ClipBoard settings
-int Settings::getClipboardTimeout() const {
+int Settings::getClipboardTimeout(void) const {
   return settings.value("ClipBoard/Timeout").toInt();
 }
 void Settings::setClipboardTimeout(int timeSeconds) {
@@ -97,7 +104,7 @@ void Settings::setClipboardTimeout(int timeSeconds) {
 }
 
 // UI and customization
-bool Settings::isDarkModeEnabled() const {
+bool Settings::isDarkModeEnabled(void) const {
   return settings.value("UI/DarkModeEnabled").toBool();
 }
 void Settings::setDarkModeEnabled(bool enabled) {
@@ -105,8 +112,8 @@ void Settings::setDarkModeEnabled(bool enabled) {
 }
 
 // Save and Load settings
-void Settings::saveSettings() { settings.sync(); }
-void Settings::loadSettings() { settings.sync(); }
+void Settings::saveSettings(void) { settings.sync(); }
+void Settings::loadSettings(void) { settings.sync(); }
 
 QString Settings::hashPassword(const QString &password) const {
   // TODO: implement stronger encryption and security practices.
@@ -115,14 +122,9 @@ QString Settings::hashPassword(const QString &password) const {
           .toHex());
 }
 
-void Settings::initCheck() {
+void Settings::initCheck(void) {
   if (!QFile::exists("../settings/settings.ini")) {
     // Security settings
-    // TODO:
-    // void Settings::setMasterPassword(const QString &password) {
-    //   QString hashedPassword = hashPassword(password);
-    //   settings.setValue("Security/MasterPasswordHash", hashedPassword);
-    // }
     settings.setValue("Security/AutoLockTimeout", 500);
     settings.setValue("Security/SelfDistructEnabled", false);
 
