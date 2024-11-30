@@ -37,12 +37,19 @@ The build script will:
 
 Install Qt 6.8.0 and dependencies if needed
 Configure CMake build
+
 Build the application
+
 Launch the password manager
+
 Requirements
+
 Git
-CMake 3.29+
-C++17 compatible compiler
+
+CMake 3.29+(should be installed with qt)
+
+C++17 compatible compiler(should be isntalled with qt)
+
 Qt 6.8.0+ (auto-installed by build scripts)
 License
 This project is licensed under the MIT License - see the LICENSE file for details.
