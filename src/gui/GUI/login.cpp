@@ -13,6 +13,7 @@ Login::Login(QWidget *parent) : QDialog(parent), ui(new Ui::Login) {
 Login::Login(std::shared_ptr<Logger> &logM, QWidget *parent)
     : QDialog(parent), ui(new Ui::Login) {
   ui->setupUi(this);
+  settings = std::make_unique<Settings>("../settings/settings.ini");
   this->logM = std::move(logM);
 }
 
@@ -25,8 +26,19 @@ void Login::setDB(std::unique_ptr<DatabaseManager> &database) {
 }
 
 void Login::on_LoginButton_clicked() {
-  std::string pass = ui->UsernameInput->text().toStdString() +
-                     ui->PasswordInput->text().toStdString();
+  if (ui->UsernameInput->text().isEmpty() || ui->PasswordInput->text().isEmpty()) {
+    QMessageBox::warning(this, "Invalid Input", "Please enter a valid username and password.");
+    return;
+  }
+  if (ui->PasswordInput->text().length() < 12) {
+    QMessageBox::warning(this, "Invalid Input", "Password must be at least 12 characters long.");
+    return;
+  }
+  if (ui->UsernameInput->text().toStdString() != settings->getDefaultUsername().toStdString()) {
+    QMessageBox::warning(this, "Invalid Input", "username does not match the saved username.");
+    return;
+  }
+  std::string pass = ui->PasswordInput->text().toStdString();
   this->encdec = std::make_unique<EncryptionUtil>(pass);
   this->accept();
       // Give time for handles to be released

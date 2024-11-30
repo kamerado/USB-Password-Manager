@@ -60,5 +60,6 @@ void EncryptionUtil::DecryptFile() {
     }
   } catch (const std::exception &e) {
     std::cerr << "Error during decryption: " << e.what() << std::endl;
+    exit(1);
   }
 }

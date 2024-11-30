@@ -6,6 +6,7 @@
 #include <src/core/DatabaseManager.h>
 #include <src/core/EncryptionUtil.h>
 #include <src/core/Logger.h>
+#include <QMessageBox>
 
 #include "src/core/settings.h"
 

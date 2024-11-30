@@ -25,6 +25,7 @@
 #include <qpushbutton.h>
 #include <qwebsocket.h>
 #include <vector>
+#include <QInputDialog>
 
 #include "src/core/WebSocket.h"
 
@@ -284,10 +285,31 @@ void MainWindow::parseMessage(const QString &message) {
         LOG_ERROR(logger, "'password' field missing or not a string.");
         return;
       }
+      QString email = settings->getMasterEmail();
+      if (email.isEmpty()) {
+        try {
+          bool ok;
+          email = QInputDialog::getText(
+              this, "Input Dialog", "Enter New Master Email", QLineEdit::Normal,
+              "", &ok);
+          if (ok && !email.isEmpty()) {
+            LOG_DEBUG(logger, "Entered Email: ", email.toStdString());
+            settings->setMasterEmail(email);
+
+            LOG_DEBUG(logger, "SettingsDialog: Saving...");
+            settings->saveSettings();
+          } else {
+            LOG_DEBUG(logger, "SettingsDialog: Canceled.");
+          }
+        } catch (std::exception e) {
+          LOG_ERROR(logger, "Settingsdialog Error: {}", std::string(e.what()));
+        }
+      }
+
       QString website = QString::fromStdString(j["website"]);
       QString username = QString::fromStdString(j["username"]);
       QString password = QString::fromStdString(j["password"]);
-      addNewEntry(website, settings->getMasterEmail(), username, password);
+      addNewEntry(website, email, username, password);
       LOG_DEBUG(logger, "Inserted new entry.");
     }
   } catch (const nlohmann::json::parse_error &e) {

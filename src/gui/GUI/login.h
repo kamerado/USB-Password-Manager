@@ -6,6 +6,8 @@
 #include <src/core/DatabaseManager.h>
 #include <src/core/EncryptionUtil.h>
 #include <src/core/Logger.h>
+#include "src/core/settings.h"
+#include <QMessageBox>
 
 namespace Ui {
 class Login;
@@ -29,6 +31,7 @@ signals:
 
 private:
   Ui::Login *ui;
+  std::unique_ptr<Settings> settings;
   std::unique_ptr<EncryptionUtil> encdec;
   std::unique_ptr<DatabaseManager> db;
   std::shared_ptr<Logger> logM;
