@@ -77,4 +77,5 @@ echo "Build and deployment completed successfully"
 
 # Run the application
 echo "Starting application..."
-$PROJECT_DIR/build/nativegui
+cd $PROJECT_DIR/build/
+./nativegui
