@@ -5,12 +5,8 @@
 QT_DIR="$HOME/Qt/6.8.0/gcc_64"
 if [ ! -d "$QT_DIR" ]; then
   echo "Error: Qt directory not found"
-  exit 1
+  ./installdeps.sh
 fi
-# if not exist "C:\Users\user\Qt\Tools\mingw1310_64" (
-#     echo Error: MinGW directory not found
-#     exit /b 1
-# )
 
 # Set Qt and MinGW paths
 export PATH="$PATH:$QT_DIR/bin"
