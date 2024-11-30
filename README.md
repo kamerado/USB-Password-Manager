@@ -17,11 +17,21 @@ A secure, cross-platform password manager that can be run from a USB drive. Buil
 1. Clone the repository:
 ```bash
 git clone https://github.com/kamerado/USB-Password-Manager.git
+```
 Navigate to build directory:
+```bash
+cd USB-Password-Manager/build
+```
 Run the build script:
-On Linux:
 
+On Linux:
+```bash
+./build.sh
+```
 On Windows:
+```bat
+build.bat
+```
 
 The build script will:
 
