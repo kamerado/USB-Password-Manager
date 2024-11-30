@@ -18,44 +18,32 @@ struct rowEntry {
   QString password;
 };
 
-struct request {};
-
-namespace RequestHandler {
-
-void parseRequest(const std::string &requestStr);
-
-};
-
 class DatabaseManager {
 public:
-  DatabaseManager();
+  DatabaseManager(void);
   DatabaseManager(std::shared_ptr<Logger> &logM);
   ~DatabaseManager();
 
   DatabaseManager(const DatabaseManager &) = delete;
   DatabaseManager &operator=(const DatabaseManager &) = delete;
-  void close();
-
+  
   DatabaseManager(DatabaseManager &&) noexcept;
   DatabaseManager &operator=(DatabaseManager &&) noexcept;
 
-  // Public Interface
-  void setupDB();
+  void setupDB(void);
   bool addEntry(int id, const QString &website, const QString &email, const QString &username,
                 const QString &password);
   bool updateEntry(int id, const QString &new_website, const QString &new_email,
                    const QString &new_username, const QString &new_password);
   bool deleteEntry(int id);
-  bool deleteAllEntries();
-  void closeDatabase();
-  std::vector<QString>
-  executeCheck(QString &website); // Executes a simple SQL command,
-  // such as CREATE or INSERT etc.
-  QList<rowEntry>
-  queryAll(); // Executes a SQL query for all entrys and returns the results
+  bool deleteAllEntries(void);
+  void closeDatabase(void);
+  QList<rowEntry> queryAll(void); // Executes a SQL query for all entrys and returns the results
   std::vector<QString> parseRequest(const std::string &requestStr);
-  bool getIsOpen();
+  std::vector<QString> executeCheck(QString &website); // Executes a simple SQL command
+  bool getIsOpen(void);
   void setIsOpen(bool value);
+  void close(void);
 
 private:
   QSqlDatabase db;

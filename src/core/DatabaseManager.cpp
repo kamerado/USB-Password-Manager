@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-DatabaseManager::DatabaseManager() {}
+DatabaseManager::DatabaseManager(void) {}
 
 DatabaseManager::DatabaseManager(std::shared_ptr<Logger> &logM) {
   this->logger = logM;
@@ -30,7 +30,7 @@ DatabaseManager::DatabaseManager(std::shared_ptr<Logger> &logM) {
   }
 }
 
-
+DatabaseManager::~DatabaseManager() { closeDatabase(); }
 
 DatabaseManager::DatabaseManager(DatabaseManager &&other) noexcept {
   if (this != &other) {
@@ -49,12 +49,7 @@ DatabaseManager &DatabaseManager::operator=(DatabaseManager &&other) noexcept {
   return *this;
 }
 
-DatabaseManager::~DatabaseManager() { closeDatabase(); }
-
-bool DatabaseManager::getIsOpen() { return this->isOpen; }
-void DatabaseManager::setIsOpen(bool value) { this->isOpen = value; }
-
-void DatabaseManager::setupDB() {
+void DatabaseManager::setupDB(void) {
   QSqlQuery dbquery;
   dbquery.prepare("CREATE TABLE IF NOT EXISTS credentials (id int not null "
                   "primary key, website text, email text, username text, password text);");
@@ -62,13 +57,6 @@ void DatabaseManager::setupDB() {
     LOG_ERROR(logger, "DatabaseManager: Fail DB Setup");
     return;
   }
-}
-
-void DatabaseManager::close() {
-  if (db.isOpen()) {
-    db.close();
-  }
-  isOpen = false;
 }
 
 bool DatabaseManager::addEntry(int id, const QString &website, const QString &email,
@@ -149,7 +137,7 @@ bool DatabaseManager::deleteEntry(int id) {
   return true;
 }
 
-bool DatabaseManager::deleteAllEntries() {
+bool DatabaseManager::deleteAllEntries(void) {
   QSqlQuery query;
   query.prepare("DELETE FROM credentials");
 
@@ -163,7 +151,7 @@ bool DatabaseManager::deleteAllEntries() {
   }
 }
 
-QList<rowEntry> DatabaseManager::queryAll() {
+QList<rowEntry> DatabaseManager::queryAll(void) {
   QSqlQuery query("SELECT * FROM credentials");
   QList<rowEntry> results;
   if (!query.exec()) {
@@ -192,7 +180,7 @@ QList<rowEntry> DatabaseManager::queryAll() {
   return results;
 }
 
-void DatabaseManager::closeDatabase() {
+void DatabaseManager::closeDatabase(void) {
   if (this->db.isOpen()) {
     this->db.close(); // Close the database connection
     LOG_INFO(logger, "DatabaseManager: Database closed successfully!");
@@ -203,79 +191,7 @@ void DatabaseManager::closeDatabase() {
   LOG_INFO(logger, "DatabaseManager: Database connection removed.");
 }
 
-std::vector<QString>
-DatabaseManager::parseRequest(const std::string &requestStr) {
-  LOG_DEBUG(logger, "DatabaseManager: parseRequest received: {}", requestStr);
-  try {
-    using json = nlohmann::json;
-    json j = json::parse(requestStr);
 
-    if (!j.contains("type") || !j["type"].is_string()) {
-      LOG_ERROR(logger,
-                "DatabaseManager: Missing or invalid 'type' field in message.");
-      return std::vector<QString>();
-    }
-
-    const std::string &typeStr = j["type"];
-
-    if (typeStr == "new-entry") {
-      if (!j.contains("website") || !j["website"].is_string()) {
-        LOG_ERROR(logger,
-                  "DatabaseManager: 'website' field missing or not a string");
-        return std::vector<QString>();
-      }
-      std::string website = j["website"];
-      LOG_DEBUG(logger, "DatabaseManager: website value extracted: ", website);
-
-      if (!j.contains("username") || !j["username"].is_string()) {
-        LOG_ERROR(logger,
-                  "DatabaseManager: 'username' field missing or not a string.");
-        return std::vector<QString>();
-      }
-      std::string username = j["username"];
-      LOG_DEBUG(logger,
-                "DatabaseManager: username value extracted: ", username);
-
-      if (!j.contains("password") || !j["password"].is_string()) {
-        LOG_ERROR(logger,
-                  "DatabaseManager: 'password' field missing or not a string.");
-        return std::vector<QString>();
-      }
-      std::string password = j["password"];
-      LOG_DEBUG(logger,
-                "DatabaseManager: password value extracted: ", password);
-
-      std::vector<QString> tmp = std::vector<QString>();
-      tmp.push_back(QString::fromStdString(typeStr));
-      tmp.push_back(QString::fromStdString(website));
-      tmp.push_back(QString::fromStdString(username));
-      tmp.push_back(QString::fromStdString(password));
-      return tmp;
-
-    } else if (typeStr == "check-entry") {
-      if (!j.contains("website") || !j["website"].is_string()) {
-        LOG_ERROR(logger,
-                  "DatabaseManager: 'website' field missing or not a string");
-        return std::vector<QString>();
-      }
-
-      std::string website = j["website"];
-      std::vector<QString> tmp = std::vector<QString>();
-      tmp.push_back(QString::fromStdString(typeStr));
-      tmp.push_back(QString::fromStdString(website));
-      LOG_DEBUG(logger,
-                "DatabaseManager: website check value extracted: ", website);
-
-      return tmp;
-    }
-
-  } catch (const nlohmann::json::parse_error &e) {
-    LOG_ERROR(logger, "DatabaseManager: parsing JSON: ", std::string(e.what()));
-  } catch (const std::exception &e) {
-    LOG_ERROR(logger, "DatabaseManager: ", std::string(e.what()));
-  }
-  return std::vector<QString>();
-}
 
 std::vector<QString> DatabaseManager::executeCheck(QString &website) {
   std::vector<QString> tmp;
@@ -302,4 +218,14 @@ std::vector<QString> DatabaseManager::executeCheck(QString &website) {
 
     return tmp;
   }
+}
+
+bool DatabaseManager::getIsOpen() { return this->isOpen; }
+void DatabaseManager::setIsOpen(bool value) { this->isOpen = value; }
+
+void DatabaseManager::close(void) {
+  if (db.isOpen()) {
+    db.close();
+  }
+  isOpen = false;
 }
