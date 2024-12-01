@@ -11,18 +11,28 @@
 #include <cryptopp/aes.h>
 #include <src/core/Logger.h>
 #include <string>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <cryptopp/cbcmac.h>
+#include <cryptopp/modes.h> // Add this for CBC mode
+#include <sodium.h>
 
 class EncryptionUtil {
 public:
-  EncryptionUtil(std::string &);
-  ~EncryptionUtil();
+  EncryptionUtil(std::string &pw) : pw(pw) {
+    if (sodium_init() == -1) {
+      throw std::runtime_error("Failed to initialize libsodium");
+    }
+  };
+  ~EncryptionUtil() = default;
 
-  void generatekey(const char* passPhrase, unsigned char* aes_key, unsigned char* hmac_key);
+  void generatekey(const std::string passPhrase, unsigned char* key);
 
   void EncryptFile();
   void DecryptFile();
 
-  void EncryptFileChaCha(const std::string &pw);
+  void EncryptFileChaCha(/*const std::string &pw*/);
   void DecryptFileChaCha(const std::string &pw);
 
   // static CryptoPP::SecByteBlock generateKey(const std::string& passcode,
@@ -33,41 +43,45 @@ public:
 
 
 private:
-  const char *pw;
+  std::string pw;
   const char *dbPath = "../db/passwords.db";   // Cleartext db
   const char *dbePath = "../db/passwords.dbe"; // Enc db
   const char *datPath = "../db/passwords.dat"; // Enc db
   
   struct AES_Cypher {
-    std::unique_ptr<CBC_Mode_ExternalCipher::Encryption> aesEncryption;
-    std::unique_ptr<CBC_Mode_ExternalCipher::Decryption> aesDecryption;
+    std::unique_ptr<CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption> aesEncryption;
+    std::unique_ptr<CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption> aesDecryption;
+    CryptoPP::SecByteBlock iv;
 
-    AES_Cypher() {
-      aesEncryption = nullptr;
-      aesDecryption = nullptr;
+    AES_Cypher() : iv(CryptoPP::AES::BLOCKSIZE) {
+      std::memset(iv.data(), 0, iv.size());
     }
 
-    void setKey(const byte *key) {
-      aesEncryption = std::make_unique<CBC_Mode_ExternalCipher::Encryption>(key, 32);
-      aesDecryption = std::make_unique<CBC_Mode_ExternalCipher::Decryption>(key, 32);
+    void setKey(const CryptoPP::SecByteBlock &key) {
+      this->aesEncryption = std::make_unique<CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption>(key.data(), key.size(), iv.data());
+      this->aesDecryption = std::make_unique<CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption>(key.data(), key.size(), iv.data());
     }
 
-    AES_Cypher(const byte *key) {
+    explicit AES_Cypher(const CryptoPP::SecByteBlock& key) {
       setKey(key);
     }
 
-    ~AES_Cypher() {
-      aesEncryption = nullptr;
-      aesDecryption = nullptr;
+    ~AES_Cypher() = default; 
+
+    void encrypt(CryptoPP::SecByteBlock& plaintext, size_t length, CryptoPP::SecByteBlock& ciphertext) {
+      if (this->aesEncryption) {
+        this->aesEncryption->ProcessData(ciphertext.data(), plaintext.data(), length);
+      }
     }
 
-    void encrypt(byte *plaintext, size_t length, byte *ciphertext) {
-      aesEncryption->ProcessData(ciphertext, plaintext, length);
+    void decrypt(CryptoPP::SecByteBlock& ciphertext, size_t length, CryptoPP::SecByteBlock& plaintext) {
+      if (this->aesDecryption) {
+        this->aesDecryption->ProcessData(plaintext.data(), ciphertext.data(), length);
+      }
     }
-
-    void decrypt(byte *ciphertext, size_t length, byte *plaintext) {
-      aesDecryption->ProcessData(plaintext, ciphertext, length);
-    }
+    private:
+      AES_Cypher(const AES_Cypher&) = delete;
+      AES_Cypher& operator=(const AES_Cypher&) = delete;
   };
 };
 

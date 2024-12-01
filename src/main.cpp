@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
 
   int ret;
 
-  if (!fs::exists("../db/passwords.dbe")) {
+  if (!fs::exists("../db/passwords.dat")) {
     startGui<Setup>(m, logM, db);
     ret = a.exec();
   } else {

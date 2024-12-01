@@ -18,12 +18,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/libs)
 
-# # Set Qt paths for Windows
-# set(CMAKE_PREFIX_PATH "C:/Qt/6.8.0/mingw_64")
-# set(Qt6_DIR "C:/Qt/6.8.0/mingw_64/lib/cmake/Qt6")
+include(FetchContent)
 
-# # Add Qt submodule
-# add_subdirectory(${EXTERNAL_DIR}/qt5)
+# Update the commit to point to whatever libsodium-cmake-commit you want to target.
+FetchContent_Declare(Sodium
+    GIT_REPOSITORY https://github.com/robinlinden/libsodium-cmake.git
+    GIT_TAG 99f14233eab1d4f7f49c2af4ec836f2e701c445e # HEAD as of 2022-05-28
+)
+set(SODIUM_DISABLE_TESTS ON)
+FetchContent_MakeAvailable(Sodium)
 
 add_subdirectory(${EXTERNAL_DIR}/spdlog)
 include_directories(${EXTERNAL_DIR}/spdlog/include)
@@ -79,6 +82,7 @@ target_link_libraries(nativegui PRIVATE
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::WebSockets
     stdc++
+    sodium
     spdlog::spdlog
 )
 

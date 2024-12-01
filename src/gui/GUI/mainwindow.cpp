@@ -335,7 +335,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
   // Now encrypt the file
   if (enc != nullptr) {
-    this->enc->EncryptFile();
+    this->enc->EncryptFileChaCha();
   }
 
   event->accept();
@@ -349,7 +349,9 @@ void MainWindow::setDB(std::unique_ptr<DatabaseManager> &database) {
   this->db = std::move(database);
 }
 
-void MainWindow::on_exitButton_clicked() { this->close(); }
+void MainWindow::on_exitButton_clicked() { 
+  this->close(); 
+}
 
 void MainWindow::addNewEntry(QString website, QString email, QString username,
                              QString password) {

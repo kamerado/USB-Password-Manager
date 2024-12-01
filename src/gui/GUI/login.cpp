@@ -45,7 +45,7 @@ void Login::on_LoginButton_clicked() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Decrypt db.
-  this->encdec->DecryptFile();
+  this->encdec->DecryptFileChaCha(pass);
 
   // TODO: If db opens properly, continue to app.
 }

@@ -18,20 +18,17 @@
 using namespace CryptoPP;
 namespace fs = std::filesystem;
 
-EncryptionUtil::EncryptionUtil(std::string &pw) {
-  const char *encP = strdup(pw.c_str());
-  this->pw = encP;
-}
+// EncryptionUtil::EncryptionUtil(std::string &pw) {
+//   const char *encP = strdup(pw.c_str());
+//   this->pw = encP;
+// }
 
-EncryptionUtil::~EncryptionUtil() {}
+// EncryptionUtil::~EncryptionUtil() {}
 
-void EncryptionUtil::generatekey(const char* passPhrase, unsigned char* aes_key, unsigned char* hmac_key) {
-  // Generate AES key
-  HKDF<SHA256> hkdf;
-  hkdf.DeriveKey(aes_key, 32, (const byte *)passPhrase, strlen(passPhrase), NULL, 0, (const byte *)"AES", 3);
-
-  // Generate HMAC key
-  hkdf.DeriveKey(hmac_key, 32, (const byte *)passPhrase, strlen(passPhrase), NULL, 0, (const byte *)"HMAC", 4);
+void EncryptionUtil::generatekey(const std::string passPhrase, unsigned char *key) {
+  crypto_generichash(reinterpret_cast<unsigned char*>(key), crypto_aead_chacha20poly1305_IETF_KEYBYTES,
+                     reinterpret_cast<const unsigned char*>(passPhrase.data()), passPhrase.size(),
+                     nullptr, 0);
 }
 
 // In EncryptionUtil.cpp
@@ -41,7 +38,7 @@ void EncryptionUtil::EncryptFile() {
     {
       FileSource f(
           this->dbPath, true,
-          new DefaultEncryptorWithMAC(this->pw, new FileSink(this->dbePath)));
+          new DefaultEncryptorWithMAC(this->pw.c_str(), new FileSink(this->dbePath)));
     } // Scope ensures file handle is closed
 
     // Then remove original after encryption is complete
@@ -61,7 +58,7 @@ void EncryptionUtil::DecryptFile() {
     {
       FileSource f(
           this->dbePath, true,
-          new DefaultDecryptorWithMAC(this->pw, new FileSink(this->dbPath)));
+          new DefaultDecryptorWithMAC(this->pw.c_str(), new FileSink(this->dbPath)));
     } // Scope ensures file handle is closed
 
     // Then remove encrypted file after decryption is complete
@@ -76,31 +73,82 @@ void EncryptionUtil::DecryptFile() {
   }
 }
 
-  void EncryptionUtil::EncryptFileChaCha(const std::string &pw) {
-    byte nonce[24];
-    AutoSeededRandomPool rng;
+void EncryptionUtil::EncryptFileChaCha() {
+  try {
+    unsigned char key[crypto_aead_chacha20poly1305_IETF_KEYBYTES];
+    generatekey(this->pw, key);
 
-    rng.GenerateBlock(nonce, sizeof(nonce));
+    std::ifstream inFile(dbPath, std::ios::binary);
+    if (!inFile) throw std::runtime_error("Could not open input file");
 
-    unsigned char aes_key[32];
-    unsigned char hmac_key[32];
-    generatekey(pw.c_str(), aes_key, hmac_key);
-    ChaCha20Poly1305::Encryption cipher;
-    cipher.SetKeyWithIV(aes_key, sizeof(aes_key), nonce, sizeof(nonce));
-    cipher.Resynchronize(nonce, sizeof(nonce));
-    // to decrypt
-    // FileSource fs(this->dbPath.c_str(), true, new AuthenticatedEncryptionFilter(cipher, new FileSink(this->dbePath.c_str())));
+    std::string plaintext((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+    inFile.close();
 
-    AES_Cypher aesCypher(aes_key);
-    std::ofstream file(this->datPath, std::ios::binary);
+    unsigned char nonce[crypto_aead_chacha20poly1305_IETF_NPUBBYTES];
+    randombytes_buf(nonce, sizeof nonce);
 
-    byte encryptedNonce[24+32];
-    aesCypher.encrypt(nonce, 24, encryptedNonce);
-    file.write((char*)encryptedNonce, 24+32);
+    std::vector<unsigned char> ciphertext(plaintext.size() + crypto_aead_chacha20poly1305_IETF_ABYTES);
+    unsigned long long ciphertext_len;
 
-    byte encryptedTag;
+    crypto_aead_chacha20poly1305_ietf_encrypt(ciphertext.data(), &ciphertext_len,
+                                              reinterpret_cast<const unsigned char*>(plaintext.data()), plaintext.size(),
+                                              nullptr, 0, nullptr, nonce, key);
 
-    
+    std::ofstream outFile(datPath, std::ios::binary);
+    if (!outFile) throw std::runtime_error("Could not open output file");
+
+    outFile.write(reinterpret_cast<const char*>(nonce), sizeof nonce);
+    outFile.write(reinterpret_cast<const char*>(ciphertext.data()), ciphertext_len);
+    outFile.close();
+  
+    // Delete the .db file after encryption
+    if (fs::exists(dbPath)) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      fs::remove(dbPath);
+    }
+  } catch (const std::exception &e) {
+    std::cerr << "Error during encryption: " << e.what() << std::endl;
+    throw;
   }
+}
 
-  void EncryptionUtil::DecryptFileChaCha(const std::string &pw) {}
+void EncryptionUtil::DecryptFileChaCha(const std::string &pw) {
+  try {
+    unsigned char key[crypto_aead_chacha20poly1305_IETF_KEYBYTES];
+    generatekey(pw, key);
+
+    std::ifstream inFile(datPath, std::ios::binary);
+    if (!inFile) throw std::runtime_error("Could not open encrypted file");
+
+    unsigned char nonce[crypto_aead_chacha20poly1305_IETF_NPUBBYTES];
+    inFile.read(reinterpret_cast<char*>(nonce), sizeof nonce);
+
+    std::string ciphertext((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+    inFile.close();
+
+    std::vector<unsigned char> decrypted(ciphertext.size() - crypto_aead_chacha20poly1305_IETF_ABYTES);
+    unsigned long long decrypted_len;
+
+    if (crypto_aead_chacha20poly1305_ietf_decrypt(decrypted.data(), &decrypted_len,
+                                                  nullptr,
+                                                  reinterpret_cast<const unsigned char*>(ciphertext.data()), ciphertext.size(),
+                                                  nullptr, 0, nonce, key) != 0) {
+      throw std::runtime_error("Decryption failed");
+    }
+
+    std::ofstream outFile(dbPath, std::ios::binary);
+    if (!outFile) throw std::runtime_error("Could not open output file");
+
+    outFile.write(reinterpret_cast<const char*>(decrypted.data()), decrypted_len);
+    outFile.close();
+
+    // Delete the .dat file after decryption
+    if (fs::exists(datPath)) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      fs::remove(datPath);
+    }
+  } catch (const std::exception &e) {
+    std::cerr << "Error during decryption: " << e.what() << std::endl;
+    throw;
+  }
+}
