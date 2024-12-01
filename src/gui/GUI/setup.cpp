@@ -41,6 +41,6 @@ void Setup::on_SetupButton_clicked() {
   std::string username = ui->UsernameInput->text().toStdString();
   std::string pw = ui->PasswordInput->text().toStdString();
   settings->setDefaultUsername(QString::fromStdString(username));
-  this->encdec = std::make_unique<EncryptionUtil>(pw);
+  this->encdec = std::make_unique<EncryptionUtil>(pw, logM);
   this->accept();
 }

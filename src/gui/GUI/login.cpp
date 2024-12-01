@@ -39,7 +39,7 @@ void Login::on_LoginButton_clicked() {
     return;
   }
   std::string pass = ui->PasswordInput->text().toStdString();
-  this->encdec = std::make_unique<EncryptionUtil>(pass);
+  this->encdec = std::make_unique<EncryptionUtil>(pass, logM);
   this->accept();
       // Give time for handles to be released
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
