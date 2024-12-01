@@ -10,3 +10,9 @@
 [submodule "libs/qt5"]
 	path = libs/qt5
 	url = https://code.qt.io/qt/qt5.git
+[submodule "build/libs/libsodium"]
+	path = build/libs/libsodium
+	url = https://github.com/jedisct1/libsodium.git
+[submodule "libs/libsodium"]
+	path = libs/libsodium
+	url = https://github.com/jedisct1/libsodium.git
