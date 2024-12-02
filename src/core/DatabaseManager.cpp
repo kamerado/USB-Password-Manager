@@ -207,8 +207,10 @@ std::vector<QString> DatabaseManager::executeCheck(QString &website) {
     if (query.next()) {
       int id = query.value(0).toInt();
       QString website = query.value(1).toString();
-      QString username = query.value(2).toString();
-      QString password = query.value(3).toString();
+      QString email = query.value(2).toString();
+      QString username = query.value(3).toString();
+      QString password = query.value(4).toString();
+      tmp.push_back(email);
       tmp.push_back(username);
       tmp.push_back(password);
     } else {

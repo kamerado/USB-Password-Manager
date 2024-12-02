@@ -244,8 +244,9 @@ void MainWindow::parseMessage(const QString &message) {
       QString tmp = QString::fromStdString(std::string(j["website"]));
       std::vector<QString> result = db->executeCheck(tmp);
       if (result.size() > 0) {
-        json entry = {{"username", result.at(0).toStdString()},
-                      {"password", result.at(1).toStdString()}};
+        json entry = {{"username", result.at(1).toStdString()},
+                      {"password", result.at(2).toStdString()},
+                      {"email", result.at(0).toStdString()}};
         json message = {{"action", "receive-entry"}, {"entry", entry}};
 
         std::string jsonString = message.dump();

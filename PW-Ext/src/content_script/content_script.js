@@ -6,7 +6,6 @@ console.log("Content script initialization started");
 
   function detectAuthPage() {
     try {
-      // Common login/signup form selectors
       const authSelectors = [
         'form[action*="login"]',
         'form[action*="signin"]',
@@ -17,68 +16,109 @@ console.log("Content script initialization started");
         '#signin',
         '#register'
       ];
-
-      // Common input field types
+  
       const authInputTypes = [
         'input[type="password"]',
         'input[name*="password"]',
         'input[name*="email"]',
         'input[name*="username"]'
       ];
-
-      // Common auth-related text in buttons or headings
+  
       const authKeywords = [
         'login',
+        'log in',
+        'Log in',
         'sign in',
         'signup',
         'sign up',
         'register',
-        'create account'
+        'create account',
+        'Forgot your password?'
       ];
-
-      // Check for auth form selectors
+  
       const hasAuthForm = authSelectors.some(selector =>
         document.querySelector(selector) !== null
       );
-
-      // Check for auth input types
+  
       const hasAuthInputs = authInputTypes.some(selector =>
         document.querySelector(selector) !== null
       );
-
-      // Check page content for auth keywords
+  
       const pageText = document.body ? document.body.innerText.toLowerCase() : '';
       const hasAuthKeywords = authKeywords.some(keyword =>
         pageText.includes(keyword.toLowerCase())
       );
-
-      // Additional checks for common auth patterns
-      const hasPasswordField = document.querySelector('input[type="password"]') !== null;
-      const hasEmailField = document.querySelector('input[type="email"]') !== null;
-
-      // Calculate confidence score
-      let confidence = 0;
-      if (hasAuthForm) confidence += 0.4;
-      if (hasAuthInputs) confidence += 0.3;
-      if (hasAuthKeywords) confidence += 0.2;
-      if (hasPasswordField) confidence += 0.3;
-      if (hasEmailField) confidence += 0.2;
-
-      // Determine page type
+  
+      const findFields = (selectors) => {
+        for (const selector of selectors) {
+          const fields = Array.from(document.querySelectorAll(selector));
+          if (fields.length > 0) return fields;
+        }
+        return [];
+      };
+  
+      const passwordFields = findFields([
+        'input[type="password"]',
+        'input[name*="password"]',
+        'input[id*="password"]',
+        'input[class*="password"]'
+      ]);
+      console.log("Total password fields found:", passwordFields.length);
+  
+      const emailFields = findFields([
+        'input[type="email"]',
+        'input[name*="login"]',
+        'input[name*="email"]',
+        'input[id*="email"]',
+        'input[class*="email"]'
+      ]);
+      console.log("Total email fields found:", emailFields.length);
+  
+      const usernameFields = findFields([
+        'input[autocomplete*="username"]',
+        'input[name*="username"]',
+        'input[id*="username"]',
+        'input[class*="username"]',
+        'input[name*="login"]'
+      ]);
+      console.log("Total username fields found:", usernameFields.length);
+  
+      const hasPasswordField = passwordFields.length > 0;
+      const hasEmailField = emailFields.length > 0;
+      const hasUsernameField = usernameFields.length > 0;
+  
+      const confidence = [
+        { condition: hasAuthForm, weight: 0.4 },
+        { condition: hasAuthInputs, weight: 0.3 },
+        { condition: hasAuthKeywords, weight: 0.2 },
+        { condition: hasPasswordField, weight: 0.3 },
+        { condition: hasEmailField, weight: 0.2 },
+        { condition: hasUsernameField, weight: 0.2 }
+      ].reduce((acc, { condition, weight }) => acc + (condition ? weight : 0), 0);
+  
       let pageType = 'unknown';
-      if (confidence > 0.5) {
-        if (pageText.includes('sign up') || pageText.includes('register') ||
-          pageText.includes('create account')) {
+      if (confidence >= 0.2) {
+        const url = window.location.href.toLowerCase();
+        if (url.includes('login') || url.includes('signin')) {
+          pageType = 'login';
+        } else if (url.includes('signup') || url.includes('register')) {
+          pageType = 'signup';
+        } else if (pageText.includes('signup') || pageText.includes("register") || pageText.includes("sign up") || pageText.includes("create account")) {
           pageType = 'signup';
         } else {
           pageType = 'login';
         }
       }
-
+  
       return {
         isAuthPage: confidence > 0.5,
         confidence: Math.min(confidence, 1.0),
         pageType: pageType,
+        fields: {
+          passwordFields: passwordFields.map(field => field.name || field.id || ''),
+          emailFields: emailFields.map(field => field.name || field.id || ''),
+          usernameFields: usernameFields.map(field => field.name || field.id || '')
+        },
         error: null
       };
     } catch (error) {
@@ -90,7 +130,9 @@ console.log("Content script initialization started");
         error: error.message
       };
     }
-  } function getLoginFields() {
+  }
+  
+  function getLoginFields() {
     console.log("Starting login field detection");
     var fieldPairs = [],
       pswd = (function () {
@@ -134,53 +176,112 @@ console.log("Content script initialization started");
     return fieldPairs;
   }
 
-  async function checkForLoginForm() {
-    console.log("Checking for login form...");
+  async function reqLoginForm() {
+    try {
+      console.log("Sending loginFormDetected message to background");
 
-    const loginFields = getLoginFields();
-
-    if (loginFields.length > 0) {
-      console.log("Login form fields detected!");
-
-      try {
-        console.log("Sending loginFormDetected message to background");
-
-        // check for www. in window.location.host, if not present, add it.
-        let domain = window.location.host;
-        if (domain.indexOf("www.") === -1) {
-          console.log("www. not found in host, adding it");
-          domain = "www." + window.location.host;
-        }
-        chrome.runtime.sendMessage(
-          {
-            action: "loginFormDetected",
-            type: "request",
-            request: {
-              type: "check-entry",
-              website: domain
-            }
-          }
-        );
-        console.log("Message sent to background script");
-      } catch (error) {
-        console.error("Error in checkForLoginForm:", error);
+      // check for www. in window.location.host, if not present, add it.
+      let domain = window.location.host;
+      if (domain.indexOf("www.") === -1) {
+        console.log("www. not found in host, adding it");
+        domain = "www." + window.location.host;
       }
-    } else {
-      console.log("No login fields found yet.");
+      chrome.runtime.sendMessage(
+        {
+          action: "loginFormDetected",
+          type: "request",
+          request: {
+            type: "check-entry",
+            website: domain
+          }
+        }
+      );
+      console.log("Message sent to background script");
+    } catch (error) {
+      console.error("Error in checkForLoginForm:", error);
     }
   }
 
-  function fillForm(username, password) {
-    console.log("Attempting to fill form");
-    const loginFields = getLoginFields();
-    if (loginFields.length > 0) {
-      loginFields.forEach(([hostname, usernameField, passwordField]) => {
-        if (hostname === window.location.host) {
-          usernameField.value = username;
-          passwordField.value = password;
+  function fillForm(username, password, email) {
+    console.log("Attempting to fill");
+    const results = detectAuthPage();
+    if (results.isAuthPage === true) {
+      console.log("Auth page detected with confidence:", results.confidence);
+      console.log("Page type:", results.pageType);
+      console.log("Fields:", results.fields);
+      console.log("Filling form with provided credentials");
+      if (results.pageType === "login") {
+        console.log("Auth page detected as login page");
+
+        // Fill username field if available
+        if (results.fields.usernameFields.length > 0) {
+          const usernameField = document.querySelector(`input[name="${results.fields.usernameFields[0]}"], input[id="${results.fields.usernameFields[0]}"]`);
+          if (usernameField) {
+            usernameField.value = username;
+          }
+        }
+
+        // Fill email field if available
+        if (results.fields.emailFields.length > 0) {
+          const emailField = document.querySelector(`input[name="${results.fields.emailFields[0]}"], input[id="${results.fields.emailFields[0]}"]`);
+          if (emailField) {
+            emailField.value = email;
+          }
+        }
+
+        // Fill password field if available
+        if (results.fields.passwordFields.length > 0) {
+          const passwordField = document.querySelector(`input[name="${results.fields.passwordFields[0]}"], input[id="${results.fields.passwordFields[0]}"]`);
+          if (passwordField) {
+            passwordField.value = password;
+          }
+        }
+        console.log("Form filled with provided credentials");
+      } else if (results.pageType === "signup") {
+        console.log("Auth page detected as signup page");
+        console.log("Auth page detected with confidence:", results.confidence);
+        console.log("Page type:", results.pageType);
+        console.log("Fields:", results.fields);
+        console.log("Filling form with provided credentials");
+        if (results.pageType === "signup") {
+          console.log("Auth page detected as signup page");
+  
+          // // Fill username field if available
+          // if (results.fields.usernameFields.length > 0) {
+          //   const usernameField = document.querySelector(`input[name="${results.fields.usernameFields[0]}"], input[id="${results.fields.usernameFields[0]}"]`);
+          //   if (usernameField) {
+          //     usernameField.value = username;
+          //   }
+          // }
+  
+          // Fill email field if available
+          if (results.fields.emailFields.length > 0) {
+            const emailField = document.querySelector(`input[name="${results.fields.emailFields[0]}"], input[id="${results.fields.emailFields[0]}"]`);
+            if (emailField) {
+              emailField.value = email;
+            }
+          }
+  
+          // Fill password field if available
+          if (results.fields.passwordFields.length > 0) {
+            const passwordField = document.querySelector(`input[name="${results.fields.passwordFields[0]}"], input[id="${results.fields.passwordFields[0]}"]`);
+            if (passwordField) {
+              passwordField.value = password;
+            }
+          }
+
+          // Fill username field if available
+          if (results.fields.usernameFields.length > 0) {
+            const usernameField = document.querySelector(`input[name="${results.fields.usernameFields[0]}"], input[id="${results.fields.usernameFields[0]}"]`);
+            if (usernameField) {
+              usernameField.value = username;
+            }
+          }
           console.log("Form filled with provided credentials");
         }
-      });
+      } else {
+        console.log("Auth page detected as unknown page");
+      }
     } else {
       console.log("No login form detected for filling");
     }
@@ -189,7 +290,7 @@ console.log("Content script initialization started");
   async function runTask() {
     try {
       console.log("Starting runTask");
-      checkForLoginForm();
+      reqLoginForm();
     } catch (error) {
       console.error("Error in runTask:", error.message);
     }
@@ -199,16 +300,27 @@ console.log("Content script initialization started");
     console.log("Message received in content script:", request);
     if (request.action === "fill-form") {
       console.log("Filling form with provided credentials");
-      fillForm(request.data.username, request.data.password);
+      console.log("Request data:", request.data);
+      console.log(request.data.username, request.data.password, request.data.email);
+      fillForm(request.data.username, request.data.password, request.data.email);
       sendResponse({ status: "success" });
     }
+    return true; // Keep the message channel open
   });
 
-  console.log("Initial runTask execution");
-  const results = detectAuthPage();
-  console.log("Results:", results);
-  if (results.isAuthPage === true) {
-    console.log("Auth page detected with confidence:", results.confidence);
-    runTask();
-  }
+  window.addEventListener('load', () => {
+    console.log("Initial runTask execution");
+    const results = detectAuthPage();
+    console.log("Results:", results);
+    if (results.isAuthPage === true) {
+      if (results.pageType === "login") {
+        console.log("Auth page detected as login page");
+        runTask();
+      } else if (results.pageType === "signup") {
+        console.log("Auth page detected as signup page");
+      }
+      console.log("Auth page detected with confidence:", results.confidence);
+      runTask();
+    }
+  });
 })();
